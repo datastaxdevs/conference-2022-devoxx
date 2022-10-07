@@ -5,8 +5,8 @@ tasks:
   - name: setup
     before: |
       sdk install micronaut
-      chmod 700 /workspace/conference-2022-devoxx/labs/setup/start
-      chmod 700 /workspace/conference-2022-devoxx/labs/setup/tests
+      chmod 700 /workspace/conference-2022-devoxx/setup/start
+      chmod 700 /workspace/conference-2022-devoxx/setup/tests
       docker pull cassandra:4.0.6
     init: |
       sed -i '1,$s/sdkman_auto_answer=false/sdkman_auto_answer=true/' /home/gitpod/.sdkman/etc/config 
@@ -16,7 +16,7 @@ tasks:
       cd /workspace/conference-2022-devoxx/
     command: |
        clear
-       /workspace/conference-2022-devoxx/labs/setup/start
+       /workspace/conference-2022-devoxx/setup/start
   - name: tests
     command: |
        clear
