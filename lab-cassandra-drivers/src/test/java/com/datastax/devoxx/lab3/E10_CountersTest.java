@@ -1,4 +1,4 @@
-package com.datastax.devoxx;
+package com.datastax.devoxx.lab3;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableVideoViews;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;

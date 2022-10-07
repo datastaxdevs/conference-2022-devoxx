@@ -1,4 +1,4 @@
-package com.datastax.devoxx;
+package com.datastax.devoxx.lab3;
 
 import java.time.Duration;
 

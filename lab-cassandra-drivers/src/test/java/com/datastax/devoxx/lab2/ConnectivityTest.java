@@ -1,4 +1,4 @@
-package com.datastax.devoxx;
+package com.datastax.devoxx.lab2;
 
 import java.net.InetSocketAddress;
 
@@ -15,10 +15,10 @@ import com.datastax.oss.driver.api.core.CqlSession;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public class E00_ConnectivityTest {
+public class ConnectivityTest {
     
     private static Logger LOGGER = 
-            LoggerFactory.getLogger(E00_ConnectivityTest.class);
+            LoggerFactory.getLogger(ConnectivityTest.class);
     
     @Test
     @DisplayName("Explicit connection")
@@ -26,6 +26,7 @@ public class E00_ConnectivityTest {
         try (CqlSession cqlSession = CqlSession.builder()
                 .addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
                 .withKeyspace("devoxx")
+                //.withLocalDatacenter("dc1")
                 .build()) {
             displaySession(cqlSession);
             Assertions.assertTrue(cqlSession.getKeyspace().isPresent());
@@ -41,6 +42,11 @@ public class E00_ConnectivityTest {
         } 
     }
     
+    /**
+     * Mutualize test code
+     * @param cqlSession
+     *      cql session
+     */
     private void displaySession(CqlSession cqlSession) {
         cqlSession.getMetadata()
         .getNodes()
