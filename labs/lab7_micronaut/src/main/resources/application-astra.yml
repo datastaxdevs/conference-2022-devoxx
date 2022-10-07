@@ -1,0 +1,27 @@
+micronaut:
+  application:
+    name: lab7-micronaut
+  server:
+    port: 8082
+    cors:
+      enabled: true
+cassandra:
+  default:
+    basic:
+      request:
+        timeout: 5 seconds
+      session-keyspace: devoxx_micronaut
+      cloud:
+        secure-connect-bundle: /home/gitpod/.cassandra/bootstrap.zip
+    advanced:
+      auth-provider:
+        class: PlainTextAuthProvider
+        username: token
+        password: <your_token>
+      connection:
+        init-query-timeout: 5 seconds          
+        set-keyspace-timeout: 5 seconds
+      control-connection.timeout: 5 seconds
+
+
+

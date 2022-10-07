@@ -1,0 +1,9 @@
+${AnsiColor.BLUE} ________                                  _______________   ________ ________  
+${AnsiColor.BLUE} \______ \   _______  _________  ______  __\_____  \   _  \  \_____  \\_____  \ 
+${AnsiColor.BLUE} |    |  \_/ __ \  \/ /  _ \  \/  /\  \/  //  ____/  /_\  \  /  ____/ /  ____/ 
+${AnsiColor.BLUE} |    `   \  ___/\   (  <_> >    <  >    </       \  \_/   \/       \/       \ 
+${AnsiColor.BLUE} /_______  /\___  >\_/ \____/__/\_ \/__/\_ \_______ \_____  /\_______ \_______ \
+${AnsiColor.BLUE} \/     \/                \/      \/       \/     \/         \/       \/
+
+${AnsiColor.GREEN} The application will start at ${AnsiColor.RED}http://localhost:8080${AnsiColor.BLACK}
+ 

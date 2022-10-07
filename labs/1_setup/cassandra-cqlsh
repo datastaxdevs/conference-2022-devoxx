@@ -1,0 +1,12 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e ""
+echo -e "${BLUE}------------------------------------------------------------${NC}"
+echo -e "${BLUE}--  CqlSH (LOCAL DOCKER)                                 ---${NC}"
+echo -e "${BLUE}------------------------------------------------------------${NC}"
+echo -e ""
+docker exec -it `docker ps | grep dc1_seed | cut -b 1-12` cqlsh

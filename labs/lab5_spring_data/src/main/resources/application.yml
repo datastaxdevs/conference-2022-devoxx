@@ -1,0 +1,12 @@
+spring:
+  data:
+    cassandra:
+      schema-action: CREATE_IF_NOT_EXISTS
+      keyspace-name: devoxx_spring
+      username: token
+      password: <YOUR_TOKEN>
+datastax:
+  astra:
+    secure-connect-bundle: /home/gitpod/.cassandra/bootstrap.zip
+      
+      

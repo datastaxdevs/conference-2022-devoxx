@@ -1,0 +1,21 @@
+spring:
+  cassandra:
+    keyspace-name: ks_spring
+    schema-action: create-if-not-exists
+    username: token
+    password: AstraCS:QXjINvBSutkorJESZflfWAmt:ecc59f5913d0fe8f3913b9621c215375c1d01f0dd40999f6f4798faecf4d709c
+    request:
+      timeout: 5s
+      consistency: LOCAL_QUORUM
+      page-size: 5000
+    connection:
+      init-query-timeout: 10s
+      connect-timeout: 10s
+    controlconnection:
+      timeout: 10s
+      
+datastax:
+  astra:
+    secure-connect-bundle: /Users/cedricklunven/Downloads/secure-connect-workshops.zip
+    #secure-connect-bundle: /workspace/workshop-spring-quarkus-micronaut-cassandra/secure-bundle-workshops.zip
+      

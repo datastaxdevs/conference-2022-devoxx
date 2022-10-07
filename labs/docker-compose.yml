@@ -1,0 +1,42 @@
+version: "2"
+services:
+  
+  # In a DC at least one node is a seed (one per rack)
+  dc1_seed:
+    image: cassandra:4.0.6
+    ports:
+      - 9042:9042
+    networks:
+      - cassandra
+    mem_limit: 2G
+    #volumes:
+    #  - ~/docker-volumes/dc1_seed/:/var/lib/cassandra/data
+    environment:
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_SEEDS=dc1_seed
+      - CASSANDRA_CLUSTER_NAME=handson
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+      
+  dc1_noeud:
+    image: cassandra:4.0.6
+    command: /bin/bash -c "echo 'Waiting for dc1_seed to bootstrap for 30s' && sleep 30 && /usr/local/bin/docker-entrypoint.sh cassandra -f"
+    mem_limit: 2G
+    #volumes:
+    #  - ~/docker-volumes/dc1_noeud/:/var/lib/cassandra/data
+    networks:
+      - cassandra
+    depends_on:
+      - dc1_seed
+    environment:
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_SEEDS=dc1_seed
+      - CASSANDRA_CLUSTER_NAME=handson
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+
+networks:
+  cassandra:
+
