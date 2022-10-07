@@ -77,8 +77,6 @@
 - 🎯 Setup Micronaut Boot applications leverating Cassandra
 - 🎯 Work with GraalVm and native compilation
 
-[🏠 Back to Table of Contents](#-table-of-content)
-
 ## Materials
 
 It doesn't matter if you join the presentation live or you prefer to work at your own pace later, we have you covered. In this repository, you'll find everything you need for this workshop:
@@ -93,13 +91,13 @@ It doesn't matter if you join the presentation live or you prefer to work at you
 Instructions are provided to you to work within `gitpod` cloud IDE. Intention is to execute easily the steps with no installation required. You can of course use your own laptop and you will need a couple of tools
 
 #### 📦 Docker
-- Use the [reference documentation](https://www.docker.com/products/docker-desktop) to install **Docker Desktop**
-- Validate your installation with
-
-```bash
-docker -v
-docker run hello-world
-```
+> - Use the [reference documentation](https://www.docker.com/products/docker-desktop) to install **Docker Desktop**
+> - Validate your installation with
+> ```bash
+> 
+> docker -v
+> docker run hello-world
+> ```
 
 #### 📦 Java Development Kit (JDK) 17+
 - Use the [reference documentation](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html) to install a **Java Development Kit**
@@ -127,11 +125,10 @@ lli --version
 gu --version
 ```
 
-[🏠 Back to Table of Contents](#-table-of-content)
 
 ## LAB1 - Setup
 
-## 1.1 - Start `Gitpod` for a CloudIDE
+### 1.1 - Start `Gitpod` for a CloudIDE
 
 [Gitpod](https://www.gitpod.io/) is a Free IDE provided as Saas. He leverages [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) and comes loaded with all tools needed to develop with multiple languages.
 
