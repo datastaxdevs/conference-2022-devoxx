@@ -100,35 +100,34 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 > ```
 
 #### 📦 Java Development Kit (JDK) 17+
-- Use the [reference documentation](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html) to install a **Java Development Kit**
-- Validate your installation with
-
-```bash
-java --version
-```
+> - Use the [reference documentation](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html) to install a >**Java Development Kit**
+> - Validate your installation with
+> 
+> ```bash
+> java --version
+> ```
 
 #### 📦 Apache Maven (3.6+)
-- Use the [reference documentation](https://maven.apache.org/install.html) to install **Apache Maven**
-- Validate your installation with
-
-```bash
-mvn -version
-```
+> - Use the [reference documentation](https://maven.apache.org/install.html) to install **Apache Maven**
+> - Validate your installation with
+> 
+> ```bash
+> mvn -version
+> ```
 
 #### 📦 GraalVM (22.1.r17+)
-- Use the [reference documentation](https://www.graalvm.org/22.0/docs/getting-started/#install-graalvm) to install **GraalVM**
-
-- Validate your installation with
-
-```bash
-lli --version
-gu --version
-```
-
+> - Use the [reference documentation](https://www.graalvm.org/22.0/docs/getting-started/#install-graalvm) to install **GraalVM**
+> 
+> - Validate your installation with
+> 
+> ```bash
+> lli --version
+> gu --version
+> ```
 
 ## LAB1 - Setup
 
-### 1.1 - Start `Gitpod` for a CloudIDE
+### 1.1 - Start `Gitpod`
 
 [Gitpod](https://www.gitpod.io/) is a Free IDE provided as Saas. He leverages [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) and comes loaded with all tools needed to develop with multiple languages.
 
