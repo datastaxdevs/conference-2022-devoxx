@@ -382,7 +382,7 @@ mvn test -Dtest=com.datastax.devoxx.E00_ConnectivityTest
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/main/resources/application.conf
 ```
 
-# Working with CQL
+## Getting Started with CQL
 
 We keep using `cqlsh` to illustrate what have been seen so far
 
@@ -683,7 +683,7 @@ SELECT * FROM city_by_country
 WHERE country='FR';
 ```
 
-#### `✅.038`- Request over partition key with a `IN` claue
+#### `✅.038`- Request over partition key with `IN` claue
 
 - Afficher la liste des villes pour le code pays `CA` ou `DE`.
 
@@ -700,9 +700,9 @@ WHERE country IN('CA', 'DE');
 > ```
 
 
-#### `✅.039`- Requêter avec une égalité sur la clustering key
+#### `✅.039`- Equality and clustering keys
 
-- Afficher l'enregistrement de la ville de `Brest` (pays=`FR`)
+- Show `Brest` city (country=`FR`)
 
 ```sql
 SELECT * FROM city_by_country
@@ -710,9 +710,9 @@ WHERE country='FR'
 AND city='Brest';
 ```
 
-#### `✅.040`- Requêter avec une inégalité sur la clustering key
+#### `✅.040`- Inequality and clustering keys
 
-- Afficher les villes de France commençant par la lettre `P` et les suivantes dans l'ordre alphabétique.
+- Show french cities starting with a `P` and next using alphabetical ordering.
 
 ```sql
 SELECT * FROM city_by_country
@@ -720,19 +720,19 @@ WHERE country='FR'
 AND city>'P';
 ```
 
-#### `✅.041`- Requêter avec `GROUP BY` et la fonction `AVG`
+#### `✅.041`- Use `GROUP BY` and average function `AVG`
 
-- Afficher la population moyenne des villes groupées par pays.
+- Show average population grouped by country
 
 ```sql
-SELECT country, AVG(CAST(population AS FLOAT)) AS population_moyenne
+SELECT country, AVG(CAST(population AS FLOAT)) AS avg_population
 FROM city_by_country
 GROUP BY country;
 ```
 
-#### `✅.042`- Requêter avec `GROUP BY` et la fonction `COUNT`
+#### `✅.042`- Use `GROUP BY` and function `COUNT`
 
-- Afficher le nombre de villes par pays.
+- Show number of cities per country
 
 ```sql
 SELECT country, count(city) as nb_villes
@@ -740,61 +740,19 @@ FROM city_by_country
 GROUP BY country;
 ```
 
-#### `✅.043`- Requêter avec `ALLOW FILTERING`
+#### `✅.044`- Clean the table
 
-> :warning: Encore une fois ce n'EST PAS ce que vous devez faire.
-
-- Afficher les villes de plus d'un million d'habitants.
-
-```sql
-SELECT city,population
-FROM city_by_country
-WHERE population > 1000000;
-```
-
-...oups ?
-
-```sql
-SELECT city,population
-FROM city_by_country
-WHERE population > 1000000
-ALLOW FILTERING;
-```
-
-- Afficher les villes de France de plus d'un million d'habitants.
-
-```sql
-SELECT city,population
-FROM city_by_country
-WHERE country='FR'
-AND population > 1000000;
-```
-
-...oups encore...cette fois le `ALLOW FILTERING` est toléré car nous avons une clé de partition (country) et que l'on considère que le nombre de ville par pays est limité
-
-```sql
-SELECT city,population
-FROM city_by_country
-WHERE country='FR'
-AND population > 1000000
-ALLOW FILTERING;
-```
-
-#### `✅.044`- Vider la table
-
-Pour éviter de créer des tombstones on préfèrera utiliser la commande `TRUNCATE` et non les `DELETE`.
+To avoid creating tombstones we will use `TRUNCATE` instead of `DELETE`.
 
 ```sql
 TRUNCATE city_by_country;
 ```
 
-## 2.4 - Types de données avancés
+## Advanced data types.
 
-Nous avons vu plusieurs types simples comme `INT` et `TEXT`.
+There a lot of different simple scalar types in CQL : `VARCHAR`, `ASCII`, `TINYINT`, `SMALLINT`, `INT`, `BIGINT`, `VARINT`, `FLOAT`, `DOUBLE`, `DECIMAL`, `TIME`, `TIMESTAMP`, `DATE`, `DURATION`, `BOOLEAN`, `BLOB`, et `INET`. Here is the [complete list](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cql_data_types_c.html).
 
-Il en existe une variété tout aussi simple à utiliser: `VARCHAR`, `ASCII`, `TINYINT`, `SMALLINT`, `INT`, `BIGINT`, `VARINT`, `FLOAT`, `DOUBLE`, `DECIMAL`, `TIME`, `TIMESTAMP`, `DATE`, `DURATION`, `BOOLEAN`, `BLOB`, et `INET`. Vous en retrouvez une liste exhaustive dans la [documentation Datastax](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cql_data_types_c.html).
-
-Il existe en revanche des types de données dits _avancés_ sur lesquels il convient de s'attarder:
+Some types considered as _advanced_ need to be mentionned
 
 - Les identifiants uniques ou `UUID` dont les types sont: `UUID` et `TIMEUUID`
 - Les collections: `SET`, `LIST` and `MAP`
