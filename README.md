@@ -18,17 +18,17 @@
 
 - [Objectives](#objectives)
 - [Materials](#materials)
-- **Introduction to Cassandra** *(slides)*
-- [**1. Environment Setup**](#setup)
-  - [Prerequisites](#prerequisites)
-  - [Start `Gitpod`](#start-gitpod)
-  - [Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
-  - [Scale the cluster up](#scaling-up-cluster)
-  - [Create keyspace](#create-keyspace-devoxx)
-- [**2. Connectivity**](#working-with-cql)
-  - **Introduction to Drivers** *(slides)*
-  - [Connect with drivers](#connect--with-drivers)
-  - [Drivers Configuration](#drivers-configuration)
+- **1. Introduction to Cassandra** *(slides)*
+- [**2. Environment Setup**](#setup)
+  - [2.1 - Prerequisites](#prerequisites)
+  - [2.2 - Start `Gitpod`](#start-gitpod)
+  - [2.3 - Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
+  - [2.4 - Scale the cluster up](#scaling-up-cluster)
+  - [2.5 - Create keyspace](#create-keyspace-devoxx)
+- [**3. Connectivity**](#working-with-cql)
+  - **3.1 - Introduction to Drivers** *(slides)*
+  - [3.2 - Connect with drivers](#connect--with-drivers)
+  - [3.3 - Drivers Configuration](#drivers-configuration)
 - **Data Distribution** *(slides)*
 - [**3. Working with CQL**](#working-with-cql)
   - **Understanding table keys** *(slides)*
