@@ -135,11 +135,9 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 
-## 1.2 - Starting Apache Cassandra™ in `Docker`
+### 1.2 - Starting Apache Cassandra™ in `Docker`
 
-> ℹ️ For the first `copy-paste` within `Gitpod` you are invited to authorize them. Please do so to keep moving in the session.
-
-Once gitpod has launched you should find a couple of terminals available. Locate `setup`, uou will get this message.
+Once gitpod has launched you should find a couple of terminals available. Locate `setup`, you will get this message.
 
 ```
 ------------------------------------------------------------
@@ -147,7 +145,9 @@ Once gitpod has launched you should find a couple of terminals available. Locate
 ------------------------------------------------------------
 ```
 
-### 1.2.1 - Start Cassandra Cluster
+ ℹ️ **Copy-Paste in Gitpod**
+> For the first `copy-paste` within `Gitpod` you are invited to authorize them. Please do so to keep moving in the session.
+ 
 
 In `lab1-setup` locate  `docker-compose.yml`. We will run the Cassandra  [officia image™](https://hub.docker.com/_/cassandra/).
 
@@ -226,7 +226,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 
 We expect nodes `states` to be `UN`(Up/Normal).
 
-### 1.2.2 - Scaling up Cluster
+### 1.3 - Scaling up Cluster
 
 #### `✅.008`- Add a third node in the cluster (scale up of the non-seed node).
 
@@ -259,7 +259,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.4  69.06 KiB  16      76.0%             fe43b0d0-952b-48ec-86e1-d73ace617dc8  rack1
 > ```
 
-### 1.2.3 - Creating `keyspace'
+### 1.4 - Creating keyspace `devoxx`
 
 #### `✅.010`- Open REPL CQLSH
 
