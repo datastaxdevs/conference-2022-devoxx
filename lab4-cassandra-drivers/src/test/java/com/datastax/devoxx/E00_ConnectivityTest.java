@@ -25,26 +25,31 @@ public class E00_ConnectivityTest {
     public void should_connect_to_cluster_explicit() {
         try (CqlSession cqlSession = CqlSession.builder()
                 .addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
-                .withKeyspace("system")
-                .withLocalDatacenter("dc1")
+                .withKeyspace("devoxx")
                 .build()) {
-            cqlSession.getMetadata()
-                      .getNodes()
-                      .entrySet()
-                      .stream()
-                      .forEach(e -> LOGGER.info("NODE {} listening at {}" , 
-                              e.getKey(), e.getValue().getListenAddress().getClass().getCanonicalName()));
+            displaySession(cqlSession);
+            Assertions.assertTrue(cqlSession.getKeyspace().isPresent());
         }
-
     }
     
     @Test
     @DisplayName("Connect to Cassandra Cluster")
     public void should_connect_to_cluster() {
         try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+            displaySession(cqlSession);
             Assertions.assertTrue(cqlSession.getKeyspace().isPresent());
-            LOGGER.info("[SUCCESS]");
         } 
+    }
+    
+    private void displaySession(CqlSession cqlSession) {
+        cqlSession.getMetadata()
+        .getNodes()
+        .entrySet()
+        .stream()
+        .forEach(e -> LOGGER.info("Node {} listening at {}" , 
+                e.getKey(),
+                e.getValue().getEndPoint().toString()));
+        LOGGER.info("[SUCCESS]");
     }
 
 }

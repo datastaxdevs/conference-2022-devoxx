@@ -16,8 +16,9 @@
 
 ## 📋 Table of content
 
-- [Objectives and Materials](#1-objectives)
-- [Prerequisites](#2-Prerequisites)
+- [Objectives](#-objectives)
+- [Materials](#-materials)
+- [Prerequisites](#-prerequisites)
 - [**LAB 1 - Environment Setup**](#lab1---création-de-la-base-de-données)
   - [1.1 - Starting `Gitpod`](#11---démarrage-de-gitpod)
   - [1.2 - Starting Apache Cassandra™ cluster](#12---apache-cassandra-dans-docker)
@@ -65,7 +66,7 @@
   - [7.4 - Micronaut Applications ](#74---application-micronaut)
 
 ---
-## Objectives and Materials
+## Objectives 
 
 - 🎯 Discover what the NoSQL Database Apache Cassandra is and what are the relevant **use cases**
 - 🎯 Understand how Apache Cassandra™ is different from relational database in the phylosophy and **data modeling**.
@@ -77,6 +78,8 @@
 - 🎯 Work with GraalVm and native compilation
 
 [🏠 Back to Table of Contents](#-table-of-content)
+
+## Materials
 
 It doesn't matter if you join the presentation live or you prefer to work at your own pace later, we have you covered. In this repository, you'll find everything you need for this workshop:
 
@@ -140,8 +143,7 @@ gu --version
 
 > ℹ️ For the first `copy-paste` within `Gitpod` you are invited to authorize them. Please do so to keep moving in the session.
 
-Once gitpod has launched you should find a couple of terminals available. Locate 
-Lorsque Gitpod est démarré, localiser le terminal `setup`. You will get this message.
+Once gitpod has launched you should find a couple of terminals available. Locate `setup`, uou will get this message.
 
 ```
 ------------------------------------------------------------
@@ -226,8 +228,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.3  69.05 KiB  16      100.0%            25f43936-be10-471d-b8ac-7efe93834712  rack1
 > ```
 
-ℹ️ **Information**
-> We expect nodes `states` to be `UN`(Up/Normal).
+We expect nodes `states` to be `UN`(Up/Normal).
 
 ### 1.2.2 - Scaling up Cluster
 
@@ -319,6 +320,8 @@ A Keyspace is a logical grouping of objects. Best practice is to create a keyspa
 
 A single application can work with multiple `keyspaces` within the same session. It can be useful if some data need to be replicated in different manner (the replication factor is per keyspace).
 
+Let's creat the keyspace `devoxx`.
+
 ```sql
 CREATE KEYSPACE IF NOT EXISTS devoxx
 WITH REPLICATION = {
@@ -342,182 +345,23 @@ WITH REPLICATION = {
 ⁉️ `DURABLE_WRITES`
 
 > In Cassandra write path, Data will be written first into memory  (`memtable`). Then data is _flushed_  on disk into immutable files (SSTABLE). This will happen wether by vacation or when a threshold in memory is reached. 
+>
 > Using `DURABLE_WRITES = true` is a way to enable `commit log`: before writing into memory data will be persisted in an already open file on disk. It will prevent the loss of data if something goes wrong before data in memeory is flushed. `True` is the default value.
 
-#### `✅.014`- Lister les keyspaces
+#### `✅.014`- List keyspaces
 
+- In Cqlsh: 
 ```sql
 describe keyspaces;
 ```
 
-> 🖥️ Résultat (après environ 1min)
+> 🖥️ Result
 >
 > ```
 > devoxx  system_auth         system_schema  system_views
 > system  system_distributed  system_traces  system_virtual_schema
 > ```
 
-## 1.3 - Apache Cassandra™ avec `Astra` (dbaas)
-
-Astra est un logiciel de _sofware-as-a-service_ dans le cloud que l'on peut utiliser gratuitement jusqu'à quelques millions de requêtes par mois sans carte de crédit ni limite de temps, parfait pour les environnements de tests ^\_^.
-
-### 1.3.1 - Configuration Astra
-
-#### `✅.015`- Créer un compte sur Astra
-
-> 📖 Documentation: [Créer son compte Astra 🇬🇧](https://awesome-astra.github.io/docs/pages/astra/create-account/)
-
-[![](https://dabuttonfactory.com/button.png?t=+Connect+to+Astra&f=Open+Sans-Bold&ts=12&tc=fff&hp=23&vp=16&c=11&bgt=gradient&bgc=0b5394&ebgc=073763)](https://astra.dev/devoxx)
-
-#### `✅.016`- Créer une base de donnée sur Astra
-
-> 📖 Documentation: [Créer une base de donnée sur Astra 🇬🇧](https://awesome-astra.github.io/docs/pages/astra/create-instance/)
-
-Pour la session d'aujourd'hui nous utiliserons les valeurs suivantes. Vous pouvez utiliser des valeurs différentes mais ce sont celles définies par défaut dans les LABS.
-
-| Paramètre     | Valeur                                                                                                                                                                            |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Database name | `workshops`                                                                                                                                                                       |
-| Keyspace name | `devoxx`                                                                                                                                                                          |
-| Region name   | `Google Cloud` et l'une des 3 régions `North America/us-east-1`, `Europe/europe-west-1` ou `Asia Pacific/Mumbai`. Les autres ne sont pas dans le plan gratuit et repérées par 🔒. |
-
-> 🖥️ **Résultat:**
->
-> _Voici une petite animation mais attention à bien utiliser les valeurs dans le tableau ci-dessus._
->
-> ![](/img/astra-create-db.gif?raw=true)
-
-Lorsque vous créez un compte vous créez également une `Organization`, il s'agit de votre tenant. À l'intérieur vous pouvez définir plusieurs bases de données. Vous pouvez inviter d'autres utilisateurs dans votre organisation.
-
-```mermaid
-  graph TD
-    USER(Utilisateur) -->|n...m|ORG(Organisations)
-    ORG -->|0..n|DB(Databases)
-    DB  -->|1..n|KS(Keyspaces)
-    ORG -->|0..n|STR(Streaming Tenants)
-```
-
-#### `✅.017`- Créer vos identifiants sur Astra
-
-> 📖 Documentation: [Créer vos identifiants pour Astra 🇬🇧](https://awesome-astra.github.io/docs/pages/astra/create-token/#c-procedure)
-
-Lorsque vous créez un jeton, il faut lui associer un rôle qui regroupe plusieurs permissions.
-
-```mermaid
-  graph TD
-    USER(Utilisateur) -->|n...m|ORG(Organisations)
-    ORG -->|0..n|TOKEN(Tokens)
-    TOKEN-->|1:1|ROLE(role)
-    ROLE-->|1..n|PERMISSIONS(permissions)
-```
-
-Pour la session, utiliser le rôle `Database Administrator` afin d'avoir accès à tout.
-
-Télécharger le fichier `CSV` localement, les informations affichées ne seront plus disponibles ultérieurement pour des raisons de sécurité.
-
-| Parameter | Value                    |
-| --------- | ------------------------ |
-| Role      | `Database Administrator` |
-
-> 🖥️ **Résultat:**
->
-> _Voici une petite animation pour retrouver les étapes_
->
-> ![](/img/astra-create-token.gif?raw=true)
-
-Vos identifiants contiennent 3 champs:
-
-- `ClientId` qui correspond à un identifiant utilisateur
-- `ClientSecret` qui correspond à un mot de passe utilisateur
-- `Token` qui correspond à une clé pour Apis _(mais peut aussi servir de mot de passe avec le compte utilisateur générique `token`)_
-
-### 1.3.2 - Configurer `Gitpod`
-
-Dans `Gitpod`, repérer le terminal `cassandra-astra` nous allons configurer `cqlsh` pour utiliser la base de données Cassandra dans ASTRA 🚀.
-
-On pourra noter que la console CQLSH est également disponible dans l'interface web Astra en tant qu'onglet nommé `CQL Console`. Cependant pour ne pas multiplier les fenêtres nous vous invitons à rester dans gitpod.
-
-![](/img/gitpod-terminal-astra-01.png?raw=true)
-
-#### `✅.018`- Définir le nom de la base de données
-
-Création de la variable d'environnement `ASTRA_DB_NAME`.
-
-```bash
-export ASTRA_DB_NAME=workshops
-```
-
-#### `✅.019`- Définir le nom du `keyspace`
-
-Création de la variable d'environnement `ASTRA_DB_KEYSPACE`
-
-```bash
-export ASTRA_DB_KEYSPACE=devoxx
-```
-
-#### `✅.020`- Configurer l'environnement avec `astra-setup`
-
-L'utilitaire `astra-setup` va initialiser les autres variables d'environnements nécessaires dans un fichier `.env` mais également télécharger le fichier zip `secureConnectBundle` nécessaire aux connexions.
-
-```bash
-npm exec -y astra-setup $ASTRA_DB_NAME $ASTRA_DB_KEYSPACE
-```
-
-> 🖥️ **Résultat:**
->
-> ![](/img/gitpod-terminal-astra-02.png?raw=true)
->
-> _Il est arrivé que le script remonte des erreurs de timeout. Pour le relancer il faut simplement_
->
-> ```
-> /workspace/conference-2022-devoxx/scripts/astra-cqlsh-install
-> ```
-
-#### `✅.021`- Vérifier la configuration du fichier `.env`
-
-```bash
-cat /workspace/conference-2022-devoxx/.env
-```
-
-#### `✅.022`- Vérifier que le zip de connexion `secureConnectBundle` est téléchargé. Il doit faire environ `12 ko`.
-
-```bash
-ls -l /home/gitpod/.cassandra/bootstrap.zip
-```
-
-#### `✅.023`- Lancement de `CqlSH`
-
-Le script `astra-cqlsh` réutilise les différentes variables d'environnement ainsi que le `secureConnectBundle` (SCB) pour initialiser la connexion.
-
-```bash
-/workspace/conference-2022-devoxx/labs/lab1_initialisation_environnements/astra-cqlsh
-```
-
-> 🖥️ **Résultat:**
->
-> ![](/img/gitpod-terminal-astra-03.png?raw=true)
-
-#### `✅.024`- Lister les keyspaces
-
-```sql
-DESCRIBE KEYSPACES;
-```
-
-> 🖥️ **Résultat:**
->
-> ```
-> token@cqlsh> describe KEYSPACEs;
->
-> system_virtual_schema  system_auth         better_reads      todos
-> devoxx                 system_views        spring_petclinic  feeds_reader
-> undefined              system              native_java
-> netflix                datastax_sla        system_traces
-> system_schema          data_endpoint_auth  ecommerce
-> ```
-
-<p/><br/>
-
-> [🏠 Retour à la table des matières](#-table-des-matières)
 
 # LAB2 - Les Fondamentaux d'Apache Cassandra™
 
