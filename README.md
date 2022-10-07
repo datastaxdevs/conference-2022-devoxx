@@ -16,41 +16,20 @@
 
 ## 📋 Table of content
 
-
-#objectives
-#materials
-
-#setup
- #start-gitpod
- #starting-apache-cassandra-cluster
- #scaling-up-cluster
- #create-keyspace-devoxx
-
-#connectivity
- #connect--with-drivers
- #drivers-configuration
-
-#working-with-cql
-  #getting-started
-  #advanced-data-types
-
 - [Objectives](#objectives)
 - [Materials](#materials)
 - [Prerequisites](#-prerequisites)
-- [**Environment Setup**](#setup)
+- [#**Environment Setup**](#setup)
   - [Start `Gitpod`](#start-gitpod)
   - [Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
   - [Scale the cluster up](#scaling-up-cluster)
   - [Create keyspace](#create-keyspace-devoxx)
-
-- [**Connectivity**](#working-with-cql)
+- [#**Connectivity**](#working-with-cql)
   - [Connect with drivers](#connect--with-drivers)
   - [Drivers Configuration](#drivers-configuration)
-  
 - [**Working with CQL**](#working-with-cql)
   - [Simple Types](#getting-started)
   - [Advanced Data Types](#advanced-data-types)
-
   - [2.1 - Tables and simple data types](#21---tables-et-types-de-données-simples)
   - [2.2 - CRUD unitary operations](#22---opérations-create-read-update-delete)
   - [2.3 - Understanding CQL](#23---grammaire-des-requêtes-avec-cql)
