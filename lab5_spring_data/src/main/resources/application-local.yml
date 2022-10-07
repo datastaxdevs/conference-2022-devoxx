@@ -1,8 +1,0 @@
-spring:
-  data:
-    cassandra:
-      schema-action: CREATE_IF_NOT_EXISTS
-      keyspace-name: devoxx_spring
-      contact-points: localhost:9042
-      local-datacenter: dc1
-      

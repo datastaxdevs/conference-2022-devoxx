@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.datastax</groupId>
-	<artifactId>lab5-spring</artifactId>
+	<artifactId>lab-spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>lab5-spring</name>
+	<name>lab-spring</name>
 	<description>SpringBoot3 Spring6</description>
 	
 	<parent>
