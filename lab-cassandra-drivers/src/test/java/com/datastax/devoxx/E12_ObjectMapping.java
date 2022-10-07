@@ -22,7 +22,7 @@ public class E12_ObjectMapping implements SchemaConstants {
     private static Logger LOGGER = LoggerFactory.getLogger(E12_ObjectMapping.class);
    
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create working table User (if needed)
             createTableCommentByUser(cqlSession);

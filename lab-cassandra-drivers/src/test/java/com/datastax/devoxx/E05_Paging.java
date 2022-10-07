@@ -28,7 +28,7 @@ public class E05_Paging implements SchemaConstants {
     private static Logger LOGGER = LoggerFactory.getLogger(E05_Paging.class);
 
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             createTableUser(cqlSession);
             

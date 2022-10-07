@@ -11,7 +11,7 @@ tasks:
     init: |
       sed -i '1,$s/sdkman_auto_answer=false/sdkman_auto_answer=true/' /home/gitpod/.sdkman/etc/config 
       sed -i '1,$s/sdkman_selfupdate_enable=true/sdkman_selfupdate_enable=false/' /home/gitpod/.sdkman/etc/config 
-      sdk install java 22.1.0.r11-grl -y
+      sdk install java 22.1.0.r17-grl -y
       gu install native-image
       cd /workspace/conference-2022-devoxx/
     command: |
@@ -20,8 +20,8 @@ tasks:
   - name: tests
     command: |
        clear
-       /workspace/conference-2022-devoxx/labs/setup/tests
-  
+       /workspace/conference-2022-devoxx/setup/tests
+ 
     
 ports:
   # Cassandra Node in Docker

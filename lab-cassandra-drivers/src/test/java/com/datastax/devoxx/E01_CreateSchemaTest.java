@@ -27,7 +27,7 @@ public class E01_CreateSchemaTest implements SchemaConstants {
     
     @Test
     public void should_create_schema() {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             createUdtVideoFormat(cqlSession);
             createTableUser(cqlSession);
             createTableVideo(cqlSession);

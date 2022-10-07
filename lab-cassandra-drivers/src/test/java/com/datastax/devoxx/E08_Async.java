@@ -33,7 +33,7 @@ public class E08_Async implements SchemaConstants {
     
     public static void main(String[] args)
     throws InterruptedException, ExecutionException {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
            
             // Create working table User (if needed)
             createTableUser(cqlSession);

@@ -33,7 +33,7 @@ public class E04_Batches implements SchemaConstants {
     private static PreparedStatement selectCommentByUser;
     
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
    
             // Create working table User (if needed)
             createTableCommentByUser(cqlSession);

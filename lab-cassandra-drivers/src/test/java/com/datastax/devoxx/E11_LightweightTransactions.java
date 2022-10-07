@@ -19,7 +19,7 @@ public class E11_LightweightTransactions implements SchemaConstants {
     private static PreparedStatement stmtUpdateUserLwt;
     
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Use PreparedStatement for queries that are executed multiple times in your application
             prepareStatements(cqlSession);

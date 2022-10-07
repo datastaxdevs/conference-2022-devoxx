@@ -28,7 +28,7 @@ public class E07_Json implements SchemaConstants {
     private static Logger LOGGER = LoggerFactory.getLogger(E07_Json.class);
     
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             createUdtVideoFormat(cqlSession);
             createTableVideo(cqlSession);
             truncateTable(cqlSession, VIDEO_TABLENAME);

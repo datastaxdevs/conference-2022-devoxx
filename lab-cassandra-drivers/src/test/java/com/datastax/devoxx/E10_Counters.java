@@ -25,7 +25,7 @@ public class E10_Counters implements SchemaConstants {
     private static PreparedStatement stmtDelete;
     
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create tables for tests
             createTableVideoViews(cqlSession);

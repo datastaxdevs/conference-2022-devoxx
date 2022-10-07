@@ -41,7 +41,7 @@ public class E06_ListSetMapAndUdt implements SchemaConstants {
     private static PreparedStatement stmtReadVideoTags;
     
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create table
             createUdtVideoFormat(cqlSession);

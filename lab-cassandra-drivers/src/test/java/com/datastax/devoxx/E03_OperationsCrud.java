@@ -31,7 +31,7 @@ public class E03_OperationsCrud implements SchemaConstants {
     
     /** StandAlone (vs JUNIT) to help you running. */
     public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create working table User (if needed)
             createTableUser(cqlSession);

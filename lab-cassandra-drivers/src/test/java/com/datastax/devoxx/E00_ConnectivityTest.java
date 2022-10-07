@@ -35,7 +35,7 @@ public class E00_ConnectivityTest {
     @Test
     @DisplayName("Connect to Cassandra Cluster")
     public void should_connect_to_cluster() {
-        try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
+        try(CqlSession cqlSession = CqlSession.builder().build()) {
             displaySession(cqlSession);
             Assertions.assertTrue(cqlSession.getKeyspace().isPresent());
         } 

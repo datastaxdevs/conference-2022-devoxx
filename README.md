@@ -125,9 +125,9 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 > gu --version
 > ```
 
-## LAB1 - Setup
+## Setup
 
-### 1.1 - Start `Gitpod`
+### Start `Gitpod`
 
 [Gitpod](https://www.gitpod.io/) is a Free IDE provided as Saas. He leverages [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) and comes loaded with all tools needed to develop with multiple languages.
 
@@ -135,7 +135,7 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 
-### 1.2 - Starting Apache Cassandra™ in `Docker`
+### Starting Apache Cassandra™ in `Docker`
 
 Once gitpod has launched you should find a couple of terminals available. Locate `setup`, you will get this message.
 
@@ -154,13 +154,13 @@ In `lab1-setup` locate  `docker-compose.yml`. We will run the Cassandra  [offici
 #### `✅.002`- Open the file and visualize the file, check how `seed` service is isolated from others. Recommendation is one `seed` per rack (2 / 3 `seeds` per ring/dc)
 
 ```bash
-gp open /workspace/conference-2022-devoxx/lab1-setup/docker-compose.yml
+gp open /workspace/conference-2022-devoxx/setup/docker-compose.yml
 ```
 
 #### `✅.003`- Start first 2 nodes with `docker-compose`
 
 ```bash
-cd /workspace/conference-2022-devoxx/lab1-setup/
+cd /workspace/conference-2022-devoxx/setup/
 docker-compose up -d
 ```
 
@@ -170,7 +170,7 @@ docker-compose up -d
 > [+] Running 3/3
 >  ⠿ Network labs_cassandra           Created      0.0s
 >  ⠿ Container lab1-dc1_seed-1        Started      0.4s
->  ⠿ Container lab1-dc1_noeud-1       Started      1.2s
+>  ⠿ Container lab1-dc1_node-1        Started      1.2s
 > ```
 
 #### `✅.004`- Display containers status with `docker`
@@ -192,7 +192,7 @@ docker ps
 > ```bash
 >     Name                    Command               State                                        Ports
 > --------------------------------------------------------------------------------------------------------------------------------------------
-> lab1_dc1_noeud_1   docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
+> lab1_dc1_node_1    docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
 > lab1_dc1_seed_1    docker-entrypoint.sh cassa ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp,:::9042->9042/tcp, 9160/tcp
 > ```
 
@@ -225,17 +225,17 @@ docker exec -it $dc1_seed_containerid nodetool status
 
 We expect nodes `states` to be `UN`(Up/Normal).
 
-### 1.3 - Scaling up Cluster
+### Scaling up Cluster
 
 #### `✅.008`- Add a third node in the cluster (scale up of the non-seed node).
 
 ```bash
-docker-compose up --scale dc1_noeud=2 -d
+docker-compose up --scale dc1_node=2 -d
 ```
 
 The command will also restart `dc1_noeud` unfortunately `docker-compose scale` is deprecated. We did not provided any volume so no harm also as the seed is still present the nodes wi.l synchronize.
 
-To deploy properly Cassandra in Docker for a multi node configuration you should consider Kubernetes and particuly {k8ssandra.io](k8ssandra.io).
+To deploy properly Cassandra in Docker for a multi node configuration you should consider Kubernetes and particuly [k8ssandra.io](k8ssandra.io).
 
 #### `✅.009`- Check Status
 
@@ -258,7 +258,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.4  69.06 KiB  16      76.0%             fe43b0d0-952b-48ec-86e1-d73ace617dc8  rack1
 > ```
 
-### 1.4 - Create keyspace `devoxx`
+### Create keyspace `devoxx`
 
 #### `✅.010`- Open REPL CQLSH
 
@@ -277,7 +277,7 @@ select cluster_name,data_center,rack,broadcast_address
 from system.local;
 ```
 
-> 🖥️ Résultat (après environ 1min)
+> 🖥️ Result
 >
 > ```
 >  cluster_name | data_center | rack  | broadcast_address
@@ -357,34 +357,34 @@ describe keyspaces;
 > system  system_distributed  system_traces  system_virtual_schema
 > ```
 
-### 1.5 - Connect to keyspace `devoxx` with drivers
+## Connectivity
 
-- Open `lab-cassandra-drivers`
+### Connect to keyspace `devoxx` with drivers
 
-```xml
-<!-- Obligatoire -->
-<dependency>
-  <groupId>com.datastax.oss</groupId>
-	<artifactId>java-driver-core</artifactId>
-	<version>${cassandra-driver-version}</version>
-</dependency>
-```
-
-- Open 
+- Check project `lab-cassandra-drivers` configuration file `pom.xml`
 
 ```
-cd /workspace/workshop-spring-quarkus-micronaut-cassandra/lab1_cassandra_drivers
-gp open /workspace/workshop-spring-quarkus-micronaut-cassandra/lab1_cassandra_drivers/src/main/java/com/datastax/samples/E00_TestConnectivity.java
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E00_TestConnectivity
-````
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/pom.xml
+```
 
 
+- Run  `E00_TestConnectivityTest`
 
-# LAB2 - Cassandra Fundamentals
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E00_ConnectivityTest.java
+mvn test -Dtest=com.datastax.devoxx.E00_ConnectivityTest
+```
 
-Dans ce LAB nous travaillerons dans l'outil `CQLSH`. Vous pouvez utiliser celui en local (dans docker) ou celui d'Astra à votre convenance.
+- Check project `lab-cassandra-drivers` configuration file `application.conf`
 
-## 2.1 - Tables and simple Data types
+```
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/main/resources/application.conf
+```
+
+# Working with CQL
+
+We keep using `cqlsh` to illustrate what have been seen so far
 
 #### `✅.025`- list Keyspaces
 
@@ -419,13 +419,12 @@ CREATE TABLE IF NOT EXISTS city_by_country (
 );
 ```
 
-On notera:
+ℹ️ **Note**:
+> - `IF NOT EXISTS` permet d'avoir une commande idempotente
+> - les colonnes sont de types simples `text` et `int`
+> - La `clé primaire` en plusieurs parties que nous détaillerons par la suite.
 
-- `IF NOT EXISTS` permet d'avoir une commande idempotente
-- les colonnes sont de types simples `text` et `int`
-- La `clé primaire` en plusieurs parties que nous détaillerons par la suite.
-
-#### `✅.029`- Insérer des enregistrements dans la table
+#### `✅.029`- Insert a few rows
 
 ```sql
 INSERT INTO city_by_country(country, city, population)
@@ -546,26 +545,21 @@ INSERT INTO city_by_country(country, city, population)
 VALUES('IN','Mumbai', 20200000);
 ```
 
-On notera:
+ℹ️ **Note**:
+> - The guy writing the readme really has a biase for french cities
+> - Intructions are very close from `SQL` (not but exactly the same)
 
-- Que la personne qui rédige le Lab a une nette préférence pour les villes françaises.
-- Que les instructions sont très proches du `SQL`
-
-#### `✅.030`- Lister les enregistrements de la table
-
-Exécuter la requête sans fournir de filtre.
+#### `✅.030`-  List records in table
 
 ```sql
 select * from city_by_country;
 ```
 
-## 2.2 - Opérations Create, Read, Update, Delete
-
-#### `✅.031`- Lister les villes de France
+#### `✅.031`- List french cities
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
+<summary>Click to display solution</summary>
 
 ```sql
 select * from city_by_country 
@@ -575,11 +569,11 @@ WHERE country='FR';
 </details>
 <p/>
 
-#### `✅.032`- Rechercher la ville de `Brest`
+#### `✅.032`- Search for city `Brest`
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
+<summary>Click to show solution</summary>
 
 ```sql
 select * from city_by_country 
@@ -590,12 +584,11 @@ AND city='Brest';
 </details>
 <p/>
 
-#### `✅.033`- Mettre à jour la population de Brest à `142000`
+#### `✅.033`- Update Brest population to `142000` inhabitants
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
-
+<summary>Click to show solution</summary>
 *Update*
 
 ```sql
@@ -605,7 +598,7 @@ WHERE country='FR'
 AND city='Brest';
 ```
 
-*ou *Avec Insert (tout insert est un upset)*
+*with Insert (as any insert is also an upset)*
 ```sql
 INSERT INTO city_by_country(country, city, population) 
 VALUES('FR','Brest',  142000);
@@ -614,11 +607,11 @@ VALUES('FR','Brest',  142000);
 </details>
 <p/>
 
-#### `✅.034`- Supprimer l'enregistrement pour la ville de `Tokyo`
+#### `✅.034`- Delete row with city of `Tokyo`
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
+<summary>Click to show solution</summary>
 
 ```sql
 DELETE FROM city_by_country 
@@ -635,13 +628,14 @@ WHERE country='JP';
 </details>
 <p/>
 
-> Lorsque l'on supprime un enregistrement, en réalité la donnée est toujours dans la table. On vient ajouter une ligne dite `Tombstone` qui indique la valeur à vide. Si vous manquez de place sur disque, un `DELETE` peut être dangeureux.
+ℹ️ **Note**:
+> When you delete a record in Cassandra it is not really deleted on disk, it creates a marker called a  `Tombstone` that need to be cleaned during an operation called compaction. If you miss some space on disk, delete here is not a good solution.
 
-#### `✅.035`- Supprimer les enregistrements pour le Canada `(CA)`
+#### `✅.035`- Delete rows related to country Canada `(CA)`
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
+<summary>Click to show solution</summary>
 
 ```sql
 DELETE FROM city_by_country 
@@ -657,11 +651,11 @@ WHERE country='CA';
 </details>
 <p/>
 
-#### `✅.036`- Supprimer la valeur de la population pour l'enregistrement Sydney `(AU, Sydney)`
+#### `✅.036`- Delete row for country `AU` and city `Sydney`
 
 <p/>
 <details>
-<summary>Cliquer pour afficher la solution</summary>
+<summary>Click to show solution</summary>
 
 ```sql
 DELETE population 
@@ -679,57 +673,17 @@ WHERE country='AU';
 </details>
 <p/>
 
-## 2.3 - Grammaire des requêtes avec CQL
 
-Dans cette partie nous présenterons les capacités de requêtage des tables avec le langage CQL.
+#### `✅.037`- Request over partition key with equalities `=`
 
-```sql
-SELECT [DISTINCT] * |
-       select_expression [AS column_name][ , ... ]
-FROM   [keyspace_name.] table_name
-[WHERE partition_key_predicate
-  [AND clustering_key_predicate]]
-[GROUP BY primary_key_column_name][ , ... ]
-[ORDER BY clustering_key_column_name ASC|DESC][ , ... ]
-[PER PARTITION LIMIT number]
-[LIMIT number]
-[ALLOW FILTERING]
-```
-
-Dans la clause _`SELECT`_ on trouve :
-
-- les caractères généraux comme `*`
-- le nom des colonnes
-- des agrégats comme `COUNT()` et `AVG()`
-- des fonctions numériques notamment sur le time-to-live (`TTL`) et le timestamp d'écriture (`WRITETIME`).
-
-Dans la clause _`FROM`_ on trouve :
-
-- le nom du keyspace et de la table
-- on peut omettre le nom du keyspace si le shell est déjà positionné sur le keyspace.
-
-Dans la clause _`WHERE`_ on trouve les critères de filtre des enregistrements mais aussi des partitions.
-
-- On doit trouver **au minimum** l'ensemble des colonnes de la clé de partition. (`partition key`)
-- On trouve ensuite des filtres sur les clustering colonnes (`clustering key`) dans **l'ordre de définition** de la clé primaire.
-- Tous les prédicats sont des égalités (`=` ou `IN()`) sauf celui de la dernière clustering colonne où l'on peut aussi utiliser une inégalité. (`>`, `<`, `>=`, `<=`).
-
-La clause de `GROUP BY` permet de grouper les enregistrements par clé de partition puis clustering colonnes (`clustering key`) dans **l'ordre de définition** de la clé primaire.
-
-Les clauses `LIMIT` et ` PER PARTITION LIMIT` permettent de limiter le nombre d'enregistrements retournés globalement ou par partition.
-
-La clause `ALLOW FILTERING` permet d'autoriser le _full scan_ du cluster et de ne pas uniquement rechercher sur la clé primaire. La règle est de **toujours éviter de l'utiliser**. Il existe un cas aux limites lorsque la clé de partition est connue et que la taille de la partition est faible.
-
-#### `✅.037`- Requêter la clé de partition avec une égalité `=`
-
-- Afficher la liste des villes pour le code pays `FR`.
+- List cities for France `FR`.
 
 ```sql
 SELECT * FROM city_by_country
 WHERE country='FR';
 ```
 
-#### `✅.038`- Requêter la clé de partition avec une clause `IN`
+#### `✅.038`- Request over partition key with a `IN` claue
 
 - Afficher la liste des villes pour le code pays `CA` ou `DE`.
 
@@ -737,6 +691,14 @@ WHERE country='FR';
 select * FROM city_by_country
 WHERE country IN('CA', 'DE');
 ```
+
+⚠️ **Important**
+> ```
+> It is possible to do it, it is not recommended, it will move
+> the load from the client application the coordinator, issue
+> parallel request if you have to do it (N+1 select)
+> ```
+
 
 #### `✅.039`- Requêter avec une égalité sur la clustering key
 
@@ -1685,40 +1647,24 @@ Les indexes secondaires ne sont pas une garantie de performance. L'index est un 
 
 La cardinalité est donc (P \* E) on ne multiplie pas par N car tous les nœuds travaillent mais le réseau peut également ralentir la requête. Plus d'informations sur les indexes secondaires sont disponibles [ici](https://www.doanduyhai.com/blog/?p=13191)
 
-## 2.7 - Niveau de consistance
 
-### 2.7.1 - Introduction
+## Consistency Level
 
-Dans un cluster Apache Cassandra™, la donnée est répliquée plusieurs fois dans chaque anneau, c'est le facteur de réplication. `REPLICATION_FACTOR` (RF) Il est spécifié à la **création de keyspace.**
-
-Lorsque l'on lit ou écrit dans la base, on définit combien de replicas doivent valider la réception du message c'est le `CONSISTENCY LEVEL` (CL) ou niveau de consistance. Il est spécifié à **chaque requête.**
-
-Les principaux CL sont listés dans le tableau ci-dessous mais vous pouvez consulter la liste exhaustive [ici](https://docs.datastax.com/en/dse/6.8/cql/cql/cql_reference/cqlsh_commands/cqlshConsistency.html).
-
-| Consistency Level | Description                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| ONE,TWO,THREE     | 1,2 ou 3 noeuds doivent répondre respectivement. _(`ONE` est non disponible sur Astra)_.                      |
-| LOCAL_ONE         | Un seul nœuds dans l'anneau local (`local datacenter`) doit répondre. _(non disponible sur Astra)_.           |
-| QUORUM            | Une majorité des nœuds (n/2 + 1) doivent répondre peu importe le datacenter.                                  |
-| LOCAL_QUORUM      | Une majorité des nœuds dans l'anneau local (`local datacenter`) (n/2 + 1) doivent répondre.                   |
-| EACH_QUORUM       | Une majorité des nœuds (n/2 + 1) dans **chaque** anneau doivent répondre.                                     |
-| ALL               | Tous les nœuds doivent répondre mais alors la disponibilité n'est plus assurée. Ce mode n'est pas recommandé. |
-
-### 2.7.2 - Démonstration
-
-Dans la session d'aujourd'hui nous avons un cluster avec un seul anneau contenant 3 nœuds.
-
-- Dans **Docker** le datacenter est `dc1`. Il contient 3 noeuds.
+As of we do have a single datacenter `dc1`  with 3 nodes like the picture below
 
 ![my-pic](img/cluster-docker.png?raw=true)
 
-- Dans **Astra** le nom du datacenter correspond au nom de la région que vous avez choisie, par exemple `eu-central-1`. Les nœuds n'ont pas de nom réseau, uniquement des adresses `ip`.
 
-![my-pic](img/cluster-astra.png?raw=true)
+#### `✅.085`- Show and define consistency level in `CQLSH`
 
-#### `✅.085`- Afficher et Définir le niveau de consistance
 
-- Dans une console CQL, définir le niveau de consistance :
+If needed start the cqlsh command in your terminal
+
+```
+docker exec -it $dc1_seed_containerid cqlsh
+```
+
+- Execute the following
 
 ```sql
 CONSISTENCY;
@@ -1765,6 +1711,8 @@ Il y a plusieurs combinaisons possibles:
 - `CL_READ=*QUORUM avec CL_WRITE=*QUORUM`
 - `CL_READ=ONE avec CL_WRITE=ALL`
 - `CL_READ=ALL avec CL_WRITE=ONE`
+
+
 
 ## 2.8 - LightWeight Transactions (LWT)
 
