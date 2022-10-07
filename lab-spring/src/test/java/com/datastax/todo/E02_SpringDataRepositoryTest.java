@@ -11,10 +11,10 @@ import com.datastax.todo.todo.TodoEntity;
 import com.datastax.todo.todo.TodoRepositoryCassandra;
 
 @SpringBootTest
-public class E02_SpringDataRepository {
+public class E02_SpringDataRepositoryTest {
     
     /** Logger for the class. */
-    static Logger LOGGER = LoggerFactory.getLogger(E02_SpringDataRepository.class);
+    static Logger LOGGER = LoggerFactory.getLogger(E02_SpringDataRepositoryTest.class);
     
     @Autowired
     TodoRepositoryCassandra todoRepo;

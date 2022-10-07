@@ -12,10 +12,10 @@ import com.datastax.todo.todo.TodoEntity;
 import com.datastax.todo.todo.TodoRepositorySimpleCassandra;
 
 @SpringBootTest
-public class E03_SpringDataCassandraOperations {
+public class E03_SpringDataCassandraOperationsTest {
 
     /** Logger for the class. */
-    static Logger LOGGER = LoggerFactory.getLogger(E02_SpringDataRepository.class);
+    static Logger LOGGER = LoggerFactory.getLogger(E02_SpringDataRepositoryTest.class);
     
     @Autowired
     CassandraOperations cassandraOps;

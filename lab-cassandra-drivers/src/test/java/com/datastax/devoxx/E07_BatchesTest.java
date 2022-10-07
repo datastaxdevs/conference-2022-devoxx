@@ -19,10 +19,10 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class EXX_BatchesTest implements SchemaConstants {
+public class E07_BatchesTest implements SchemaConstants {
     
     /** Logger for the class. */
-    private static Logger LOGGER = LoggerFactory.getLogger(EXX_BatchesTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E07_BatchesTest.class);
     
     // Prepare your statements once and execute multiple times 
     private static PreparedStatement insertIntoCommentByVideo;

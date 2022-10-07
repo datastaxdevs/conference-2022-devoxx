@@ -20,9 +20,9 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class EXX_ReactiveTest implements SchemaConstants {
+public class E11_ReactiveProgrammingTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(EXX_ReactiveTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E11_ReactiveProgrammingTest.class);
 
     private static PreparedStatement stmtUpsertUser;
     private static PreparedStatement stmtExistUser;

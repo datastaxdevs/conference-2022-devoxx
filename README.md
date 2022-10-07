@@ -856,7 +856,7 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 SELECT name, sessions FROM users;
 ```
 
-#### `✅.045`- Working with `MAP`
+#### `✅.045`- Working with `LIST`
 
 ```sql
 ALTER TABLE movies
@@ -1016,8 +1016,8 @@ WHERE videoid=e466f561-4ea4-4eb7-8dcc-126e0fbfd573;
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
-gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E05_CountersTest.java
-mvn test -Dtest=com.datastax.devoxx.E05_CountersTest
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E06_JsonTest.java
+mvn test -Dtest=com.datastax.devoxx.E06_JsonTest
 ```
 
 ### 5.5 - Advanced Concepts
@@ -1098,6 +1098,14 @@ BEGIN BATCH
 APPLY BATCH;
 ```
 
+- With Java
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E07_BatchesTest.java
+mvn test -Dtest=com.datastax.devoxx.E07_BatchesTest
+```
+
 #### `✅.045`- Consistency LEVEL
 
 As of we do have a single datacenter `dc1`  with 3 nodes like the picture below
@@ -1169,1183 +1177,59 @@ SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
 ```
 
-
-# LAB 3 - Modélisation de données
-
-## 3.1 - Méthodologie
-
-Pour construire un modèle de données avec Apache Cassandra™ les entités ne sont pas suffisantes. Il faut également disposer de la liste des requêtes aussi appelée `Application Workflow`.
-
-Par des règles de mapping on peut alors retrouver le design des différentes tables (`modèle logique de données`). La dernière étape est une optimisation où au travers des différents types de données et des opérations de batch on réduit le nombre de table.
-
-Ce processus est décrit dans la figure ci-dessous:
-
-![my-pic](img/modelisation-workflow.png?raw=true)
-
-Nous allons appliquer la méthodologie pour quelques cas concrets, un apprentissage par l'exemple.
-
-## 3.2 - Modèle de données pour des `timeseries`
-
-_Une **série temporelle** ou **timeseries** correspond à l'enregistrement de l'évolution de valeurs au cours du temps._
-
-### 3.2.1 - Modèle conceptuel de données
-
-**Définition:** Un modèle conceptuel de données permet de représenter les objets et leurs intéractions pour un domaine fonctionnel en particulier. Le modèle permet la visualisation des différentes entités et les relations qui les caractérisent avec leur cardinalité et leur contraintes.
-
-Dans premier exemple, nous nous intéressons à l'enregistrement de mesure pour des capteurs. Les entités sont `Network` (réseau), `Sensor` (capteur), `Temperature` (mesure).
-
-Le diagramme entité relation peut être décrit comme suit:
-re
-![my-pic](img/sensor-01.png?raw=true)
-
-### 3.2.2 - Workflow Applicatif
-
-**Définition:** Un workflow applicatif _(application workflow)_ permet de comprendre les patterns d'accès à la données ainsi que leur enchaînement. Pour chaque requête il faut préciser quels sont les attributs recherchés, dans quel ordre et avec quelle agrégation doivent ils être retournés.
-
-Dans notre exemple:
-
-- `Q1`: Le point d'entrée de notre application liste les différents réseaux disponibles.
-
-- `Q3`: Affiche les différents capteurs (`Sensor`) pour un réseau (`Network`) en particulier.
-
-- `Q2`: Pour un réseau donné, pour une plage horaire spécifiée (date/heure), affiche une moyenne horaire de la température pour chaque capteur.
-
-- `Q4`: Pour un réseau donné, pour un capteur donné, pour une plage horaire spécifiée (date/heure) afficher l'ensemble des mesures sans filtres mais avec un affichage par ordre décroissant par rapport au temps. (les dernières entrées seront les premiers éléments retournés.)
-
-![my-pic](img/sensor-02.png?raw=true)
-
-### 3.2.3 - Modèle logique de données
-
-**Définition:** : Le modèle logique de données reprend les patterns d'accès à la donnée (`Q1..Q4`) que l'on enrichit avec les différents attributs provenant du diagramme entité relation. En utilisant les critères de recherche on définit les clés primaires des tables en utilisant la notation de `Chebotko`:
-
-- `K` : partition KEY. C'est le plus important. Elle peut porter sur une **ou plusieurs** colonnes. C'est la clé de découpage, l'élément indispensable dans la clause where. On enregistre ensemble ce que l'on souhaite retrouver ensemble plus tard. C'est comme si on faisait **la jointure à l'écriture et non à la lecture.**
-
-- `C` : Clustering Column with order `ASC` (`↑`) or `DESC` (`↓`). Elles sont utilisées comme critère de filtre secondaire (attention l'ordre est important) et pour assurer l'unicité d'un enregistrement.
-
-- `S` : Static column. C'est une colonne qui prend la même valeur pour tous les enregistrements d'une même partition.
-
-![my-pic](img/sensor-03.png?raw=true)
-
-### 3.2.4 - Modèle physique de données
-
-**Définition:** : Le modèle physique de données est obtenu par extension du modèle logique en ajoutant les types propres à Cassandra et en cherchant les optimisations possibles (TIMEUUID, Index secondaires..).
-
-Il faut être vigilant à la taille des partitions les limites recommandées sont `100.000` enregistrements maximum et `100 Mo.` maximum. Les autres optimisations peuvent concerner des agrégations ou de l'indexation.
-
-Voici le modèle physique dans notre cas et les modifications apportées (en vert)
-
-- La table `networks` ne peut être partitionnée uniquement sur le nom car la requête reviendrait à faire un _full-scan._ En définissant un `bucket` on explore moins de partitions et la requête `Q1` est dramatiquement plus rapide.
-
-- Sur la table `temperatures_by_network` 2 optimisations ont été apportées. Les colonnes `date` et `hour` peuvent être mergées en une seule de type `TIMESTAMP`. La seconde est une nouvelle fois d'éviter les partitions larges et d'introduire une colonne `week` pour diviser:
-  - **Ancien design:** 100 capteurs, génèrent 100 lignes en une heure dans `temperatures_by_network` => 2400/jour, 16800/semaine, 876000/année....
-  - **Nouveau design:** 16800 enregistrements par partition et toutes les partitions équivalentes.
-
-![my-pic](img/sensor-04.png?raw=true)
-
-#### `✅.104`- Créer un nouveau keyspace `sensor_data`
-
-_Dans Docker:_
-
-```sql
-CREATE KEYSPACE IF NOT EXISTS devoxx_dm_sensor
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
-```
-
-Avec Astra, la manipulation des keyspaces est désactivé, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `devoxx_dm_sensor` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
-#### `✅.105`- Importer le modèle données
-
-```sql
-use devoxx_dm_sensor;
-
-CREATE TABLE networks (
-  bucket TEXT,
-  name TEXT,
-  description TEXT,
-  region TEXT,
-  num_sensors INT,
-  PRIMARY KEY ((bucket),name)
-);
-
-CREATE TABLE sensors_by_network (
-  network TEXT,
-  sensor TEXT,
-  latitude DECIMAL,
-  longitude DECIMAL,
-  characteristics MAP<TEXT,TEXT>,
-  PRIMARY KEY ((network),sensor)
-);
-
-CREATE TABLE temperatures_by_sensor (
-  sensor TEXT,
-  date DATE,
-  timestamp TIMESTAMP,
-  value FLOAT,
-  PRIMARY KEY ((sensor,date),timestamp)
-) WITH CLUSTERING ORDER BY (timestamp DESC);
-
-CREATE TABLE temperatures_by_network (
-  network TEXT,
-  week DATE,
-  date_hour TIMESTAMP,
-  sensor TEXT,
-  avg_temperature FLOAT,
-  latitude DECIMAL,
-  longitude DECIMAL,
-  PRIMARY KEY ((network,week),date_hour,sensor)
-) WITH CLUSTERING ORDER BY (date_hour DESC, sensor ASC);
+- With Java
 
 ```
-
-#### `✅.106`- Chargement des données avec la commande `SOURCE`
-
-_Pour Docker:_ Le fichier `sensor_data.cql` a été monté comme un volume.
-
-```sql
-SOURCE '/tmp/data_modelling/sensor_data.cql'
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E08_LightweightTransactionsTest.java
+mvn test -Dtest=com.datastax.devoxx.E08_LightweightTransactionsTest
 ```
 
-_Pour Astra:_ fournissez le chemin complet du fichier
+## 6. Data Modeling
 
-```sql
-SOURCE '/workspace/conference-2022-devoxx/labs/lab3_data_modelling/sensor_data.cql'
+### 6.1 - Data Model Methodology
+
+### 6.2 - Data Modeling in action
+
+### 6.3 - From SQL to NoSQL Migration
+
+#### `✅.045`- Paging
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E09_PagingTest.java
+mvn test -Dtest=com.datastax.devoxx.E09_PagingTest
 ```
 
-#### `✅.107`- Utilisation du modèle, lister les données
+#### `✅.045`- Asynchronous Programming
 
-```sql
-SELECT * FROM networks;
-SELECT network, week, date_hour, sensor, avg_temperature FROM temperatures_by_network;
-SELECT * FROM sensors_by_network;
-SELECT * FROM temperatures_by_sensor;
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E10_AsynchronousProgrammingTest.java
+mvn test -Dtest=com.datastax.devoxx.E10_AsynchronousProgrammingTest
 ```
 
-#### `✅.108`- Utilisation du modèle: `Q1` Lister les `networks`
+#### `✅.045`- Reactive Programming
 
-- Afficher tous les `networks`
-
-```sql
-SELECT name, description, region, num_sensors
-FROM networks
-WHERE bucket = 'all';
 ```
-
-#### `✅.109`- Utilisation du modèle: `Q2:` Moyenne horaire par capteur
-
-- Avec notre jeu de données, nous utilisons le network `forest-net` et l'intervalle de dates [`2020-07-05`,`2020-07-06`] pour la semaine `2020-07-05`
-
-```sql
-SELECT date_hour, avg_temperature, latitude, longitude, sensor
-FROM temperatures_by_network
-WHERE network    = 'forest-net'
-  AND week       = '2020-07-05'
-  AND date_hour >= '2020-07-05'
-  AND date_hour  < '2020-07-07';
-```
-
-- Avec notre jeu de données si nous voulons maintenant retrouver pour les 2 semaines `2020-06-28` and `2020-07-05`:
-
-```sql
-SELECT date_hour, avg_temperature, latitude, longitude, sensor
-FROM temperatures_by_network
-WHERE network    = 'forest-net'
-  AND week      IN ('2020-07-05','2020-06-28')
-  AND date_hour >= '2020-07-04'
-  AND date_hour  < '2020-07-07';
-```
-
-## 3.3 - De SQL à NoSQL avec Petclinic
-
-#### `✅.110`- Introduction à l'application `petclinic`
-
-PetClinic est une application de démonstration utilisée par les équipes Spring pour présenter les différentes fonctionnalités du framework. Une description exhaustive est disponible [ici](https://projects.spring.io/spring-petclinic/).
-
-Il existe même une communauté dédiée [Spring Clinic](https://spring-petclinic.github.io/) qui a étendu le principe en proposant de nouvelles implémentations. Il est possible de tester une démo live sur [Heroku](https://spring-petclinic-community.herokuapp.com/). _(Mais vous allez faire mieux et la lancer sur votre machine durant cette session)_.
-
-![](img/petclinic_00.png?raw=true)
-
-#### `✅.111`- Migration de SQL vers Apache Cassandra™
-
-C'est une question qui revient fréquemment alors regardons comme faire avec un exemple.
-
-Nous partons du modèle relationnel de l'application (elle existe déjà, il suffisait de faire un peu de retro engineering.)
-
-![](img/petclinic_01.png?raw=true)
-
-Dans ce modèle nous identifions différents types de relations `one-to-many` et `many-to-many` qui peuvent sembler difficiles à implémenter dans Cassandra qui ne propose ni transaction, ni intégrité référentielle ni relations ou jointures d'aucune sorte.
-
-![](img/petclinic_02.png?raw=true)
-
-C'est en réalité assez facile, il faut appliquer la méthodologie présentée plus haut. Nous avons besoin des entités mais aussi de l'application workflow des différentes requêtes nécessaires:
-
-#### PetClinic - Liste des Owners
-
-_`Q1`: Pas de critère de filtres nous voulons les lister tous_
-
-![](img/petclinic_03.png?raw=true)
-
-- Voici donc le modèle logique de données associé\*
-
-![](img/petclinic_04.png?raw=true)
-
-#### PetClinic - Détails d'un Owner et liste des Vets
-
-- `Q2`: \_Pour un propriétaire, liste moi les différents animaux qu'il possède
-
-_Sélection par l'identifiant_
-![](img/petclinic_05.png?raw=true)
-
-_Affichage du détail_
-![](img/petclinic_06.png?raw=true)
-
-- Voici donc le modèle logique de données associé à cette requête.
-
-![](img/petclinic_07.png?raw=true)
-
-La logique est identique pour lister les Vétérinaires ou afficher la liste des visites pour un animal (`one-to-many`). Cela nous donne le modèle logique de données suivant:
-
-![](img/petclinic_08.png?raw=true)
-
-#### PetClinic - Spécialité des vétérinaire `Many to Many`
-
-Un vétérinaire peut avoir plusieurs spécialités.
-
-![](img/petclinic_09.png?raw=true)
-
-![](img/petclinic_10.png?raw=true)
-
-#### `✅.112`- Création du keyspace `spring_petclinic`
-
-_Dans Docker:_
-
-```sql
-CREATE KEYSPACE IF NOT EXISTS spring_petclinic
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
-```
-
-Avec Astra, la manipulation des keyspaces est désactivée, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `spring_petclinic` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
-#### `✅.113`- Création du schéma
-
-```sql
-use spring_petclinic;
-
-DROP INDEX IF EXISTS petclinic_idx_vetname;
-DROP INDEX IF EXISTS petclinic_idx_ownername;
-DROP TABLE IF EXISTS petclinic_vet;
-DROP TABLE IF EXISTS petclinic_vet_by_specialty;
-DROP TABLE IF EXISTS petclinic_reference_lists;
-DROP TABLE IF EXISTS petclinic_owner;
-DROP TABLE IF EXISTS petclinic_pet_by_owner;
-DROP TABLE IF EXISTS petclinic_visit_by_pet;
-
-CREATE TABLE IF NOT EXISTS petclinic_vet (
-  id          uuid,
-  first_name  text,
-  last_name   text,
-  specialties set<text>,
-  PRIMARY KEY ((id))
-);
-
-CREATE TABLE IF NOT EXISTS petclinic_vet_by_specialty (
- specialty   text,
- vet_id      uuid,
- first_name  text,
- last_name   text,
- PRIMARY KEY ((specialty), vet_id)
-);
-
-CREATE TABLE IF NOT EXISTS petclinic_owner (
-  id         uuid,
-  first_name text,
-  last_name  text,
-  address    text,
-  city       text,
-  telephone  text,
-  PRIMARY KEY ((id))
-);
-
-CREATE TABLE IF NOT EXISTS petclinic_pet_by_owner (
-  owner_id   uuid,
-  pet_id     uuid,
-  pet_type   text,
-  name       text,
-  birth_date date,
-  PRIMARY KEY ((owner_id), pet_id)
-);
-
-CREATE TABLE IF NOT EXISTS petclinic_visit_by_pet (
-   pet_id      uuid,
-   visit_id    uuid,
-   visit_date  date,
-   description text,
-   PRIMARY KEY ((pet_id), visit_id)
-);
-
-CREATE TABLE IF NOT EXISTS petclinic_reference_lists (
-  list_name text,
-  values set<text>,
-  PRIMARY KEY ((list_name))
-);
-
-/** We could search veterinarians by their names. */
-CREATE INDEX IF NOT EXISTS petclinic_idx_ownername ON petclinic_owner(last_name);
-/** We could search vet by their names. */
-CREATE INDEX IF NOT EXISTS petclinic_idx_vetname ON petclinic_vet(last_name);
-```
-
-Cette fois des index secondaires ont été placés sur les noms. Nous avons considéré que la cardinalité était faible.
-
-#### `✅.114`- Insertion des données de références
-
-```sql
-INSERT INTO petclinic_reference_lists(list_name, values)
-VALUES ('pet_type ', {'bird', 'cat', 'dog', 'lizard','hamster','snake'});
-
-INSERT INTO petclinic_reference_lists(list_name, values)
-VALUES ('vet_specialty', {'radiology', 'dentistry', 'surgery'});
-```
-
-Le code de l'application Petclinic est disponible à [workshop spring pet clinic](https://github.com/datastaxdevs/workshop-spring-reactive)> Vous pourriez également la lancer dans un second gitpod.
-
-Vous avez désormais l'ensemble des bases pour bien démarrer avec Apache Cassandra™ et construire des modèles de données performants.
-
-<p/><br/>
-
-> [🏠 Retour à la table des matières](#-table-des-matières)
-
-# LAB 4 - Introduction aux drivers
-
-
-## 4.2 - Création du schéma
-
-Afin d'illustrer une grand nombre de cas d'usages et non se limiter au _Hello World_ nous allons travailler avec les objets listés ci-dessous. La première étape sera de définir les objets en utilisant du code.
-
-```sql
-use devoxx_drivers;
-
-CREATE TYPE devoxx_drivers.video_format (
-    width int,
-    height int
-);
-
-CREATE TABLE devoxx_drivers.comments_by_user (
-    userid uuid,
-    commentid timeuuid,
-    comment text,
-    videoid uuid,
-    PRIMARY KEY (userid, commentid)
-) WITH CLUSTERING ORDER BY (commentid DESC);
-
-CREATE TABLE devoxx_drivers.comments_by_video (
-    videoid uuid,
-    commentid timeuuid,
-    comment text,
-    userid uuid,
-    PRIMARY KEY (videoid, commentid)
-) WITH CLUSTERING ORDER BY (commentid DESC);
-
-CREATE TABLE devoxx_drivers.users (
-    email text PRIMARY KEY,
-    firstname text,
-    lastname text
-);
-
-CREATE TABLE devoxx_drivers.videos (
-    videoid uuid PRIMARY KEY,
-    email text,
-    title text,
-    upload timestamp,
-    url text,
-    formats map<text, frozen<video_format>>,
-    frames list<int>,
-    tags set<text>
-);
-
-CREATE TABLE devoxx_drivers.videos_views (
-    videoid uuid PRIMARY KEY,
-    views counter
-);
-```
-
-#### 📘 Ce qu'il faut retenir:
-
-- Pour exécuter une requête on travaille avec l'objet `CqlSession` (`autocloseable` + doit être un singleton) et la méthode `execute()`.
-
-- Les requêtes sont construites en utilisant un builder `SchemaBuilder`.
-
-> ```java
-> SchemaBuilder
-> .createTable(USER_TABLENAME)
->  .ifNotExists()
->  .withPartitionKey(USER_EMAIL, DataTypes.TEXT)
->  .withColumn(USER_FIRSTNAME, DataTypes.TEXT)
->  .withColumn(USER_LASTNAME, DataTypes.TEXT)
->  .build()
-> ```
-
-- Les constantes sont regroupées dans un interface `SchemaConstants`. C'est une bonne pratique. En cas de renommage d'une colonne il ne faut changer qu'un seul fichier.
-
-#### `✅.118`- Création du schéma
-
-- Exécuter la classe `E01_CreateSchema` pour créer les tables et les types nécessaires.
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E01_CreateSchema
-```
-
-#### 🖥️ Logs
-
-```bash
-00:29:42.886 INFO  com.datastax.samples.E01_CreateSchema         : Starting 'CreateSchema' sample...
-00:29:42.887 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-00:29:42.888 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-00:29:48.882 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-00:29:50.004 INFO  com.datastax.samples.schema.SchemaUtils       : + Type 'video_format' has been created (if needed).
-00:29:51.120 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-00:29:52.250 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'videos' has been created (if needed).
-00:29:53.359 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'videos_views' has been created (if needed).
-00:29:54.492 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_video' has been created (if needed).
-00:29:55.630 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_user' has been created (if needed).
-00:29:57.695 INFO  com.datastax.samples.E01_CreateSchema         : [OK] Success
-```
-
-## 4.3 - Création des `Statements`
-
-#### 📘 Ce qu'il faut retenir:
-
-- Pour exécuter une requête on travaille avec l'objet `CqlSession` et la méthode `execute()`.
-
-- Les requêtes peuvent être exécutées en tant que chaînes de caractères
-
-> ```java
-> cqlSession.execute("" +
->  "INSERT INTO users (email, firstname, lastname) " +
->  "VALUES ('clun@sample.com', 'Cedrick', 'Lunven')");
-> ```
-
-- Toute requête est convertie en `Statement`
-
-> ```java
-> cqlSession.execute(SimpleStatement.newInstance(
->   "INSERT INTO users (email, firstname, lastname) " +
->   "VALUES ('clun2@sample.com', 'Cedrick', 'Lunven')"));
-> ```
-
-- Les paramètres doivent être externalisés (injection de CQL) soit en avec la position `?` soit avec leur nom `:label`
-
-> ```java
-> cqlSession.execute(SimpleStatement
->  .builder("INSERT INTO users (email, firstname, lastname) VALUES (?,?,?)")
->  .addPositionalValue("clun3@gmail.com")
->  .addPositionalValue("Cedrick")
->  .addPositionalValue("Lunven").build());
->
-> cqlSession.execute(SimpleStatement
->   .builder("INSERT INTO users (email, firstname, lastname) VALUES (:e,:f,:l)")
->   .addNamedValue("e", "clun5@gmail.com")
->   .addNamedValue("f", "Cedrick")
->   .addNamedValue("l", "Lunven").build());
-> ```
-
-- Pour accélérer leur exécution il faut les `prepare()` au chargement de l'application. On les utilise alors avec un `bind()` des paramètres. Dans ce dernier exemple nous avons aussi démontré l'utilisation du `QueryBuilder` pour construire la requête.
-
-_Prepare_
-![](img/query-connect.png?raw=true)
-
-_Requête_
-![](img/query-sync.png?raw=true)
-
-> ```java
-> PreparedStatement ps2 = cqlSession.prepare(QueryBuilder
->  .insertInto(USER_TABLENAME)
->  .value(USER_EMAIL, QueryBuilder.bindMarker())
->  .value(USER_FIRSTNAME, QueryBuilder.bindMarker())
->  .value(USER_LASTNAME, QueryBuilder.bindMarker())
->  .build());
->
-> cqlSession.execute(ps2.bind("clun7@gmail.com", "Cedrick", "Lunven"));
-> ```
-
-#### `✅.119`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E02_Statements
-```
-
-#### 🖥️ Logs
-
-```bash
-01:26:43.034 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:26:43.035 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:26:49.079 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:26:49.101 INFO  com.datastax.samples.E01_CreateSchema         : + Insert as a String
-01:26:49.105 INFO  com.datastax.samples.E01_CreateSchema         : + Insert as a Statement
-01:26:49.112 INFO  com.datastax.samples.E01_CreateSchema         : + Insert and externalize var with ?, option1
-01:26:49.117 INFO  com.datastax.samples.E01_CreateSchema         : + Insert and externalize var with ?, option2
-01:26:49.124 INFO  com.datastax.samples.E01_CreateSchema         : + Insert and externalize var with :labels, option1
-01:26:49.131 INFO  com.datastax.samples.E01_CreateSchema         : + Insert and externalize var with :labels, option2
-01:26:49.142 INFO  com.datastax.samples.E01_CreateSchema         : + Insert with QueryBuilder
-01:26:49.193 INFO  com.datastax.samples.E01_CreateSchema         : + Insert with PrepareStatements
-01:26:49.209 INFO  com.datastax.samples.E01_CreateSchema         : + Insert with PrepareStatements + QueryBuilder
-```
-
-## 4.4 - Opération `Create`, `Read`, `Update`, `Delete` (CRUD)
-
-#### 📘 Ce qu'il faut retenir:
-
-- On commence par définir les différents requêtes que l'on `prepare()` pour obtenir des `PreparedStatement`
-
-> ```java
-> private void prepareStatements(CqlSession cqlSession) {
->
->   // Create (upsert)
->   stmtCreateUser = cqlSession.prepare(QueryBuilder
->     .insertInto(USER_TABLENAME)
->     .value(USER_EMAIL, QueryBuilder.bindMarker())
->     .value(USER_FIRSTNAME, QueryBuilder.bindMarker())
->     .value(USER_LASTNAME, QueryBuilder.bindMarker())
->     .build());
->
->   // READ
->   stmtExistUser = cqlSession.prepare(QueryBuilder
->     .selectFrom(USER_TABLENAME).column(USER_EMAIL)
->     .whereColumn(USER_EMAIL)
->     .isEqualTo(QueryBuilder.bindMarker())
->     .build());
->
->   // DELETE
->   stmtDeleteUser = cqlSession.prepare(QueryBuilder
->      .deleteFrom(USER_TABLENAME)
->      .whereColumn(USER_EMAIL)
->      .isEqualTo(QueryBuilder.bindMarker())
->      .build());
-> }
-> ```
-
-- On les utilise ensuite avec des `bind()`
-
-> ```java
-> boolean existUser(CqlSession cqlSession, String email) {
->   return cqlSession.execute(stmtExistUser.bind(email)).getAvailableWithoutFetching() > 0;
-> }
->
-> void deleteUser(CqlSession cqlSession, String email) {
-> cqlSession.execute(stmtDeleteUser.bind(email));
-> }
-> ```
-
-- Les requêtes retournent un `ResultSet` contenant un iterable de `Row`. Lorsque le résultat est unique nous pouvons utiliser `one()`. On accède aux différentes colonnes par le nom et le type exemple `.getString("colonne")`
-
-> ```java
-> ResultSet rs = cqlSession.execute(stmtFindUser.bind(email));
-> Row record = rs.one();
->
-> public UserDto(Row tableUsersRow) {
->   super();
->   this.email      = tableUsersRow.getString(USER_EMAIL);
->   this.firstName  = tableUsersRow.getString(USER_FIRSTNAME);
->   this.lastName   = tableUsersRow.getString(USER_LASTNAME);
-> }
-> ```
-
-#### `✅.120`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E03_OperationsCrud
-```
-
-#### 🖥️ Logs
-
-```bash
-01:27:16.760 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:27:16.761 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:27:23.086 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:27:23.106 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-01:27:23.293 INFO  com.datastax.samples.E03_OperationsCrud       : + clun@sample.com does not exists in table 'user'
-01:27:23.341 INFO  com.datastax.samples.E03_OperationsCrud       : + User clun@sample.com has been created
-01:27:23.347 INFO  com.datastax.samples.E03_OperationsCrud       : + clun@sample.com  now exists in table 'user'
-01:27:23.352 INFO  com.datastax.samples.E03_OperationsCrud       : + eram@sample.com does not exists in table 'user'
-01:27:23.358 INFO  com.datastax.samples.E03_OperationsCrud       : + User eram@sample.com has been updated
-01:27:23.362 INFO  com.datastax.samples.E03_OperationsCrud       : + eram@sample.com  now exists in table 'user'
-01:27:23.367 INFO  com.datastax.samples.E03_OperationsCrud       : + User eram@sample.com has been deleted
-01:27:23.373 INFO  com.datastax.samples.E03_OperationsCrud       : + eram@sample.com does not exists in table 'user'
-01:27:23.377 INFO  com.datastax.samples.E03_OperationsCrud       : + Retrieved eram@sample.com: Optional.empty
-01:27:23.382 INFO  com.datastax.samples.E03_OperationsCrud       : + Retrieved clun@sample.com: clun@sample.com
-01:27:23.388 INFO  com.datastax.samples.E03_OperationsCrud       : + User eram@sample.com has been updated
-01:27:23.392 INFO  com.datastax.samples.E03_OperationsCrud       : + User clun@sample.com has been updated
-01:27:23.400 INFO  com.datastax.samples.E03_OperationsCrud       : + Retrieved users count 2
-```
-
-## 4.5 - Batches
-
-#### 📘 Ce qu'il faut retenir:
-
-- Le batch est implémenter au traver d'un `BatchStatement` en y ajoutant les autres `Statements`
-
-> ```java
-> private static void updateComment(CqlSession cqlSession,
->   UUID commentid, UUID userid,
->   UUID videoid, String comment) {
->   cqlSession.execute(BatchStatement
->     .builder(BatchType.LOGGED)
->     .addStatement(stmt1.bind(videoid, userid, commentid, comment))
->     .addStatement(stmt2.bind(userid, videoid, commentid, comment))
->     .build()
->     );
-> }
-> ```
-
-#### `✅.121`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E04_Batches
-```
-
-#### 🖥️ Logs
-
-```bash
-01:27:49.909 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:27:49.911 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:27:55.991 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:27:56.008 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_user' has been created (if needed).
-01:27:56.012 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_video' has been created (if needed).
-01:27:56.263 INFO  com.datastax.samples.E04_Batches              : Video2
-01:27:56.263 INFO  com.datastax.samples.E04_Batches              : Video2 is cool
-01:27:56.276 INFO  com.datastax.samples.E04_Batches              : I am user2 and video2 is bad
-01:27:56.276 INFO  com.datastax.samples.E04_Batches              : This is my new comment
-01:27:56.288 INFO  com.datastax.samples.E04_Batches              : This is my new comment
-01:27:56.293 INFO  com.datastax.samples.E04_Batches              : Video2 is cool
-01:27:56.293 INFO  com.datastax.samples.E04_Batches              : This is my new comment
-01:27:56.297 INFO  com.datastax.samples.E04_Batches              : Video2
-01:27:56.297 INFO  com.datastax.samples.E04_Batches              : Video2 is cool
-```
-
-## 4.6 - Pagination
-
-#### 📘 Ce qu'il faut retenir:
-
-- Avec Cassandra toutes les requêtes sont paginées, la taille la page (pageSize) par défaut `5000`.
-
-- Le drivers ira chercher les données de la page suivante de manière transparente si vous travaillez avec l'iterable de `Row` du resultset. Pour ne pas le faire il faut travailler avec `getAvailableWithoutFetching()`.
-
-> ```java
-> ResultSet page1 = cqlSession.execute(statement);
->
-> Iterator<Row> page1Iter = page1.iterator();
-> while (0 <  page1.getAvailableWithoutFetching()) {
->   LOGGER.info("Page1: " + page1Iter.next().getString(USER_EMAIL));
-> }
-> ```
-
-- Le resultset contient un `pagingState` qu'il est nécessaire de conserver et de re-spécifié si la requête pour la page suivante intervient plus tard. (comportement fréquent avec les interfaces utilisateurs).
-
-> ```java
-> ByteBuffer pagingStateAsBytes = page1.getExecutionInfo().getPagingState();
->
-> // Preparation page 2
-> statement.setPagingState(pagingStateAsBytes);
-> ResultSet page2 = cqlSession.execute(statement);
-> ```
-
-#### `✅.122`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E05_Paging
-```
-
-#### 🖥️ Logs
-
-```bash
-01:30:21.231 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:30:21.233 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:30:27.489 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:30:27.508 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-01:30:27.650 INFO  com.datastax.samples.E05_Paging               : + 50 users have been created
-01:30:27.668 INFO  com.datastax.samples.E05_Paging               : + Page 1 has 10 items
-01:30:27.670 INFO  com.datastax.samples.E05_Paging               : Page1: user_45@sample.com
-01:30:27.670 INFO  com.datastax.samples.E05_Paging               : Page1: user_3@sample.com
-01:30:27.670 INFO  com.datastax.samples.E05_Paging               : Page1: user_41@sample.com
-01:30:27.670 INFO  com.datastax.samples.E05_Paging               : Page1: user_17@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_33@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_0@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_16@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_43@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_48@sample.com
-01:30:27.671 INFO  com.datastax.samples.E05_Paging               : Page1: user_9@sample.com
-01:30:27.680 INFO  com.datastax.samples.E05_Paging               : + Page 2 has 10 items
-```
-
-## 4.7 - Travailler avec `List`, `Set` et `Map`
-
-#### 📘 Ce qu'il faut retenir:
-
-- Il est possible de `binder` directement des `Set`, `List` et `Map`
-
-> ```java
-> cqlSession.execute(stmtCreateVideo.bind()
->   .setUuid(VIDEO_VIDEOID, dto.getVideoid())
->   .setString(VIDEO_TITLE, dto.getTitle())
->   .setString(VIDEO_USER_EMAIL, dto.getEmail())
->   .setInstant(VIDEO_UPLOAD, Instant.ofEpochMilli(dto.getUpload()))
->   .setString(VIDEO_URL, dto.getUrl())
->   .setSet(VIDEO_TAGS, dto.getTags(), String.class)
->   .setList(VIDEO_FRAMES, dto.getFrames(), Integer.class)
->   .setMap(VIDEO_FORMAT, dto.getFormats(), String.class, VideoFormatDto.class));
-> ```
-
-- Les opérations sur les collection `appendXXX` et `removeXXX`sur les listes sont disponibles.
-
-> ```java
-> cqlSession.execute(QueryBuilder
->   .update(VIDEO_TABLENAME)
->   .appendSetElement(VIDEO_TAGS, literal(newTag))
->   .whereColumn(VIDEO_VIDEOID).isEqualTo(literal(videoId))
->   .build());
-> ```
-
-- Pour travailler avec les `UDT` est les mapper il faut définir un custom codec
-
-> ```java
-> // Exemple de Bean
-> public class VideoFormatDto {
->    private int width = 0;
->    private int height = 0;
-> }
->
-> // Définition du codec
-> public class UdtVideoFormatCodec implements TypeCodec<VideoFormatDto> {
->  String format(VideoFormatDto value) {}
->  VideoFormatDto parse(String value)  {}
->  ByteBuffer encode(VideoFormatDto value, ProtocolVersion protocolVersion) {}
->  VideoFormatDto decode(ByteBuffer bytes, ProtocolVersion protocolVersion) {}
-> ...
-> }
->
-> // Enregistrement
-> // [...]
-> cqlSession.getContext()
->  .getCodecRegistry()
->  .register(new UdtVideoFormatCodec(
->    registry.codecFor(videoFormatUdt),
->    VideoFormatDto.class)
->  );
-> ```
-
-#### `✅.123`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E06_ListSetMapAndUdt
-```
-
-#### 🖥️ Logs
-
-```bash
-01:31:02.667 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:31:02.669 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:31:10.578 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:31:10.595 INFO  com.datastax.samples.schema.SchemaUtils       : + Type 'video_format' has been created (if needed).
-01:31:10.602 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'videos' has been created (if needed).
-01:31:10.702 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Tags before adding 'OK' [accelerate, cassandra]
-01:31:10.717 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Tags after adding 'OK' [OK, accelerate, cassandra]
-01:31:10.728 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Tags after removing 'accelerate' [OK, cassandra]
-01:31:10.734 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats before {mp4=VideoFormatDto [width=640, height=480, ogg=VideoFormatDto [width=640, height=480}
-01:31:10.748 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats after removing 'ogg' {mp4=VideoFormatDto [width=640, height=480}
-01:31:10.753 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats after removing 'ogg' {mp4=VideoFormatDto [width=640, height=480}
-01:31:10.757 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats frames before [2, 3, 5, 8, 13, 21]
-01:31:10.769 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats frames after update all [1, 2, 3]
-01:31:10.781 INFO  com.datastax.samples.E06_ListSetMapAndUdt     : + Formats frames after append 4 [1, 2, 3, 4]
-```
-
-## 4.8 - Requêter avec JSON
-
-#### 📘 Ce qu'il faut retenir:
-
-- Pour les syntaxes `INSERT INTO ... JSON` le paramètre que l'on externalise c'est toute la requête json.
-
-> ```java
-> cqlSession
->   .execute(SimpleStatement.builder(
->     "INSERT INTO " + VIDEO_TABLENAME + " JSON ? ")
->   .addPositionalValue("{"
->     + "\"videoid\":\""+ videoid4.toString() + "\","
->     + "\"email\":\"clu@sample.com\","
->     + "\"title\":\"sample video\","
->     + "\"upload\":\"2020-02-26 15:09:22 +00:00\","
->     + "\"url\":\"http://google.fr\","
->     + "\"frames\": [1,2,3,4],"
->     + "\"tags\": [\"cassandra\",\"accelerate\", \"2020\"],"
->     + "\"formats\": {"
->     + "   \"mp4\":{\"width\":1,\"height\":1},"
->     + "   \"ogg\":{\"width\":1,\"height\":1}"
->     + "}}")
->   .build());
-> ```
-
-#### `✅.124`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E07_Json
-```
-
-#### 🖥️ Logs
-
-```bash
-01:32:48.700 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:32:48.701 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:32:54.760 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:32:54.778 INFO  com.datastax.samples.schema.SchemaUtils       : + Type 'video_format' has been created (if needed).
-01:32:54.785 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'videos' has been created (if needed).
-01:32:54.910 INFO  com.datastax.samples.E07_Json                 : + Video 'e7ae5cf3-d358-4d99-b900-85902fda9bb0' has been inserted
-01:32:54.973 INFO  com.datastax.samples.E07_Json                 : + Video '8b8417b9-1772-4e6c-9060-6bb66a5ea8bd' has been inserted
-01:32:54.985 INFO  com.datastax.samples.E07_Json                 : + Video '1c33bb64-a442-4923-b2a1-3b7412e8cc5f' has been inserted
-01:32:54.996 INFO  com.datastax.samples.E07_Json                 : + Video '13bed42f-833e-49fd-9caa-fab86f8ec780' has been inserted
-01:32:55.004 INFO  com.datastax.samples.E07_Json                 : + Video '08499c4c-3e55-49e0-aa0e-e975f529a746' has been inserted
-01:32:55.004 INFO  com.datastax.samples.E07_Json                 : [OK] - All video Inserted
-01:32:55.046 INFO  com.datastax.samples.E07_Json                 : + Video '08499c4c-3e55-49e0-aa0e-e975f529a746' has been inserted
-01:32:55.087 INFO  com.datastax.samples.E07_Json                 : + Video '1c33bb64-a442-4923-b2a1-3b7412e8cc5f' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : + Video '08499c4c-3e55-49e0-aa0e-e975f529a746' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : + Video 'f169a4b0-6df9-4065-b5c5-ef468d0fbb25' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : + Video '8b8417b9-1772-4e6c-9060-6bb66a5ea8bd' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : + Video '1da246b5-8923-4479-9ebd-f757fbe4f644' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : + Video '13bed42f-833e-49fd-9caa-fab86f8ec780' has been read
-01:32:55.088 INFO  com.datastax.samples.E07_Json                 : [OK] - All video read
-```
-
-## 4.9 - Programmation Asynchrone
-
-#### 📘 Ce qu'il faut retenir:
-
-- Pour exécuter une requête asynchrone il faut utiliser la méthode `executeAsync()` de la classe `CqlSession`. Les drivers retournent un `CompletionStage` pour chaque page.
-
-![](img/query-async.png?raw=true)
-
-- On utilise les Api dites `fluent` pour travailler avec les réponses.
-
-> ```java
-> // Exécution
-> CompletionStage<Boolean> existUserAsync(CqlSession cqlSession, String email) {
->   return cqlSession
->     .executeAsync(stmtExistUser.bind(email))
->     .thenApply(ars -> ars.one() != null);
-> }
->
-> // Utilisation
-> existUserAsync(cqlSession, userEmail2)
->   .thenAccept(exist -> LOGGER.info("+ '{}' exists ? {}", userEmail2, exist))
->   .thenCompose(r->updateUserAsync(cqlSession, userEmail2,  "Eric", "Ramirez"))
->   .thenCompose(r->existUserAsync(cqlSession, userEmail2))
->   .thenAccept(exist -> LOGGER.info("+ '{}' exists ? {}", userEmail2, exist))
->   .toCompletableFuture()
->   .get();
-> ```
-
-#### `✅.125`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E08_Async
-```
-
-#### 🖥️ Logs
-
-```bash
-01:36:37.177 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:36:37.178 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:36:43.331 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:36:43.348 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-01:36:43.498 INFO  com.datastax.samples.E08_Async                : + 'clun@sample.com' exists ? (expecting false): false
-01:36:43.518 INFO  com.datastax.samples.E08_Async                : + User clun@sample.com has been created
-01:36:43.524 INFO  com.datastax.samples.E08_Async                : + 'clun@sample.com' exists ? (expecting true): false
-01:36:43.530 INFO  com.datastax.samples.E08_Async                : + 'eram@sample.com' exists ? (expecting false): false
-01:36:43.534 INFO  com.datastax.samples.E08_Async                : + User eram@sample.com has been updated
-01:36:43.541 INFO  com.datastax.samples.E08_Async                : + 'eram@sample.com' exists ? (expecting true): true
-01:36:43.545 INFO  com.datastax.samples.E08_Async                : + User eram@sample.com has been deleted
-01:36:43.552 INFO  com.datastax.samples.E08_Async                : + 'eram@sample.com' exists ? (expecting false) false
-01:36:43.558 INFO  com.datastax.samples.E08_Async                : + Retrieved 'eram@sample.com': (expecting Optional.empty) Optional.empty
-01:36:43.564 INFO  com.datastax.samples.E08_Async                : + Retrieved 'eram@sample.com': (expecting result) Optional[com.datastax.samples.dto.UserDto@57bd8fea]
-01:36:43.569 INFO  com.datastax.samples.E08_Async                : + User eram@sample.com has been updated
-01:36:43.571 INFO  com.datastax.samples.E08_Async                : + User clun@sample.com has been updated
-01:36:43.572 INFO  com.datastax.samples.E08_Async                : + Retrieved users count 2
-[INFO] ------------------------------------------------------------------------
-```
-
-## 4.10 - Programmation Réactive
-
-#### 📘 Ce qu'il faut retenir:
-
-- Pour exécuter une requête réactive il faut utiliser la méthode `executeAsync()` de la classe `CqlSession`.
-
-![](img/query-reactive.png?raw=true)
-
-- Les drivers travaillent avec un `Subscriber`. Une notification est renvoyée pour chaque enregistrement. Ce n'est pas du _Change Data Capture_, les éléments retournés seront les éléments présents à l'exécution de la requête mais pas ceux arrivés par la suite.
-
-- Un système de back pressure est mis en place si le client est lent au traitement des notifications.
-
-- Il est très facile retrouver les objets habituels `Mono<>` et `Flux<>` (pour travailler avec Spring par exemple)
-
-> ```java
-> // Exécution
-> Mono<Boolean> existUserReactive(CqlSession cqlSession, String email) {
->  ReactiveResultSet rrs = cqlSession.executeReactive(stmtExistUser.bind(email));
->  return Mono.from(rrs).map(rs -> true).defaultIfEmpty(false);
-> }
->
-> // Utilisation
-> existUserReactive(cqlSession, userEmail)
->  .doOnNext(exist -> LOGGER.info("+ '{}' exists ? {}", userEmail, exist))
->  .and(upsertUserReactive(cqlSession, userEmail, "Cedric", "Lunven"))
->  .block();
-> ```
-
-#### `✅.126`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E09_Reactive
-```
-
-#### 🖥️ Logs
-
-```bash
-01:37:12.174 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:37:12.175 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:37:18.216 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:37:18.236 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-01:37:18.421 INFO  com.datastax.samples.E09_Reactive             : + 'clun@sample.com' exists ? (expecting false): false
-01:37:18.426 INFO  com.datastax.samples.E09_Reactive             : + 'clun@sample.com' exists ? (expecting false): true
-01:37:18.437 INFO  com.datastax.samples.E09_Reactive             : + Retrieved 'ram@sample.com': (expecting Optional.empty) Optional.empty
-01:37:18.441 INFO  com.datastax.samples.E09_Reactive             : + Retrieved 'clun@sample.com': (expecting result) clun@sample.com
-01:37:18.441 INFO  com.datastax.samples.E09_Reactive             : + Retrieved 'ram@sample.com': (expecting result) Optional[com.datastax.samples.dto.UserDto@709d926a]
-01:37:18.493 INFO  com.datastax.samples.E09_Reactive             : + 'ram@sample.com' email found
-01:37:18.493 INFO  com.datastax.samples.E09_Reactive             : + 'clun@sample.com' email found
-```
-
-## 4.11 - Les `counters`
-
-#### 📘 Ce qu'il faut retenir:
-
-- Les opérations d'incrémentation et décrémentation sont fournies par le `QueryBuilder`
-
-> ````java
-> cqlSession.prepare(QueryBuilder
->   .update(VIDEO_VIEWS_TABLENAME)
->   .increment(VIDEO_VIEWS_VIEWS, QueryBuilder.bindMarker())
->   .whereColumn(VIDEO_VIEWS_VIDEOID).isEqualTo(QueryBuilder.bindMarker())
->   .build()
-> );
-> > ```
-> ````
-
-#### `✅.127`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E10_Counters
-```
-
-#### 🖥️ Logs
-
-```bash
-01:37:47.296 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:37:47.298 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:37:53.434 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:37:53.453 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'videos_views' has been created (if needed).
-01:37:53.560 INFO  com.datastax.samples.E10_Counters             : + Video views Optional.empty
-01:37:53.607 INFO  com.datastax.samples.E10_Counters             : + Video views : 10
-01:37:53.621 INFO  com.datastax.samples.E10_Counters             : + Video views : 2
-01:37:53.633 INFO  com.datastax.samples.E10_Counters             : + Video views Optional.empty
-```
-
-## 4.12 - Les `Lightweight Transactions`
-
-#### 📘 Ce qu'il faut retenir:
-
-- Il est nécessaire d'ajouter la condition de la LWT dans le statement comme exemple le `ifNotExists` avec le `QueryBuilder` ou directement dans la requêtes `CQL`
-
-> ```java
-> cqlSession.prepare(QueryBuilder.insertInto(USER_TABLENAME)
->   .value(USER_EMAIL, QueryBuilder.bindMarker())
->   .value(USER_FIRSTNAME, QueryBuilder.bindMarker())
->   .value(USER_LASTNAME, QueryBuilder.bindMarker())
->   .ifNotExists()
->   .build());
-> ```
-
-- Le `APPLIED` est disponible dans le `ResultSet` retourné après une exécution.
-
-> ```java
->  boolean createUserIfNotExist(CqlSession cqlSession, String email, String firstname, String lastname) {
->   return cqlSession
->     .execute(stmtCreateUser.bind(email, firstname, lastname))
->     .wasApplied();
-> }
-> ```
-
-#### `✅.128`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E11_LightweightTransactions
-```
-
-#### 🖥️ Logs
-
-```bash
-01:38:30.073 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:38:30.074 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:38:36.161 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:38:36.215 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'users' has been created (if needed).
-01:38:36.361 INFO  com.datastax.samples.E11_LightweightTransactions : + Created first time ? true and second time false
-01:38:36.392 INFO  com.datastax.samples.E11_LightweightTransactions : + Applied when correct value ? true and invalid value false
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E11_ReactiveProgrammingTest.java
+mvn test -Dtest=com.datastax.devoxx.E11_ReactiveProgrammingTest
 ```
 
 ## 4.13 - Object Mapping
 
-#### 📘 Ce qu'il faut retenir:
-
-Le mapping objet est une technique qui consiste à associer les tables de la base de données avec les objets d'une application. Le but est de ne pas avoir à écrire soit même les requêtes CQL. Cette approche est toutefois limitée car elle réduit les possibilités offertes.
-
-Pour effectuer un mapping objet il n'est pas nécessaire de recourir à un framework externe type Spring, la fonctionnalité est proposée directement au niveau des drivers Cassandra. Pour une documentation exhaustive référez-vous à la [documentation officielle](https://docs.datastax.com/en/developer/java-driver/4.13/manual/mapper/)
-
-- Il est nécessaire d'importer la librairie `java-driver-mapper-runtime`
-
-> ```xml
-> <dependency>
->   <groupId>com.datastax.oss</groupId>
->   <artifactId>java-driver-mapper-runtime</artifactId>
->   <version>${derniere-version}</version>
-> </dependency>
-> ```
-
-- La librairie d'objet mapping va venir générer les classes nécessaires à la compilation sur la base d'annotations dans le code. (`Annotation Processor`). Pour l'activer avec le build `Maven` il est nécessaire de le déclarer dans le bloc XML `annotationProcessorPaths` au niveau du plugin `maven-compiler-plugin`.
-
-> ```xml
-> <plugins>
->  <plugin>
->   <groupId>org.apache.maven.plugins</groupId>
->   <artifactId>maven-compiler-plugin</artifactId>
->   <configuration>
->    <release>11</release>
->    <source>11</source>
->    <target>11</target>
->    <annotationProcessorPaths>
->     <path>
->      <groupId>com.datastax.oss</groupId>
->      <artifactId>java-driver-mapper-processor</artifactId>
->     </path>
->    </annotationProcessorPaths>
->   </configuration>
->  </plugin>
-> </plugins>
-> ```
-
-- Dans le principe ,on construit un objet sur la base du schéma de la table (et non l'inverse - avec Cassandra c'est bien le modèle de données que l'on définit en premier)
-
-> ```java
-> @Entity
-> @CqlName("myTable")
-> public class CommentByUser {
->
->     @PartitionKey
->     UUID userid;
->
->     @ClusteringColumn
->     UUID commentid;
->
->     UUID videoid;
->
->     String comment;
-> }
-> ```
-
-- Puis il est nécessaire de construire interface annotée avec `@Dao`. Il est à noter qu'en tant qu'interface elle ne contient pas d'implémentation. Les méthodes de `Create` (save), `Read` (findById), `Update` et `delete` (deleteById) sont disponibles et l'on peut déclarer d'autres méthodes plus spécifiques comme ci-dessous.
-
-> ```java
-> @Dao
-> public interface CommentDao extends CassandraSchemaConstants {
->
->   @Query("SELECT * FROM ${keyspaceId}.${tableId} "
->          + "WHERE " + COMMENT_BY_USER_USERID + " = :userid ")
->   PagingIterable<CommentByUser> retrieveUserComments(UUID userid);
-> ```
-
-- Enfin le mapper, annoté avec `@Mapper` permet d'associer la `CqlSession` aux différents `@Dao`. Un seul est nécessaire dans votre application.
-
-> ```java
-> @Mapper
-> public interface CommentDaoMapper {
->  @DaoFactory
->  CommentDao commentDao();
->
->  static MapperBuilder<CommentDaoMapper> builder(CqlSession session) {
->    return new CommentDaoMapperBuilder(session);
->  }
-> }
-> ```
-
-#### `✅.129`- Exécuter la classe example
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E12_ObjectMapping
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E13_ObjectMappingTest.java
+mvn test -Dtest=com.datastax.devoxx.E13_ObjectMappingTest
 ```
 
-#### 🖥️ Logs
+# 7. Working with Spring Framework
 
-```bash
-01:51:17.581 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:51:17.582 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:51:23.750 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:51:23.767 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_user' has been created (if needed).
-01:51:23.771 INFO  com.datastax.samples.schema.SchemaUtils       : + Table 'comments_by_video' has been created (if needed).
-01:51:24.072 INFO  com.datastax.samples.E12_ObjectMapping        : Video2
-01:51:24.072 INFO  com.datastax.samples.E12_ObjectMapping        : Video2 is cool
-01:51:24.087 INFO  com.datastax.samples.E12_ObjectMapping        : I am user2 and video1 is bad
-01:51:24.087 INFO  com.datastax.samples.E12_ObjectMapping        : This is my new comment
-01:51:24.106 INFO  com.datastax.samples.E12_ObjectMapping        : I am user2 and video1 is bad
-01:51:24.116 INFO  com.datastax.samples.E12_ObjectMapping        : Video2
-01:51:24.116 INFO  com.datastax.samples.E12_ObjectMapping        : Video2 is cool
-```
+## 7.1 - Spring Data Connection and Configuration
 
-Les drivers sont très puissants et fournissent l'ensemble des opérations permises par la base Apache Cassandra™. Ils sont au coeur des simplifications et des abstractions proposées par d'autres frameworks tels que Spring, Micronaut ou Quarkus aussi est-il important de bien les maîtriser. SI vous êtes bloqués retournés à l'objet `CqlSession`.
-
-<p/><br/>
-
-> [🏠 Retour à la table des matières](#-table-des-matières)
-
-# LAB 5 - Spring Data Cassandra
-
-## 5.1 - Configuration
-
-#### `✅.130`- Création du keyspace `devoxx_spring`
-
-_Dans Docker:_
+#### `✅.130`- Create keyspace `devoxx_spring`
 
 ```sql
 CREATE KEYSPACE IF NOT EXISTS devoxx_spring
@@ -2355,19 +1239,7 @@ WITH REPLICATION = {
 }  AND DURABLE_WRITES = true;
 ```
 
-Avec Astra, la manipulation des keyspaces est désactivé, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `devoxx_spring` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
-#### 📘 Ce qu'il faut retenir:
-
-- [Spring Data](https://spring.io/projects/spring-data) est la couche d'accès aux données proposée dans le framework spring. Elle se décline pour plusieurs bases de données à la fois SQL (JPA) et NoSQL (Cassandra, Mongo, Redis...)
-
-- [Spring Data Cassandra](https://spring.io/projects/spring-data-cassandra) comporte 1 librairie [`spring-data-cassandra`](https://mvnrepository.com/artifact/org.springframework.data/spring-data-cassandra) et la dernière version est [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss/java-driver-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.springframework.data/spring-data-cassandra)
+- Versioning
 
 ```xml
 <dependency>
@@ -2377,24 +1249,15 @@ _Créer le keyspace `devoxx_spring` et valider avec `SAVE`_
 </dependency>
 ```
 
-- Depuis les versions `3.x` Spring Data s'appuie sur la dernière génération de drivers Cassandra `4.x`. Dans nos exemples nous allons nous appuyer sur `Spring-boot`. Pour utiliser la dernière génération nous devons utiliser une version supérieure a `2.3+`. Les compatibilités sont décrites dans le tableau ci-dessous:
+- Version Support
 
-> | Drivers       | Spring-Data    | Spring Boot    |
-> | ------------- | -------------- | -------------- |
-> | Drivers `3.x` | `2.2` et avant | `2.2` et avant |
-> | Drivers `4.x` | `3.x` et après | `2.3` et avant |
-
-- Pour utiliser `Spring Data Cassandra` avec `Spring Boot` il existe 2 starters différents `spring-boot-starter-data-cassandra` (MVC) et `spring-boot-starter-data-cassandra-reactive` (Webflux). Dans notre exmple nous utilisons la première mais un exemple réactif est [disponible ici](https://github.com/datastaxdevs/workshop-spring-reactive)
-
-#### `✅.131`- Vérifier le `pom.xml`
-
-- Ouvrir le fichier
-
-```bash
-gp open /workspace/conference-2022-devoxx/labs/lab5_spring_data/pom.xml
-```
-
-- Vous devez retrouver:
+> | ------------- | ---------------- | ---------------- |
+> | Drivers       | Spring-Data      | Spring Boot      |
+> | ------------- | ---------------- | ---------------- |
+> | Drivers `3.x` | `2.2` and before | `2.2` and before |
+> | Drivers `4.x` | `3.x` and after  | `2.3` and before |
+> | Drivers `4.x` | `4.x` and after  | `3.x` and before |
+> | ------------- | ---------------- | ---------------- |
 
 ```xml
 <dependency>
@@ -2403,100 +1266,34 @@ gp open /workspace/conference-2022-devoxx/labs/lab5_spring_data/pom.xml
 </dependency>
 ```
 
-#### `✅.132`- Configuration de l'application Spring-Data
-
-- Repérer le terminal `lab5_spring_data` et compiler le projet
-
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
+cd /workspace/conference-2022-devoxx/lab-spring
 mvn clean compile
-```
-
-- Localiser le fichier de configuration `application.yml`dans le répertoire `src/main/resources`. C'est le fichier de configuration principal de Spring-Boot.
-
-```bash
-gp open /workspace/conference-2022-devoxx/labs/lab5_spring_data/src/main/resources/application.yml
-```
-
-- Suivant la cible (Cassandra dans Docker ou Cassandra dans Astra) la configuration de `spring-data` changera légèrement c'est pourquoi nous avons proposé 2 exemple `application-astra.yml` et `application-astra.yml`
-
-- Copier le fichier qui vous correspond vers `application.yml`
-
-```bash
-cp /workspace/conference-2022-devoxx/labs/lab5_spring_data/src/main/resources/application-astra.yml /workspace/conference-2022-devoxx/labs/lab5_spring_data/src/main/resources/application.yml
-```
-
-ou
-
-```bash
-cp cp/workspace/conference-2022-devoxx/labs/lab5_spring_data/src/main/resources/application-local.yml /workspace/conference-2022-devoxx/labs/lab5_spring_data/src/main/resources/application.yml
-```
-
-- Vérifier la configuration et éditer là le cas échéant:
-
-_application-astra.yml_
-
-```yaml
-spring:
-  data:
-    cassandra:
-      schema-action: CREATE_IF_NOT_EXISTS
-      keyspace-name: devoxx_spring
-      username: token
-      password: AstraCS:<votre_jeton>
-datastax:
-  astra:
-    secure-connect-bundle: /home/gitpod/.cassandra/bootstrap.zip
 ```
 
 _application-local.yml_
 
 ```yaml
 spring:
-  data:
-    cassandra:
-      schema-action: CREATE_IF_NOT_EXISTS
-      keyspace-name: devoxx_spring
-      contact-points: localhost:9042
-      local-datacenter: dc1
+  cassandra:
+    schema-action: create-if-not-exists
+    keyspace-name: devoxx_spring
+    contact-points: localhost:9042
+    local-datacenter: dc1
+    request:
+      timeout: 5s
+      consistency: LOCAL_QUORUM
+      page-size: 5000
 ```
 
-#### `✅.133`- Validation de la configuration
+#### `✅.133`- Configuration Valdiation
 
 ```bash
 /workspace/conference-2022-devoxx/labs/lab5_spring_data
-mvn test -Dtest=com.datastax.workshop.E01_SpringDataInit
+mvn test -Dtest=com.datastax.todo.E01_SpringDataInit
 ```
 
-#### 🖥️ Logs
-
-```
-[INFO] Running com.datastax.workshop.E01_SpringDataInit
- ________                                  _______________   ________ ________
- \______ \   _______  _________  ______  __\_____  \   _  \  \_____  \\_____  \
- |    |  \_/ __ \  \/ /  _ \  \/  /\  \/  //  ____/  /_\  \  /  ____/ /  ____/
- |    `   \  ___/\   (  <_> >    <  >    </       \  \_/   \/       \/       \
- /_______  /\___  >\_/ \____/__/\_ \/__/\_ \_______ \_____  /\_______ \_______ \
- \/     \/                \/      \/       \/     \/         \/       \/
-
- The application will start at http://localhost:8080
-
-13:49:30.253 INFO  com.datastax.workshop.E01_SpringDataInit      : Starting E01_SpringDataInit using Java 17.0.1 on clunven-rmbp16 with PID 33320 (started by cedricklunven in /Users/cedricklunven/dev/workspaces/datastax/conference-2022-devoxx/labs/2-spring-data)
-13:49:30.255 INFO  com.datastax.workshop.E01_SpringDataInit      : No active profile set, falling back to default profiles: default
-13:49:34.035 INFO  com.datastax.workshop.E01_SpringDataInit      : Started E01_SpringDataInit in 3.965 seconds (JVM running for 4.659)
-13:49:34.329 INFO  com.datastax.workshop.E01_SpringDataInit      : Creating your CqlSession to Cassandra...
-13:49:34.329 INFO  com.datastax.workshop.E01_SpringDataInit      : + [OK] Your are connected to keyspace devoxx_spring
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.604 s - in com.datastax.workshop.E01_SpringDataInit
-[INFO]
-```
-
-## 5.2 - Comprendre les `CrudRepositories`
-
-#### 📘 Ce qu'il faut retenir:
-
-- Spring Data propose une system d'objet mapping pour associer les objets aux tables du modèles de données. Il utilise une interface générique `CrudRepository`.
-
-- Travaillons avec le modèle (non optimisé) d'une todolist.
+## 7.2 - `CassandraRepository` and `CrudRepository
 
 ```sql
 CREATE TABLE todos (
@@ -2507,82 +1304,12 @@ CREATE TABLE todos (
 )
 ```
 
-- On définit un objet `TodoEntity` et on l'annote avec les annotations Spring Data.
-
-> ```java
-> @Table(value = TodoEntity.TABLENAME)
-> public class TodoEntity {
->
->  public static final String TABLENAME        = "todos";
->  public static final String COLUMN_UID       = "uid";
->  public static final String COLUMN_TITLE     = "title";
->  public static final String COLUMN_COMPLETED = "completed";
->  public static final String COLUMN_ORDER     = "offset";
->
->  @PrimaryKey
->  @Column(COLUMN_UID)
->  @CassandraType(type = Name.UUID)
->  private UUID uid;
->
->  @Column(COLUMN_TITLE)
->  @CassandraType(type = Name.TEXT)
->  private String title;
->
->  @Column(COLUMN_COMPLETED)
->  @CassandraType(type = Name.BOOLEAN)
->  private boolean completed = false;
->
->  @Column(COLUMN_ORDER)
->  @CassandraType(type = Name.INT)
->  private int order = 0;
->
->  public TodoEntity(String title, int offset) {
->    this(UUID.randomUUID(), title, false, offset);
->  }
-> }
-> ```
-
-- On définit une interface qui hérite de `CassandraRepository` (elle-même hérite de `CRUDRepository`) en spécifiant le bean et la clé primaire.
-
-```java
-@Repository
-public interface TodoRepositoryCassandra extends CassandraRepository<TodoEntity, UUID> {
-}
-```
-
 #### `✅.134`- Utiliser les `Repository` Spring Data
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
-mvn test -Dtest=com.datastax.workshop.E02_SpringDataRepository
+cd /workspace/conference-2022-devoxx/lab-spring
+mvn test -Dtest=com.datastax.todo.E02_SpringDataRepositoryTest
 ```
-
-#### 🖥️ Logs
-
-```bash
-[INFO] Running com.datastax.workshop.E02_SpringDataRepository
- ________                                  _______________   ________ ________
- \______ \   _______  _________  ______  __\_____  \   _  \  \_____  \\_____  \
- |    |  \_/ __ \  \/ /  _ \  \/  /\  \/  //  ____/  /_\  \  /  ____/ /  ____/
- |    `   \  ___/\   (  <_> >    <  >    </       \  \_/   \/       \/       \
- /_______  /\___  >\_/ \____/__/\_ \/__/\_ \_______ \_____  /\_______ \_______ \
- \/     \/                \/      \/       \/     \/         \/       \/
-
- The application will start at http://localhost:8080
-
-14:06:54.529 INFO  com.datastax.workshop.E02_SpringDataRepository : Starting E02_SpringDataRepository using Java 17.0.1 on clunven-rmbp16 with PID 33643 (started by cedricklunven in /Users/cedricklunven/dev/workspaces/datastax/conference-2022-devoxx/labs/2-spring-data)
-14:06:54.530 INFO  com.datastax.workshop.E02_SpringDataRepository : No active profile set, falling back to default profiles: default
-14:06:58.212 INFO  com.datastax.workshop.E02_SpringDataRepository : Started E02_SpringDataRepository in 3.895 seconds (JVM running for 4.565)
-14:06:58.635 INFO  com.datastax.workshop.E02_SpringDataRepository : Tache enregistree avec id 8a175b9e-1010-4f9a-aa5c-628c81c8dd34
-14:06:58.636 INFO  com.datastax.workshop.E02_SpringDataRepository : Liste des Taches
-14:06:58.746 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=8a175b9e-1010-4f9a-aa5c-628c81c8dd34, title=Apprendre Cassandra, completed=false, order=0)
-14:06:58.746 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=87eb778d-a938-441e-8ff5-e69feafb8719, title=Apprendre Cassandra, completed=false, order=0)
-14:06:58.746 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=47a5c298-b6ec-4e8a-abb5-fca041730af3, title=Apprendre Cassandra, completed=false, order=0)
-14:06:58.746 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=3847d7f9-0fa3-4d7e-b7f7-b76897b4e999, title=Apprendre Cassandra, completed=false, order=0)
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.724 s - in com.datastax.workshop.E02_SpringDataRepository
-```
-
-#### `✅.135`- Vérifier le résultat avec `CQLSh`
 
 ```sql
 use devoxx_spring;
@@ -2604,98 +1331,23 @@ token@cqlsh:devoxx_spring> SELECT * FROM todos;
 (4 rows)
 ```
 
-## 5.3 - CassandraOperations
-
-#### 📘 Ce qu'il faut retenir:
-
-- Les `Repository` sont très puissants mais ne permettent pas tout. Le risque est de chercher à réutiliser les mêmes beans et les mêmes repositories pour différentes requêtes sur la même données alors que vous devez définir plusieurs tables.
-
-- Spring Data propose l'accès aux opérations `CqlSession` sous-jacente au travers de objets `CassandraOperations` et `CassandraTemple`. Vous pouvez les injecter lorsque vous en avez besoin. Ils sont également disponibles dans les repository si vous héritez de `SimpleCassandraRepository`.
-
-```java
-@Repository
-public class TodoRepositorySimpleCassandra extends SimpleCassandraRepository<TodoEntity, UUID> {
-
- protected final CqlSession cqlSession;
-
- protected final CassandraOperations cassandraTemplate;
-
- @SuppressWarnings("unchecked")
- public TodoRepositorySimpleCassandra(CqlSession cqlSession, CassandraOperations ops) {
-   super(new MappingCassandraEntityInformation<TodoEntity, UUID>(
-     (CassandraPersistentEntity<TodoEntity>) ops.getConverter().getMappingContext()
-     .getRequiredPersistentEntity(TodoEntity.class), ops.getConverter()), ops);
-   this.cqlSession = cqlSession;
-   this.cassandraTemplate = ops;
- }
-}
-```
-
-- L'objet `CqlSession` fait partie du contexte Spring et vous pouvez également l'utiliser au besoin.
-
-#### `✅.136`- Utiliser `CassandraOperations` et un `SimpleCassandraRepository`
+## 7.3 - `CassandraOperations`
 
 ```bash
 cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
-mvn test -Dtest=com.datastax.workshop.E03_SpringDataCassandraOperations
+mvn test -Dtest=com.datastax.workshop.E03_SpringDataCassandraOperationsTest
 ```
 
-#### 🖥️ Logs
-
-```bash
-[INFO] Running com.datastax.workshop.E03_SpringDataCassandraOperations
- ________                                  _______________   ________ ________
- \______ \   _______  _________  ______  __\_____  \   _  \  \_____  \\_____  \
- |    |  \_/ __ \  \/ /  _ \  \/  /\  \/  //  ____/  /_\  \  /  ____/ /  ____/
- |    `   \  ___/\   (  <_> >    <  >    </       \  \_/   \/       \/       \
- /_______  /\___  >\_/ \____/__/\_ \/__/\_ \_______ \_____  /\_______ \_______ \
- \/     \/                \/      \/       \/     \/         \/       \/
-
- The application will start at http://localhost:8080
-
-14:22:16.841 INFO  com.datastax.workshop.E03_SpringDataCassandraOperations : Starting E03_SpringDataCassandraOperations using Java 17.0.1 on clunven-rmbp16 with PID 33920 (started by cedricklunven in /Users/cedricklunven/dev/workspaces/datastax/conference-2022-devoxx/labs/2-spring-data)
-14:22:16.843 INFO  com.datastax.workshop.E03_SpringDataCassandraOperations : No active profile set, falling back to default profiles: default
-14:22:20.384 INFO  com.datastax.workshop.E03_SpringDataCassandraOperations : Started E03_SpringDataCassandraOperations in 3.755 seconds (JVM running for 4.457)
-14:22:20.768 INFO  com.datastax.workshop.E02_SpringDataRepository : Tache enregistree avec id e73dcd8f-4427-42ab-9e32-4db8fd1a1144
-14:22:20.769 INFO  com.datastax.workshop.E02_SpringDataRepository : Liste des Taches
-14:22:20.865 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=8a175b9e-1010-4f9a-aa5c-628c81c8dd34, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.865 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=e73dcd8f-4427-42ab-9e32-4db8fd1a1144, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.865 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=87eb778d-a938-441e-8ff5-e69feafb8719, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.865 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=47a5c298-b6ec-4e8a-abb5-fca041730af3, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.865 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=3847d7f9-0fa3-4d7e-b7f7-b76897b4e999, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.875 INFO  com.datastax.workshop.E02_SpringDataRepository : Utilisation de CassandraOperations
-14:22:20.984 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=8a175b9e-1010-4f9a-aa5c-628c81c8dd34, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.984 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=e73dcd8f-4427-42ab-9e32-4db8fd1a1144, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.984 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=87eb778d-a938-441e-8ff5-e69feafb8719, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.984 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=47a5c298-b6ec-4e8a-abb5-fca041730af3, title=Apprendre Cassandra, completed=false, order=0)
-14:22:20.984 INFO  com.datastax.workshop.E02_SpringDataRepository : TodoEntity(uid=3847d7f9-0fa3-4d7e-b7f7-b76897b4e999, title=Apprendre Cassandra, completed=false, order=0)
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.677 s - in com.datastax.workshop.E03_SpringDataCassandraOperations
-```
-
-## 5.4 - Application Spring Boot
-
-#### 📘 Ce qu'il faut retenir:
-
-- Les différents `Repository` peuvent être injectés dans les controllers et exposés au niveau des APIs.
-
-![](img/spring_layers.png?raw=true)
-
-Une bonne pratique est de séparer les objets utilisés dans la couche d'accès aux données (entités) des objets utilisés dans les Apis (DTO).
+## 7.4 - Spring Boot (mvc, Webflux)
 
 #### `✅.137`- Lancer l'application
 
-- Démarrer l'application à l'aide du plugin `spring-boot`
-
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
+cd /workspace/conference-2022-devoxx/lab-spring
 mvn spring-boot:run
 ```
 
-- L'application démarre sur le port `8080`. La liste des `todos` est disponible sur `http://localhost:8080/api/v1/todos/`. Sur gitpod les ports n'étant pas ouverts il y a aura une translation d'adresse. Afficher l'Url gitpod
-
 ![](img/spring_api_local.png?raw=true)
-
-- Afficher l'url translatée par `Gitpod` _(`gp` est la ligne de commande de gitpod)_
 
 ```bash
 gp url 8080
@@ -2738,28 +1390,12 @@ cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
 mvn test -Dtest=com.datastax.workshop.E04_SpringControllerTest
 ```
 
-#### 🖥️ Logs
+### 7.5 - Spring Native
 
-```bash
-[INFO] Running com.datastax.workshop.E04_SpringControllerTest
- ________                                  _______________   ________ ________
- \______ \   _______  _________  ______  __\_____  \   _  \  \_____  \\_____  \
- |    |  \_/ __ \  \/ /  _ \  \/  /\  \/  //  ____/  /_\  \  /  ____/ /  ____/
- |    `   \  ___/\   (  <_> >    <  >    </       \  \_/   \/       \/       \
- /_______  /\___  >\_/ \____/__/\_ \/__/\_ \_______ \_____  /\_______ \_______ \
- \/     \/                \/      \/       \/     \/         \/       \/
-
- The application will start at http://localhost:8080
-
-15:41:30.731 INFO  com.datastax.workshop.E04_SpringControllerTest : Starting E04_SpringControllerTest using Java 17.0.1 on clunven-rmbp16 with PID 41891 (started by cedricklunven in /Users/cedricklunven/dev/workspaces/datastax/conference-2022-devoxx/labs/2-spring-data)
-15:41:30.733 INFO  com.datastax.workshop.E04_SpringControllerTest : No active profile set, falling back to default profiles: default
-15:41:34.436 INFO  com.datastax.workshop.E04_SpringControllerTest : Started E04_SpringControllerTest in 3.898 seconds (JVM running for 4.712)
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.918 s - in com.datastax.workshop.E04_SpringControllerTest
+```
+mvn clean package -Pnative 
 ```
 
-<p/><br/>
-
-> [🏠 Retour à la table des matières](#-table-des-matières)
 
 # LAB 6 - Cassandra Quarkus Extension
 

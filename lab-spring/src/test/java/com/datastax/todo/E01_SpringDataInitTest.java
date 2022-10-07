@@ -10,10 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.datastax.oss.driver.api.core.CqlSession;
 
 @SpringBootTest
-public class E01_SpringDataInit {
+public class E01_SpringDataInitTest {
 
     /** Logger for the class. */
-    static Logger LOGGER = LoggerFactory.getLogger(E01_SpringDataInit.class);
+    static Logger LOGGER = LoggerFactory.getLogger(E01_SpringDataInitTest.class);
     
     @Autowired
     CqlSession cqlSession;

@@ -17,9 +17,9 @@ import com.datastax.devoxx.objectmapping.CommentDaoMapper;
 import com.datastax.devoxx.schema.SchemaConstants;
 import com.datastax.oss.driver.api.core.CqlSession;
 
-public class EXX_ObjectMappingTest implements SchemaConstants {
+public class E13_ObjectMappingTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(EXX_ObjectMappingTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E13_ObjectMappingTest.class);
    
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSession.builder().build()) {

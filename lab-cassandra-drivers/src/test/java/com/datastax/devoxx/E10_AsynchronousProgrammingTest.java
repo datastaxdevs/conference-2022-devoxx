@@ -21,9 +21,9 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class EXX_AsyncTest implements SchemaConstants {
+public class E10_AsynchronousProgrammingTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(EXX_AsyncTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E10_AsynchronousProgrammingTest.class);
     
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpsertUser;
@@ -128,7 +128,7 @@ public class EXX_AsyncTest implements SchemaConstants {
     
     private static CompletableFuture< Optional < UserDto > > findUserByIdAsync(CqlSession cqlSession, String email) {
         return cqlSession.executeAsync(stmtFindUser.bind(email))
-                      .thenApply(EXX_AsyncTest::mapUserDtoRow)
+                      .thenApply(E10_AsynchronousProgrammingTest::mapUserDtoRow)
                       .toCompletableFuture();
     }
     
