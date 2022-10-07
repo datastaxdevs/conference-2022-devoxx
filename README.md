@@ -124,62 +124,62 @@ It doesn't matter if you join the presentation live or you prefer to work at you
 
 ## LAB1 - Setup
 
-## 1.1 - Start `Gitpod`
+## 1.1 - Start `Gitpod` for a CloudIDE
 
-[Gitpod](https://www.gitpod.io/) est un IDE 100% dans le cloud. Il s'appuie sur [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) et fournit de nombreux outils pour développer dans plusieurs langages.
+[Gitpod](https://www.gitpod.io/) is a Free IDE provided as Saas. He leverages [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) and comes loaded with all tools needed to develop with multiple languages.
 
-#### `✅.001`- _Click-Droit_ sur le bouton pour ouvrir Gitpod dans un nouveau onglet sur votre navigateur.
+#### `✅.001`- _Right Click_ to open Gitpod in a new browser tab.
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 
-## 1.2 - Apache Cassandra™ dans `Docker`
+## 1.2 - Starting Apache Cassandra™ in `Docker`
 
-> ℹ️ Lors du premier copier-coller dans `Gitpod` le navigateur vous invite à autoriser les copies depuis le presse-papier, il est nécessaire de le faire.
+> ℹ️ For the first `copy-paste` within `Gitpod` you are invited to authorize them. Please do so to keep moving in the session.
 
-Lorsque Gitpod est démarré, localiser le terminal `cassandra-docker`. Il devrait contenir uniquement un message en bleu.
+Once gitpod has launched you should find a couple of terminals available. Locate 
+Lorsque Gitpod est démarré, localiser le terminal `setup`. You will get this message.
 
 ```
 ------------------------------------------------------------
----        Bienvenue à Devoxx France 2022                ---
---           Local Cassandra (Docker)                    ---
+---            Welcome to Devoxx  2022                   ---
 ------------------------------------------------------------
 ```
 
-### 1.2.1 - Démarrage du cluster
+### 1.2.1 - Start Cassandra Cluster
 
-Dans le répertoire `labs` repérer le fichier `docker-compose.yml`. Nous allons utiliser l'[image officielle Docker Apache Cassandra™](https://hub.docker.com/_/cassandra/).
+In `lab1-setup` locate  `docker-compose.yml`. We will run the Cassandra  [officia image™](https://hub.docker.com/_/cassandra/).
 
-#### `✅.002`- Ouvrir le fichier et visualiser comment le `seed` est un service séparé des autres nœuds. La recommandation est de 2 à 3 `seeds` par datacenter (anneau).
+#### `✅.002`- Open the file and visualize the file, check how `seed` service is isolated from others. Recommendation is one `seed` per rack (2 / 3 `seeds` per ring/dc)
 
 ```bash
-gp open /workspace/conference-2022-devoxx/labs/docker-compose.yml
+gp open /workspace/conference-2022-devoxx/lab1-setup/docker-compose.yml
 ```
 
 #### `✅.003`- Démarrer 2 noeuds avec `docker-compose`
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/
+cd /workspace/conference-2022-devoxx/lab1-setup/
 docker-compose up -d
 ```
 
-> 🖥️ Résultat
+> 🖥️ Result
 >
 > ```
 > [+] Running 3/3
 >  ⠿ Network labs_cassandra           Created      0.0s
->  ⠿ Container labs-dc1_seed-1        Started      0.4s
->  ⠿ Container labs-dc1_noeud-1       Started      1.2s
+>  ⠿ Container lab1-dc1_seed-1        Started      0.4s
+>  ⠿ Container lab1-dc1_noeud-1       Started      1.2s
 > ```
 
-#### `✅.004`- Afficher le statut des conteneurs avec `Docker`
+#### `✅.004`- Display containers status with `docker`
 
-Les deux conteneurs (services) démarrent. Le second réalise une temporisation de 30 secondes afin d'attendre que le nœud seed bootstrappe.
+2 containers will start (services). The second one will wait 30s for the seed to bootstrap.
 
 ```bash
 docker ps
 ```
 
-#### `✅.005`- Afficher le statut des conteneurs avec `docker-compose`
+#### `✅.005`- Display containers status with `docker-compose`
 
 ```bash
  docker-compose ps
@@ -190,29 +190,27 @@ docker ps
 > ```bash
 >     Name                    Command               State                                        Ports
 > --------------------------------------------------------------------------------------------------------------------------------------------
-> labs_dc1_noeud_1   docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
-> labs_dc1_seed_1    docker-entrypoint.sh cassa ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp,:::9042->9042/tcp, 9160/tcp
+> lab1_dc1_noeud_1   docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
+> lab1_dc1_seed_1    docker-entrypoint.sh cassa ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp,:::9042->9042/tcp, 9160/tcp
 > ```
 
-#### `✅.006`- Sauvegarder l'identifiant du conteneur `seed`
+#### `✅.006`- Save `seed` container id
 
-Nous allons utiliser les outils disponibles en ligne de commande dans une installation Apache Cassandra™ à savoir `cqlsh` et `nodetool`.
-
-Nous sauvegardons l'identifiant du conteneur seed pour simplifier les futures lignes de commande.
+In order for us to us to use tools like `cqlsh` and `nodetool` we have to access container shell. We save the container id to ease future commands.
 
 ```bash
 export dc1_seed_containerid=`docker ps | grep dc1_seed | cut -b 1-12`
 
-echo "container ID saved: $dc1_seed_containerid"
+echo "Seed container ID has been saved : $dc1_seed_containerid"
 ```
 
-#### `✅.007`- Vérification du démarrage du cluster avec `nodetool`
+#### `✅.007`- Display cluster with `nodetool`
 
 ```
 docker exec -it $dc1_seed_containerid nodetool status
 ```
 
-> 🖥️ Résultat (après environ 1 minute)
+> 🖥️ Result (after about 1min)
 >
 > ```
 > Datacenter: dc1
@@ -224,11 +222,12 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.3  69.05 KiB  16      100.0%            25f43936-be10-471d-b8ac-7efe93834712  rack1
 > ```
 
-_Il faut s'attarder sur le `State` des noeuds, nous attendons qu'ils soient tous au statut `UN` (Up/Normal)._
+ℹ️ **Information**
+> We expect nodes `states` to be `UN`(Up/Normal).
 
-### 1.2.2 - Scale up du cluster
+### 1.2.2 - Cluster Scale up
 
-#### `✅.008`- Ajouter un 3e noeud (scale up du noeud non seed).
+#### `✅.008`- Add a third node in the cluster (scale up of non-seed node).
 
 ```bash
 docker-compose up --scale dc1_noeud=2 -d
