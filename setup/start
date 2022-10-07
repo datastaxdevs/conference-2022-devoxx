@@ -1,0 +1,11 @@
+#!/bin/bash
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+clear
+echo -e "${BLUE}------------------------------------------------------------${NC}"
+echo -e "${BLUE}---              Welcome to Devoxx 2022                  ---${NC}"
+echo -e "${BLUE}------------------------------------------------------------${NC}"
+echo -e ""
+cd /workspace/conference-2022-devoxx/

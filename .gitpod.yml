@@ -2,22 +2,27 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - name: WORKSHOP
+  - name: setup
     before: |
       sdk install micronaut
-      printf 'export PATH="$HOME%s:$PATH"\n' "/.astra/cli" >> $HOME/.bashrc
-      printf 'unset JAVA_TOOL_OPTIONS\n' >> $HOME/.bashrc
-      curl -Ls "https://dtsx.io/get-astra-cli" | bash >> ./install.log
+      chmod 700 /workspace/conference-2022-devoxx/labs/setup/start
+      chmod 700 /workspace/conference-2022-devoxx/labs/setup/tests
+      docker pull cassandra:4.0.6
     init: |
       sed -i '1,$s/sdkman_auto_answer=false/sdkman_auto_answer=true/' /home/gitpod/.sdkman/etc/config 
       sed -i '1,$s/sdkman_selfupdate_enable=true/sdkman_selfupdate_enable=false/' /home/gitpod/.sdkman/etc/config 
       sdk install java 22.1.0.r11-grl -y
       gu install native-image
-      cd /workspace/workshop-spring-quarkus-micronaut-cassandra/
+      cd /workspace/conference-2022-devoxx/
     command: |
-      unset JAVA_TOOL_OPTIONS
-      source /home/gitpod/.astra/cli/astra-init.sh
-      astra setup
+       clear
+       /workspace/conference-2022-devoxx/labs/setup/start
+  - name: tests
+    command: |
+       clear
+       /workspace/conference-2022-devoxx/labs/setup/tests
+  
+    
 ports:
   # Cassandra Node in Docker
   - port: 9042

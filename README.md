@@ -187,7 +187,7 @@ docker ps
  docker-compose ps
 ```
 
-> 🖥️ Résultat
+> 🖥️ Results
 >
 > ```bash
 >     Name                    Command               State                                        Ports
@@ -202,7 +202,6 @@ In order for us to use tools like `cqlsh` and `nodetool` we have to access conta
 
 ```bash
 export dc1_seed_containerid=`docker ps | grep dc1_seed | cut -b 1-12`
-
 echo "Seed container ID has been saved : $dc1_seed_containerid"
 ```
 
@@ -259,7 +258,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.4  69.06 KiB  16      76.0%             fe43b0d0-952b-48ec-86e1-d73ace617dc8  rack1
 > ```
 
-### 1.4 - Creating keyspace `devoxx`
+### 1.4 - Create keyspace `devoxx`
 
 #### `✅.010`- Open REPL CQLSH
 
@@ -358,36 +357,58 @@ describe keyspaces;
 > system  system_distributed  system_traces  system_virtual_schema
 > ```
 
+### 1.5 - Connect to keyspace `devoxx` with drivers
 
-# LAB2 - Les Fondamentaux d'Apache Cassandra™
+- Open `lab-cassandra-drivers`
+
+```xml
+<!-- Obligatoire -->
+<dependency>
+  <groupId>com.datastax.oss</groupId>
+	<artifactId>java-driver-core</artifactId>
+	<version>${cassandra-driver-version}</version>
+</dependency>
+```
+
+- Open 
+
+```
+cd /workspace/workshop-spring-quarkus-micronaut-cassandra/lab1_cassandra_drivers
+gp open /workspace/workshop-spring-quarkus-micronaut-cassandra/lab1_cassandra_drivers/src/main/java/com/datastax/samples/E00_TestConnectivity.java
+mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E00_TestConnectivity
+````
+
+
+
+# LAB2 - Cassandra Fundamentals
 
 Dans ce LAB nous travaillerons dans l'outil `CQLSH`. Vous pouvez utiliser celui en local (dans docker) ou celui d'Astra à votre convenance.
 
-## 2.1 - Tables et types de données simples
+## 2.1 - Tables and simple Data types
 
-#### `✅.025`- Lister les keyspaces
+#### `✅.025`- list Keyspaces
 
-Vérifier que `devoxx` fait partie de la liste affichée.
+Check that `devoxx` is one of the keyspace
 
 ```sql
 describe KEYSPACES;
 ```
 
-#### `✅.026`- Sélectionner le keyspace `devoxx`
+#### `✅.026`- Select keyspace `devoxx`
 
 ```sql
 use devoxx;
 ```
 
-#### `✅.027`- Lister les tables du keyspace `devoxx`
+#### `✅.027`-  List Tables in keyspaces `devoxx`
 
-Sans suspense, le keyspace est vide.
+No suspense, the schema is empty
 
 ```sql
 desc tables;
 ```
 
-#### `✅.028`- Créer votre première table.
+#### `✅.028`- Create your first table
 
 ```sql
 CREATE TABLE IF NOT EXISTS city_by_country (
@@ -2452,180 +2473,6 @@ Vous avez désormais l'ensemble des bases pour bien démarrer avec Apache Cassan
 
 # LAB 4 - Introduction aux drivers
 
-Les applications se connectant à Cassandra utilisent des libraires nommées _drivers_ qui prennent en charge la communication binaire avec la base de données. Vous êtes peut-être déjà familier avec les drivers `JDBC` pour les bases de données relationnelles.
-
-Les drivers pour Apache Cassandra ont été écrits par `Datastax`. Pour les insérer dans vos projets voici les dépendances maven nécessaires.
-
-```xml
-<!-- Obligatoire -->
-<dependency>
-  <groupId>com.datastax.oss</groupId>
-	<artifactId>java-driver-core</artifactId>
-	<version>${cassandra-driver-version}</version>
-</dependency>
-
-<!-- Optionnelles pour Object mapping -->
-<dependency>
-  <groupId>com.datastax.oss</groupId>
-	<artifactId>java-driver-query-builder</artifactId>
-	<version>${cassandra-driver-version}</version>
-</dependency>
-<dependency>
-	<groupId>com.datastax.oss</groupId>
-	<artifactId>java-driver-mapper-runtime</artifactId>
-	<version>${cassandra-driver-version}</version>
-</dependency>
-```
-
-Pour connaître la version `cassandra-driver-version` c'est sur le central maven:
-
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss/java-driver-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss/java-driver-core)
-
-> _**Note:** depuis janvier 2019 les drivers sont unifiés dans une version 4.x. C'est la version que nous utiliserons partout ici._
-
-## 4.1 - Connectivité
-
-Une fois les drivers importés dans votre projet, pour se connecter à Cassandra vous avez besoin:
-
-- d'un `contact point` (ip:port)
-- du `datacenter` avec lequel vous voulez travailler (`local datacenter`)
-- Éventuellement du nom du keyspace pour ne pas avoir à préfixer toutes les requêtes.
-- Éventuellement d'un identifiant et mot de passe. Lors de la connexion vous indiquez également
-
-La connexion est un objet `CqlSession` qui devra être un singleton dans votre application.
-
-> ```java
-> CqlSession cqlSession = CqlSession.builder()
->   .addContactPoint(new InetSocketAddress("localhost", 9042))
->   .withLocalDatacenter("dc1")
->   .withKeyspace("devoxx_drivers")
->   .build();
-> ```
-
-`Astra` est une base de données dans le cloud. Pour des raisons de sécurité vous ne voulez pas ouvrir des sockets sur internet, tout passe par HTTP. Pour mettre en place le tunnel SSl nécessaire vous avez besoin de certificats `X509`(authentification forte). Tout est disponible sous la forme d'une archive zip `secureConnecBundle`. Il est nécessaire de le fournir.
-
-![](img/secure_bundle.png)
-
-> ```java
-> CqlSession cqlSession = CqlSession.builder()
->   .withCloudSecureConnectBundle(Paths.get(secureConnectBundle))
->   .withAuthCredentials(username, password)
->   .withKeyspace("devoxx_drivers")
->   .build();
-> ```
-
-Cette configuration est possible au driver du `CqlSessionBuilder` comme présenté ci-dessus. Toutes les clés ne sont pas disponibles programmatiquement. Vous aurez également besoin d'une fichier `application.conf` pour la configuration plus fine.
-
-```TypeScript
-datastax-java-driver {
-  basic {
-    session-keyspace = devoxx_drivers
-    request {
-       timeout     = 8 seconds
-       consistency = LOCAL_QUORUM
-       page-size = 5000
-    }
-    cloud {
-      secure-connect-bundle = /home/gitpod/.cassandra/bootstrap.zip
-    }
-  }
-
-  advanced {
-    connection {
-      init-query-timeout = 10 seconds
-      set-keyspace-timeout = 10 seconds
-    }
-    control-connection.timeout = 10 seconds
-    auth-provider {
-      class = PlainTextAuthProvider
-      username = token
-      password = "${ASTRA_DB_ADMIN_TOKEN}"
-    }
-  }
-}
-```
-
-#### `✅.115`- Création du keyspace `devoxx_drivers`
-
-_Dans Docker:_
-
-```sql
-CREATE KEYSPACE IF NOT EXISTS devoxx_drivers
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
-```
-
-Avec Astra, la manipulation des keyspaces est désactivée, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `devoxx_drivers` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
-#### `✅.116`- Configurer votre connexion à Apache Cassandra™ dans `CqlSessionProvider`
-
-Nous avons choisi de déléguer la création de la connexion `CqlSession` dans une classe dédiée `CqlSessionProvider` et cela pour deux raisons:
-
-- Mutualisation du code: La connexion à la base Cassandra est nécessaire dans tous les exemples
-- Certains utilisent Astra pour les exercices et d'autres `Docker`.
-
-- Ouvrir la classe `CqlSessionProvider`
-
-```bash
-gp open /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers/src/main/java/com/datastax/samples/CqlSessionProvider.java
-```
-
-- Vérifier les informations de connexion. Si vous utilisez `Astra`, mettez à jour votre token.
-
-```java
-final String LOCAL_DATACENTER   = "dc1";
-final String CONTACT_POINT      = "localhost";
-final int    CONTACT_POINT_PORT = 9042;
-final String ASTRA_USERNAME     = "token";
-final String ASTRA_PASSWORD     = "<votre_jeton_AstraCS>";
-final String ASTRA_BUNDLE       = "/home/gitpod/.cassandra/bootstrap.zip";
-```
-
-- Décommenter la connexion qui vous correspond. La ligne 40 (`connectToLocalCassandra()`) permet d'utilise le cluster local alors que la ligne `41` tentera de se connecter au cluster sur Astra. (`connectoToAstra()`)
-
-```java
-protected static synchronized CqlSession getCqlSession() {
-  if (cqlSession == null) {
-    //cqlSession = connectToLocalCassandra();
-    cqlSession = connectoToAstra();
-  }
-  return cqlSession;
-}
-```
-
-#### `✅.117`- Vérifier votre connexion à Cassandra
-
-- Repéré le terminal `lab4_cassandra_drivers` avec le texte en bleu.
-
-```
-------------------------------------------------------------
--- Test Java                                             ---
-------------------------------------------------------------
-```
-
-- Lancer le test de connectivité avec `Maven`.
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab4_cassandra_drivers
-mvn clean compile exec:java -Dexec.mainClass=com.datastax.samples.E00_TestConnectivity
-```
-
-Vous devez obtenir un `SUCCESS` dans la console.
-
-```bash
-01:25:36.397 INFO  com.datastax.samples.CqlSessionProvider       : Creating your CqlSession to Cassandra...
-01:25:36.398 INFO  com.datastax.samples.CqlSessionProvider       : + Connecting to [LOCAL CASSANDRA]
-01:25:42.584 INFO  com.datastax.samples.CqlSessionProvider       : + [OK] Your are connected.
-01:25:42.584 INFO  com.datastax.samples.E00_TestConnectivity     : [SUCCESS]
-```
 
 ## 4.2 - Création du schéma
 
