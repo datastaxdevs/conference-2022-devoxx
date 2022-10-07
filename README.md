@@ -16,13 +16,41 @@
 
 ## 📋 Table of content
 
-- [Objectives](#-objectives)
-- [Materials](#-materials)
+
+#objectives
+#materials
+
+#setup
+ #start-gitpod
+ #starting-apache-cassandra-cluster
+ #scaling-up-cluster
+ #create-keyspace-devoxx
+
+#connectivity
+ #connect--with-drivers
+ #drivers-configuration
+
+#working-with-cql
+  #getting-started
+  #advanced-data-types
+
+- [Objectives](#objectives)
+- [Materials](#materials)
 - [Prerequisites](#-prerequisites)
-- [**LAB 1 - Environment Setup**](#lab1---création-de-la-base-de-données)
-  - [1.1 - Starting `Gitpod`](#11---démarrage-de-gitpod)
-  - [1.2 - Starting Apache Cassandra™ cluster](#12---apache-cassandra-dans-docker)
-- [#**LAB 2 - Apache Cassandra Fundamentals**](#lab2---les-fondamentaux-dapache-cassandra)
+- [**Environment Setup**](#setup)
+  - [Start `Gitpod`](#start-gitpod)
+  - [Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
+  - [Scale the cluster up](#scaling-up-cluster)
+  - [Create keyspace](#create-keyspace-devoxx)
+
+- [**Connectivity**](#working-with-cql)
+  - [Connect with drivers](#connect--with-drivers)
+  - [Drivers Configuration](#drivers-configuration)
+  
+- [**Working with CQL**](#working-with-cql)
+  - [Simple Types](#getting-started)
+  - [Advanced Data Types](#advanced-data-types)
+
   - [2.1 - Tables and simple data types](#21---tables-et-types-de-données-simples)
   - [2.2 - CRUD unitary operations](#22---opérations-create-read-update-delete)
   - [2.3 - Understanding CQL](#23---grammaire-des-requêtes-avec-cql)
