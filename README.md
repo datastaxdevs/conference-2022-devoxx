@@ -17,7 +17,7 @@
 ## 📋 Table of content
 
 - [Objectives](#1-objectives)
-- [Frequently asked questions](#2-frequently-asked-questions)
+- [Prerequisites](#2-Prerequisites)
 - [Materials for the Session](#3-materials-for-the-session)
 - [**LAB 1 - Environment Setup**](#lab1---création-de-la-base-de-données)
   - [1.1 - Starting `Gitpod`](#11---démarrage-de-gitpod)
@@ -79,38 +79,42 @@
 
 [🏠 Back to Table of Contents](#-table-of-content)
 
-## 2. Frequently asked questions
-<p/>
-<details>
-<summary><b> 1️⃣ Can I run the steps on my laptop?</b></summary>
-<hr>
-<p>There is nothing preventing you from running the workshop on your own machine, If you do so, you will need the following:
-<ol>
-<li><b>git</b> to access the code
+## 2. Prerequisites
+
+Instructions are provided for you to work in `gitpod`. Idea is to execute easily the steps with no installation required. You can of course use your own laptop but you will need a couple of tools
+
+#### 📦 Docker
+- Use the [reference documentation](https://www.docker.com/products/docker-desktop) to install **Docker Desktop**
+- Validate your installation with
+
+```bash
+docker -v
+docker run hello-world
+```
+
+#### 📦 Java Development Kit (JDK) 8+
+- Use the [reference documentation](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html) to install a **Java Development Kit**
+- Validate your installation with
+
+```bash
+java --version
+```
+
+#### 📦 Apache Maven
+- Use the [reference documentation](https://maven.apache.org/install.html) to install **Apache Maven**
+- Validate your installation with
+
+```bash
+mvn -version
+```
+
+- <li><b>git</b> to access the code
 <li><b>JDK 17</b> installed on your local system
 <li><b>Maven 3.6+</b>
 <li><b>GraalVM 22.1</b>
 <li><b>Native image</b>
-</ol>
-</p>
-</details>
-<p/>
-<details>
-<summary><b> 2️⃣ What other prerequisites are required?</b></summary>
-<hr>
-<ul>
-<li>You will need a GitHub account
-</ul>
-</p>
-</details>
-<p/>
-<details>
-<summary><b> 3️⃣ Do I need to pay for anything for this workshop?</b></summary>
-<hr>
-<b>No.</b> All tools and services we provide here are FREE.
-</details>
-<p/>
-<p/>
+Docker
+
 
 [🏠 Back to Table of Contents](#-table-of-content)
 
