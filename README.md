@@ -33,7 +33,7 @@
 - [**5. Working with CQL**](#working-with-cql)
   - **5.1 - Understanding table keys** *(slides)*
   - [5.2 - Schema Definition](#)
-  - [5.3 - Simple Types](#getting-started)
+  - [5.3 - CRUD Operations](#getting-started)
   - [5.4 - Advanced Data Types](#advanced-data-types)
   - [5.5 - Advanced Concepts](#advanced-data-types)
 - [**6. Data Modeling**](#lab-3---modélisation-de-données)
@@ -46,12 +46,12 @@
   - [7.3 - `CassandraOperations`](#53---cassandraoperations)
   - [7.4 - Spring Boot (mvc, Webflux)](#54---application-spring-boot)
   - [7.5 - Spring Native](#54---application-spring-boot)
-- [**8. Quarkus with Quarkus**](#lab-6---cassandra-quarkus-extension)
+- [**8. Working with Quarkus**](#lab-6---cassandra-quarkus-extension)
   - **8.1 - Quarkus extension**  *(slides)*
   - [8.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
   - [8.3 - Native Image](#64---application-quarkus)
-- [**9. Micronaut**](#lab-7---micronaut-cassandra)
-  - **9.1 - MIcronaut Philosophy**  *(slides)*
+- [**9. Working with Micronaut**](#lab-7---micronaut-cassandra)
+  - **9.1 - Micronaut Philosophy**  *(slides)*
   - [9.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
   - [9.3 - Native Image](#64---application-quarkus)
 
@@ -75,9 +75,9 @@ It doesn't matter if you join the presentation live or you prefer to work at you
 - [Datastax Developers Discord chat](https://bit.ly/cassandra-workshop)
 - [Questions and Answers](https://community.datastax.com/)
 
-## Setup
+## 2. Environment Setup
 
-### Prerequisites
+### 2.1 - Prerequisites
 
 Instructions are provided to you to work within `gitpod` cloud IDE. Intention is to execute easily the steps with no installation required. You can of course use your own laptop and you will need a couple of tools
 
@@ -116,8 +116,7 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 > gu --version
 > ```
 
-
-### Start `Gitpod`
+### 2.2 - Start `Gitpod`
 
 [Gitpod](https://www.gitpod.io/) is a Free IDE provided as Saas. He leverages [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) and comes loaded with all tools needed to develop with multiple languages.
 
@@ -125,7 +124,7 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 
-### Starting Apache Cassandra™ cluster
+### 2.3 - Start Apache Cassandra™ cluster
 
 Once gitpod has launched you should find a couple of terminals available. Locate `setup`, you will get this message.
 
@@ -215,7 +214,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 
 We expect nodes `states` to be `UN`(Up/Normal).
 
-### Scaling up Cluster
+### 2.4 - Scale the cluster up
 
 #### `✅.008`- Add a third node in the cluster (scale up of the non-seed node).
 
@@ -248,7 +247,7 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.4  69.06 KiB  16      76.0%             fe43b0d0-952b-48ec-86e1-d73ace617dc8  rack1
 > ```
 
-### Create keyspace `devoxx`
+### 2.5 - Create keyspace
 
 #### `✅.010`- Open REPL CQLSH
 
@@ -347,9 +346,11 @@ describe keyspaces;
 > system  system_distributed  system_traces  system_virtual_schema
 > ```
 
-## Connectivity
+## 3. Connectivity
 
-### Connect with drivers
+### 3.1 - Introduction to Driver
+
+### 3.2 - Connect with drivers
 
 - Check project `lab-cassandra-drivers` configuration file `pom.xml`
 
@@ -365,7 +366,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E00_ConnectivityTest
 ```
 
-### Drivers configuration
+### 3.3 - Drivers Configuration
 
 - Check project `lab-cassandra-drivers` configuration file `application.conf`
 
@@ -373,9 +374,28 @@ mvn test -Dtest=com.datastax.devoxx.E00_ConnectivityTest
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/main/resources/application.conf
 ```
 
-## Working with CQL
+## 4. Data Distribution
 
-### Getting Started
+Slides
+
+## 5. Working with CQL
+
+### 5.1 - Understanding table keys
+
+Slides
+
+### 5.2 - Schema Definition
+
+
+- Run  `E01_CreateSchemaTest.java`
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E01_CreateSchemaTest.java
+mvn test -Dtest=com.datastax.devoxx.E01_CreateSchemaTest
+```
+
+### 5.3 - CRUD Operations
 
 We keep using `cqlsh` to illustrate what have been seen so far
 
@@ -739,32 +759,27 @@ To avoid creating tombstones we will use `TRUNCATE` instead of `DELETE`.
 TRUNCATE city_by_country;
 ```
 
-## Advanced data types.
+### `✅.045`- Statements with Java
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E02_StatementsTest.java
+mvn test -Dtest=com.datastax.devoxx.E02_StatementsTest
+```
+
+### `✅.046`- Create read update Delete
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E03_OperationsCrudTest.java
+mvn test -Dtest=com.datastax.devoxx.E03_OperationsCrudTest
+```
+
+## 5.4 - Advanced Data Types
 
 There a lot of different simple scalar types in CQL : `VARCHAR`, `ASCII`, `TINYINT`, `SMALLINT`, `INT`, `BIGINT`, `VARINT`, `FLOAT`, `DOUBLE`, `DECIMAL`, `TIME`, `TIMESTAMP`, `DATE`, `DURATION`, `BOOLEAN`, `BLOB`, et `INET`. Here is the [complete list](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cql_data_types_c.html).
 
-Some types considered as _advanced_ need to be mentionned
-
-- Unitque identifier or `UUID` which types: `UUID` and `TIMEUUID`
-- Collectiosn withs `SET`, `LIST` and `MAP`
-- Tuples with `TUPLE`
-- `UDT` (_User-Defined-Types_): `CREATE TYPE`, `ALTER TYPE`, `DROP TYPE` and `DESCRIBE TYPE`
-- Counters `COUNTER`
-
-### `UUIDS`
-
-Un `UUID` est un nombre sur 128 bits qui peut être généré automatiquement. Ils sont utilisés pour identifier une entité ou une relation dans les bases Cassandra.
-
-Ils fournissent une manière efficace de créer des identifiants sans introduire de synchronisation entre les nœuds. On s'affranchit ainsi d'`UPSERT` involontaires lors des accès concurrents (`MAX()`).
-
-Le CQL supporte les 2 types suivants:
-
-- `UUID` est un UUID dit de version 4 généré de manière aléatoire. Pour les générer on utilise la fonction `uuid()`.
-- `TIMEUUID` est un UUID dit de version 1, il est construit sur la base de l'adresse MAC et d'un timestamp. Pour les générer on utilise la fonction `now()`. On peut extraire le `timestamp` d'un `TIMEUUID` avec les fonctions `unixTimestampOf()` ou `dateOf()`.
-
-#### `✅.045`- Comprendre les `UUID`
-
-- Créer une table `user` dont la clé primaire `id` est un `uuid`.
+#### `✅.045`- Working with `UUID`
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -773,13 +788,7 @@ CREATE TABLE IF NOT EXISTS users (
   age INT,
   PRIMARY KEY ((id))
 );
-```
 
-#### `✅.046`- Insérer des enregistrements avec des `UUID`
-
-- Insérer un enregistrement en utilisant une valeur fixe `7902a572-e7dc-4428-b056-0571af415df3` et un second avec la fonction `now()`.
-
-```sql
 INSERT INTO users (id, name, age)
 VALUES (7902a572-e7dc-4428-b056-0571af415df3, 'Joe', 25);
 
@@ -789,62 +798,12 @@ VALUES (uuid(), 'Jen', 27);
 SELECT * FROM users;
 ```
 
-#### `✅.047`- Exercice `UUID`
-
-- Créer une table `movies`, dont la partition est `id` de type `UUID` et insérer les lignes suivantes:
-
-| id                                   | title                        | year     | duration |
-| ------------------------------------ | ---------------------------- | -------- | -------- |
-| 5069cc15-4300-4595-ae77-381c3af5dc5e | Alice au pays des Merveilles | 2010 108 |
-| uuid()                               | Alice                        | 1951     | 75       |
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-CREATE TABLE movies (
-  id UUID,
-  title TEXT,
-  year INT,
-  duration INT,
-  PRIMARY KEY ((id))
-);
-
-INSERT INTO movies (id, title, year, duration)
-VALUES (5069cc15-4300-4595-ae77-381c3af5dc5e,
-'Alice au pays des Merveilles', 2010, 108);
-
-INSERT INTO movies (id, title, year, duration)
-VALUES (uuid(), 'Alice', 1951, 75);
-```
-
-*Vérification:*
-```sql
-SELECT * FROM movies;
-```
-
-</details>
-<p/>
-
-### 2.4.2 - Les `SET`
-
-Comme en Java un `SET` est un attribut multi-valué, non ordonné, qui assure l'unicité de chaque enregistrement (dédoublonnage). Il a lui-même un `type` qui indique quels objets l'on peut y insérer.
-
-#### `✅.048`- Ajouter une colonne `SET` dans la table `movies`
-
-- Ajouter la colonne `production` de type `SET<TEXT>` dans la table `movies`.
+#### `✅.045`- Working with `SET`
 
 ```sql
 ALTER TABLE movies
 ADD production SET<TEXT>;
-```
 
-#### `✅.049`- Mise à jour des enregistrements contenant un `SET`
-
-Pour mettre à jour la valeur d'un set ou utilise des accolades `{}`.
-
-```sql
 UPDATE movies
 SET production = { 'Walt Disney Pictures',
                    'Roth Films' }
@@ -857,203 +816,68 @@ WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT title, year, production FROM movies;
 ```
 
-#### `✅.050`- Exercice `SET`
-
-- Ajouter une colonne `genres` de type `SET<TEXT>` dans la table `movies`
-- Ajouter les valeurs `Aventure`, `Famille` et `Fantasie` dans le set `genres` pour l'identifiant `5069cc15-4300-4595-ae77-381c3af5dc5e`.
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-ALTER TABLE movies ADD genres SET<TEXT>;
-
-UPDATE movies
-SET genres = { 'Adventure', 'Family', 'Fantasy' }
-WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
-```
-
-Vérification:
-
-```sql
-SELECT title, year, genres FROM movies;
-```
-
-</details>
-<p/>
-
-### 2.4.3 - Les `LIST`
-
-Comme en Java une `LIST` est un attribut multi-valué, qui conserve l'ordre d'insertion. Il a lui-même un `type` qui indique quels sont les objets que l'on peut y insérer.
-
-Les données y sont indexées, on peut donc accéder à un élément en fournissant l'offset.
-
-#### `✅.051`- Ajouter une colonne `LIST` dans la table `users`
-
-- Ajouter une colonne `searches` de type `LIST<TEXT>` dans la table `users`.
+#### `✅.045`- Working with `LIST`
 
 ```sql
 ALTER TABLE users
 ADD searches LIST<TEXT>;
-```
 
-#### `✅.052`- Mise à jour des enregistrements contenant une `LIST`
-
-Pour mettre à jour la valeur d'une `LIST` ou utilise des crochets `[]`.
-
-- Ajouter la recherche `Alice au pays des merveilles` pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3` dans la table `users`.
-
-```sql
 UPDATE users
 SET searches = [ 'Alice au pays des merveilles' ]
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-- Ajouter la recherche `Comedies` pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3` dans la table `users`.
-
-```sql
 UPDATE users
 SET searches = searches + [ 'Comedies' ]
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-- Ajouter une seconde fois `Alice au pays des merveilles` pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3` dans la table `users`.
-
-```sql
 UPDATE users
 SET searches = searches + [ 'Alice au pays des merveilles' ]
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-- Vérification du résultat.
-
-```sql
 SELECT id, name, searches FROM users;
 ```
 
-### 2.4.4 - Les `MAP`
-
-Les maps sont une collection de clé/valeur. Dans un map, chaque clé est unique. La clé et la valeur sont toutes deux typées, on peut écrire une map sous la forme `MAP<TEXT, TEXT>`.
-
-#### `✅.053`- Ajouter une colonne `MAP` dans la table `users`
-
-- Ajouter une colonne nommée `session` de type `MAP<TIMEUUID, INT>` dans la table `users`
+#### `✅.045`- Working with `MAP`
 
 ```sql
 ALTER TABLE users ADD sessions MAP<TIMEUUID,INT>;
 SELECT name, sessions FROM users;
-```
 
-#### `✅.054`- Ajouter/Supprimer des éléments d'une `MAP`
-
-Pour mettre à jour la valeur d'une `MAP` ou utilise à nouveau les accolades `{ cle1:valeur1 , cle2:valeur2 }`.
-
-- Définir une session pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3` en utilisant `now()`.
-
-```sql
 UPDATE users
 SET sessions = { now(): 32, e22deb70-b65f-11ea-9aac-99396fc4f757: 7 }
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-- Vérification
-
-```sql
 SELECT name, sessions FROM users;
-```
 
-#### `✅.055`- Remplacer un élément d'une `MAP`
-
-```sql
 UPDATE users
 SET sessions[e22deb70-b65f-11ea-9aac-99396fc4f757] = 9
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-- Vérification
-
-```sql
 SELECT name, sessions FROM users;
 ```
 
-#### `✅.056`- Exercice sur les `MAP`
-
-- Ajouter une colonne `preferences` sur la table `users` de type `MAP<TEXT,TEXT>`. - Insérer les valeurs `color=noir, qualité=auto` dans cette map pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3`.
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-ALTER TABLE users ADD preferences MAP<TEXT,TEXT>;
-UPDATE users
-SET preferences['color'] = 'dark'
-WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-
-UPDATE users
-SET preferences['quality'] = 'auto'
-WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
-
-Vérification:
-
-```sql
-SELECT id, name, preferences FROM users;
-```
-
-</details>
-<p/>
-
-### 2.4.5 - Collections Imbriquées 🪆🪆🪆
-
-Il est possible d'imbriquer les collections les unes dans les autres. On peut ainsi avoir une liste de listes de maps. (`LIST<LIST<MAP<TEXT,TEXT>>>`).
-
-Les collections imbriquées doivent contenir le terme `FROZEN`. Elles sont en effet stockées comme un blob. En d'autres termes, si l'un des items est mis à jour, c'est toute la liste qui est réécrite.
-
-#### `✅.057`- Ajouter une colonne avec des collections imbriquées
-
-- Ajouter une colonne nommée `crew` de type `MAP<TEXT,<LIST<TEXT>>>` dans la table `movies`
+#### `✅.045`- Working with `MAP`
 
 ```sql
 ALTER TABLE movies
 ADD crew MAP<TEXT,FROZEN<LIST<TEXT>>>;
 SELECT title, year, crew FROM movies;
-```
 
-#### `✅.058`- Ajouter et supprimer des éléments
-
-- Dans la table `movies`, pour le film `5069cc15-4300-4595-ae77-381c3af5dc5e`, ajouter les valeurs pour `crew`: cast=[Johnny Depp,Mia Wasikowska] et directed by=[Tim Burton]
-
-```sql
 UPDATE movies
 SET crew = {
   'cast': ['Johnny Depp', 'Mia Wasikowska'],
   'directed by': ['Tim Burton']
- }
+}
+
 WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT title, year, crew FROM movies;
 ```
 
-### 2.4.6 - Les `Tuples`
-
-Un tuple est une liste de **taille fixe**. Chaque item de la liste peut avoir son propre type. Un tuple sera donc de la forme `TUPLE<type1, type2, ...typeN>`.
-
-#### `✅.059`- Ajouter une colonne `TUPLE`
-
-- Ajouter une colonne nommée `full_name` de type `TUPLE<TEXT,TEXT,TEXT>` dans la table `users`
+#### `✅.045`- Working with `TUPLES`
 
 ```sql
 ALTER TABLE users ADD full_name TUPLE<TEXT,TEXT,TEXT>;
-```
 
-#### `✅.060`- Mettre à jour un `TUPLE`
-
-Pour mettre à jour un tuple on utilise des **parenthèses simples** `()`.
-
-- Dans la table `users`, pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3`, définir la valeur du `full_name` par `(Joe, The, Great)`.
-
-```sql
 UPDATE users
 SET full_name = ('Joe', 'The', 'Great')
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
@@ -1061,15 +885,7 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 SELECT name, full_name FROM users;
 ```
 
-A l'inverse des User Defined types (UDT), il est nécessaire de mettre à jour tout le tuple à chaque fois et c'est pour cette raison **qu'ils sont peu utilisés.** on préfèrera les `UDT` qui sont, de fait, strictement supérieurs.
-
-### 2.4.7 - Les `UDT` ou User Defined Type
-
-Les `UDT` ou `User Defined Type` sont des structures _custom_ que vous pouvez définir comme vous voulez, des sous-types à votre convenance. Il est possible de les imbriquer également avec la contrainte FROZEN présentée en [2.2.5](#).
-
-#### `✅.061`- Création d'un `UDT`
-
-- Créer un `UDT` nommé `ADDRESS`
+#### `✅.045`- Working with `UDT`
 
 ```sql
 CREATE TYPE IF NOT EXISTS ADDRESS (
@@ -1078,24 +894,10 @@ CREATE TYPE IF NOT EXISTS ADDRESS (
     state   TEXT,
     zipcode INT
 );
-```
 
-#### `✅.062`- Ajouter une colonne de type `UDT`
-
-- Ajouter une colonne `address` dans la table `users` de type `ADDRESS`.
-
-```sql
 ALTER TABLE users ADD address ADDRESS;
 SELECT name, address FROM users;
-```
 
-#### `✅.063`- Renseigner une colonne de type `UDT`
-
-La mise à jour d'un `UDT` est faite avec des accolades `{ attribut:'valeur'}`. Le nom de l'attribut ne prend pas de guillemets.
-
-- Dans la table `users`, ajouter une adresse de votre choix pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3`.
-
-```sql
 UPDATE users
 SET address = { street: '1100 Congress Ave',
                 city: 'Austin',
@@ -1105,13 +907,7 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 
 SELECT name, address FROM users
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
 
-#### `✅.064`- Mettre à jour une colonne de type `UDT`
-
-- Dans la table `users`, pour l'utilisateur `7902a572-e7dc-4428-b056-0571af415df3` mettez à jour uniquement le `address.state` avec une nouvelle valeur `TX`.
-
-```sql
 UPDATE users
 SET address.state = 'TX'
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
@@ -1124,83 +920,32 @@ FROM users
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 ```
 
-#### `✅.065`- Exercice UDT
+#### `✅.045`- Code UDT
 
-- Ajouter une colonne `previous_addresses` sur la table `user` comme une liste d'adresses (LIST<ADDRESS>), attention elle est considérée comme un type imbriqué.
-- Renseigner 2 valeurs de votre choix pour `previous_addresses` pour notre utilisateur `7902a572-e7dc-4428-b056-0571af415df3`.
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-ALTER TABLE users
-ADD previous_addresses LIST<FROZEN<ADDRESS>>;
-
-UPDATE users
-SET previous_addresses = [
-{ street: '10th and L St',
-city: 'Sacramento',
-state: 'CA',
-zipcode: 95814 } ]
-WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-
-UPDATE users
-SET previous_addresses = previous_addresses + [
-{ street: 'State St and Washington Ave',
-city: 'Albany',
-state: 'NY',
-zipcode: 12224 } ]
-WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E04_ListSetMapAndUdtTest.java
+mvn test -Dtest=com.datastax.devoxx.E04_ListSetMapAndUdtTest
 ```
 
-Vérification:
+#### `✅.045`- Working with counters
 
 ```sql
-SELECT name, address, previous_addresses
-FROM users
-WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
-```
-
-</details>
-<p/>
-
-### 2.4.8 - Les `Counter`
-
-Un `counter` est un entier signé de 64 bits. Ce dernier est distribué mais sa mise à jour peut-être réalisée de manière rapide _(pas de lecture avant écriture)_ sans race condition _(accès concurrents)_
-
-Cassandra définit le type `COUNTER` qui induit plusieurs restrictions:
-
-- La valeur ne peut être ni forcée ou ni réinitialisée, on ne peut qu'incrémenter ou décrémenter. Si la valeur n'existait pas elle est insérée en considérant que la valeur par défaut était de `0`.
-- Une table avec un `COUNTER` ne doit contenir que des colonnes de type `counter` en dehors de sa clé primaire.
-
-#### `✅.066`- Création d'une table avec des counters
-
-- Créer une table `movie_stats` contenant un identifiant `id` de type `uuid` et 2 counters.
-
-```sql
+-- Create dedicated table
 CREATE TABLE movie_stats (
   id UUID,
   num_ratings COUNTER,
   sum_ratings COUNTER,
   PRIMARY KEY ((id))
 );
-```
 
-#### `✅.067`- Mises à jour d'enregistrements avec counters
-
-- Insérer un enregistrement pour le film `5069cc15-4300-4595-ae77-381c3af5dc5e` avec les valeurs `num_ratings=1` et `sum_ratings=7`.
-
-```sql
+-- Insert a record with num_ratings=1  and sum_ratings=7
 UPDATE movie_stats
 SET num_ratings = num_ratings + 1,
     sum_ratings = sum_ratings + 7
 WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
-```
 
-- Pour cet enregistrement, incrémenter `num_ratings` de `1` et `sum_ratings` de `9`.
-
-```sql
+-- num_ratings+=1 et sum_ratings+=7
 UPDATE movie_stats
 SET num_ratings = num_ratings + 1,
     sum_ratings = sum_ratings + 9
@@ -1209,45 +954,15 @@ WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT * FROM movie_stats;
 ```
 
-#### `✅.068`- Exercice
+- With Java
 
-- Dans la table `movie_stats`, ajouter une nouvelle colonne de type `counter` avec le nom `num_views` indiquant le nombre de vues pour chaque film
-- Incrémenter le 3 fois de `1`.
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-ALTER TABLE movie_stats ADD num_views COUNTER;
-
-UPDATE movie_stats
-SET num_views = num_views + 1
-WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
-
-UPDATE movie_stats
-SET num_views = num_views + 1
-WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
-
-UPDATE movie_stats
-SET num_views = num_views + 1
-WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E05_CountersTest.java
+mvn test -Dtest=com.datastax.devoxx.E05_CountersTest
 ```
 
-Vérification:
-
-```sql
-SELECT * FROM movie_stats;
-```
-
-</details>
-<p/>
-
-### 2.4.9 - Requêter avec `JSON`
-
-Il est possible de requêter (lecture et écriture) directement les tables en JSON. Les documents JSON devront respecter le schéma des tables sous-jacentes.
-
-#### `✅.069`- Créer une table `videos` avec un `UDT` `video_format`
+#### `✅.045`- Working with `JSON`
 
 ```sql
 CREATE TYPE IF NOT EXISTS video_format (
@@ -1266,11 +981,7 @@ CREATE TABLE IF NOT EXISTS videos (
  formats   map <text,frozen<video_format>>,
  PRIMARY KEY (videoid)
 );
-```
 
-#### `✅.070`- Insertions dans la table `videos` avec `CQL`
-
-```sql
 INSERT INTO videos(videoid, email, title, upload, url, tags, frames, formats)
 VALUES(uuid(), 'clu@sample.com', 'sample video',
      toTimeStamp(now()), 'http://google.fr',
@@ -1282,11 +993,7 @@ INSERT INTO videos(videoid, email, title, upload, url)
 VALUES(uuid(), 'clu@sample.com', 'video2', toTimeStamp(now()), 'http://google.fr');
 
 select videoid, email, title from videos;
-```
 
-#### `✅.071`- Insertions dans la table `videos` avec `JSON`
-
-```sql
 INSERT INTO videos JSON '{
    "videoid":"e466f561-4ea4-4eb7-8dcc-126e0fbfd573",
      "email":"clunven@sample.com",
@@ -1301,58 +1008,23 @@ INSERT INTO videos JSON '{
      }
 }';
 
-select videoid, email, title from videos;
-```
-
-#### `✅.072`- Requêter un enregistrement avec `JSON`
-
-_Traditionnellement:_
-
-```sql
-select * from videos
-WHERE videoid=e466f561-4ea4-4eb7-8dcc-126e0fbfd573;
-```
-
-_Avec l'option JSON:_
-
-```sql
 select JSON * from videos
 WHERE videoid=e466f561-4ea4-4eb7-8dcc-126e0fbfd573;
 ```
 
-## 2.5 - Batches
+- With Java
 
-### 2.5.1 - Introduction aux Batches `Atomic`
-
-Avec Cassandra les opérations individuelles d'`insert`, `update`, `delete` sont atomiques (`atomic` = elles sont exécutées ou non, c'est blanc ou noir, pas de statut intermédaire) et isolées (`isolated` = les mises à jour ne sont pas visibles pour les autres). Afin de proposer de l'atomicité pour un groupe d'instructions, Cassandra fournit les batches.
-
-On peut en recenser de 2 natures:
-
-- On travaille avec une partition unique (`single-partition`) : Il n'y aura qu'un seul accès à la base et l'on peut garantir le tout-ou-rien. Le cas principal pour son utilisation est la mise à jour de plusieurs enregistrements qui seraient considérés comme corrompus si l'atomicité n'était pas assurée.
-
-- On travaille avec plusieurs partitions (`multi-partition batch`) soit au sein de la même table soit à travers plusieurs tables. Cette fois, il s'agit de mettre à jour la même donnée dans plusieurs tables. Cette donnée aurait été dupliquée pour les besoins de la dénormalisation.
-
-La syntaxe pour le `BATCH` est la suivante:
-
-```sql
-BEGIN BATCH
-  INSERT ...; | UPDATE ...; | DELETE ...;
-  [...]
-APPLY BATCH;
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E05_CountersTest.java
+mvn test -Dtest=com.datastax.devoxx.E05_CountersTest
 ```
 
-Remarques importantes:
+### 5.5 - Advanced Concepts
 
-- Les batches `single-partition` peuvent utiliser les `Lightweight Transactions` mais pas les autres. (nous les aborderons au chapitre `2.8`)
-- L'ordre des instructions n'est pas important, les instructions seront toutes exécutées en parallèle.
+#### `✅.045`- Working with `Batches`
 
-### 2.5.2 - `EXEMPLE BATCH 1` - Le caddie
-
-#### `✅.073`- Création du schéma
-
-- Voici une table permettant de stocker les différents articles du caddie dans un site de vente en ligne
-
-\_Les colonnes `STATIC` sont des colonnes qui ne font pas partie de la clé primaire et qui ont la même valeur pour tous les enregistrements d'une même partition.
+- Single Partition
 
 ```sql
 CREATE TABLE shopping_cart (
@@ -1364,13 +1036,7 @@ CREATE TABLE shopping_cart (
   total     DECIMAL STATIC,
   PRIMARY KEY ((cart_id), title, year)
 );
-```
 
-#### `✅.074`- Insertion Atomique avec un Batch
-
-- Insérer 3 articles dans le même caddie `b7255608-4a42-4829-9b84-a355e0e5100d` avec un `BATCH`
-
-```sql
 BEGIN BATCH
   INSERT INTO shopping_cart
          (cart_id, title, year, price, user)
@@ -1388,58 +1054,13 @@ BEGIN BATCH
   VALUES (b7255608-4a42-4829-9b84-a355e0e5100d, 2.98)
   IF NOT EXISTS;
 APPLY BATCH;
-```
 
-#### `✅.075`- Vérification
-
-- Afficher les articles du caddie `b7255608-4a42-4829-9b84-a355e0e5100d`
-
-```sql
 SELECT total, price, title, year
 FROM shopping_cart
 WHERE cart_id = b7255608-4a42-4829-9b84-a355e0e5100d;
 ```
 
-#### `✅.076`- Exercice
-
-- Mettre à jour le caddie en ajoutant un autre item et en mettant à jour le total. On notera que total est une colonne `static`, mettre à jour la valeur d'un record, met à jour la valeur pour tous les enregistrements.
-
-<p/>
-<details>
-<summary>Cliquer pour afficher la solution</summary>
-
-```sql
-BEGIN BATCH
-
-INSERT INTO shopping_cart (cart_id, title, year, price, user)
-VALUES (b7255608-4a42-4829-9b84-a355e0e5100d, 'Edward Scissorhands', 1990, 3.99, 'joe@datastax.com');
-
-UPDATE shopping_cart
-SET total = 6.97
-WHERE cart_id = b7255608-4a42-4829-9b84-a355e0e5100d
-IF total = 2.98;
-
-APPLY BATCH;
-```
-
-Vérification:
-
-```sql
-SELECT total, price, title, year
-FROM shopping_cart
-WHERE cart_id = b7255608-4a42-4829-9b84-a355e0e5100d;
-```
-
-</details>
-<p/>
-
-### 2.5.3 - `EXEMPLE BATCH 2` - Mise à jour de plusieurs tables avec un BATCH
-
-#### `✅.077`- Créations du schéma
-
-Pour des raisons de dénormalisation par exemple, il est fréquent d'enregistrer la même donnée au sein de 2 tables avec des clés primaires différentes.
-
-- Créer deux tables `ratings_by_user` et `ratings_by_movie` indiquant le rating d'un film avec la colonne `rating` de type `int`.
+- Multiple partitions
 
 ```sql
 CREATE TABLE  IF NOT EXISTS ratings_by_user (
@@ -1457,26 +1078,14 @@ CREATE TABLE  IF NOT EXISTS ratings_by_movie (
   rating INT,
   PRIMARY KEY ((title, year), email)
 );
-```
 
-#### `✅.078`- Insertion d'enregistrements avec un Batch (multi-partition)
-
-- Pour l'utilisateur `'joe@datastax.com`, insérer le rating `9` pour le film `Alice aux pays des merveilles` (2010).
-
-```sql
 BEGIN BATCH
   INSERT INTO ratings_by_user (email, title, year, rating)
   VALUES ('joe@datastax.com', 'Alice aux pays des merveilles', 2010, 9);
   INSERT INTO ratings_by_movie (email, title, year, rating)
   VALUES ('joe@datastax.com', 'Alice aux pays des merveilles', 2010, 9);
 APPLY BATCH;
-```
 
-#### `✅.079`- Mise à jour d'enregistrements avec un Batch (multi-partition)
-
-- Mettre à jour le même rating avec la valeur `10`.
-
-```sql
 BEGIN BATCH
   UPDATE ratings_by_user SET rating = 10
   WHERE email = 'joe@datastax.com'
@@ -1489,211 +1098,30 @@ BEGIN BATCH
 APPLY BATCH;
 ```
 
-#### `✅.080`- Affichage du rating
-
-- Pour afficher les valeurs utiliser la clé primaire complète (email, title, year)
-
-```sql
-SELECT * FROM ratings_by_user
-WHERE email = 'joe@datastax.com'
-  AND title = 'Alice aux pays des merveilles'
-  AND year  = 2010;
-
-SELECT * FROM ratings_by_movie
-WHERE title = 'Alice aux pays des merveilles'
-  AND year  = 2010
-  AND email = 'joe@datastax.com';
-```
-
-#### `✅.081`- Suppression d'enregistrements avec un Batch (multi-partition)
-
-- Pour supprimer les valeurs, il convient d'utiliser la clé primaire complète (email, title, year)
-
-```sql
-BEGIN BATCH
-  DELETE FROM ratings_by_user
-  WHERE email = 'joe@datastax.com'
-    AND title = 'Alice aux pays des merveilles'
-    AND year  = 2010;
-  DELETE FROM ratings_by_movie
-  WHERE email = 'joe@datastax.com'
-    AND title = 'Alice aux pays des merveilles'
-    AND year  = 2010;
-APPLY BATCH;
-```
-
-## 2.6 - Index Secondaires
-
-Lorsqu'il est nécessaire de requêter la même donnée de plusieurs manières le choix par défaut est de **créer une nouvelle table avec une autre clé primaire**.
-
-Maintenant, dans les cas aux limites, **lorsque la cardinalité est faible** (peu de partitions contiennent la valeur) alors on peut utiliser un index secondaire.
-
-#### `✅.082`- Rappels sur la table `city_by_country`
-
-- Afficher la structure de la table `city_by_country`
-
-```sql
-describe table city_by_country;
-```
-
-La partition key étant la colonne `country`, nous pouvons exécuter la requête suivante:
-
-```sql
-SELECT *
-FROM city_by_country
-WHERE country='FR';
-```
-
-En revanche, il n'est pas possible de rechercher sur les villes uniquement (sans ALLOW FILTERING). La partition n'étant pas fournie, cela entraînerait un full scan du cluster.
-
-```sql
-SELECT *
-FROM city_by_country
-WHERE city='Paris';
-```
-
-`--- oups: L'erreur était attendue. ---`
-
-#### `✅.083`- Création d'un index secondaire
-
-On considère qu'il existe peu de villes qui s'appellent `Paris` au travers des différents pays, la cardinalité est donc faible.
-
-- Créer un index `country_city_idx`, dans la table `city_by_country` sur la colonne `city`
-
-```sql
-CREATE INDEX IF NOT EXISTS country_city_idx
-ON city_by_country (city);
-```
-
-#### `✅.084`- Requêter avec un index
-
-- Utiliser l'index nouvellement créé pour lister la ville de `Paris`.
-
-```sql
-SELECT * FROM city_by_country
-WHERE city='Paris';
-```
-
-- Afficher les informations relatives à l'index `country_city_idx`
-
-```sql
-describe index country_city_idx;
-```
-
-> ℹ️ Sur Astra vous pouvez voir un index `CUSTOM` nommé `StorageAttachedIndex` (ou SAI). Un CEP est actuellement ouvert pour le verser dans `Cassandra 4.1`.
->
-> ```
-> CREATE CUSTOM INDEX country_city_idx
-> ON devoxx.city_by_country (city) USING 'org.apache.cassandra.index.sai.> StorageAttachedIndex';
-> ```
-
-> ℹ️ Il existe d'autres types d'index custom comme `Sasi` que nous n'aborderons pas en détail ici (pas dans Astra + pas activé par défaut dans Cassandra). Il possède une configuration plus fine et est adapté à certaines requêtes _full text_ ou range queries. [Plus d'informations ici](https://docs.datastax.com/en/dse/5.1/cql/cql/cql_using/useSASIIndex.html)
-
-Les indexes secondaires ne sont pas une garantie de performance. L'index est un dictionnaire qui associe la valeur de la colonne indexée à la liste partitions contenant la valeur. L'index est distribué entre les différents nœuds. Une requête avec index est donc par définitions assez lente:
-
-- Pour une table donnée, demande à tous les nœuds N (stockant un partie de l'index) de lister les partitions contenant la valeur (P);
-- Pour chaque partition (P), scan pour repérer les enregistrements.
-
-La cardinalité est donc (P \* E) on ne multiplie pas par N car tous les nœuds travaillent mais le réseau peut également ralentir la requête. Plus d'informations sur les indexes secondaires sont disponibles [ici](https://www.doanduyhai.com/blog/?p=13191)
-
-
-## Consistency Level
+#### `✅.045`- Consistency LEVEL
 
 As of we do have a single datacenter `dc1`  with 3 nodes like the picture below
 
 ![my-pic](img/cluster-docker.png?raw=true)
-
-
-#### `✅.085`- Show and define consistency level in `CQLSH`
-
-
-If needed start the cqlsh command in your terminal
-
-```
-docker exec -it $dc1_seed_containerid cqlsh
-```
 
 - Execute the following
 
 ```sql
 CONSISTENCY;
 CONSISTENCY LOCAL_QUORUM;
-```
 
-#### `✅.086`- Activer les logs `trace` et exécuter une requête:
-
-```sql
 TRACING ON;
 
 SELECT country,city, population
 FROM city_by_country
 WHERE country='DE';
 
-
 TRACING OFF;
 ```
 
-On notera que seuls 2 nœuds parmi les trois ont eu besoin de répondre avant de retourner le résultat au client.
+#### `✅.045`- LightWeight Transactions (LWT)
 
-#### `✅.087`- Règle d'or pour la consistance.
-
-La règle d'or afin d'obtenir un système consistant à tout instant ( `immediate consistency`) c'est d'avoir, la somme des niveaux de consistance en lecture et écriture (CL_READ et CL_WRITE) supérieure au facteur de rèplication (RF)
-
-```
-CL_READ + CL_WRITE > RF
-```
-
-- Imaginons une écriture en quorum. Sur la figure ci-dessous, les deux noeuds marqués d'une coche ont confirmé la prise en compte de l'écriture. Le dernier replica sera mis à jour quasi-immédiatement mais à ce moment précis il est toujours inconsistant avec les 2 autres.
-
-![my-pic](img/cl_write.png?raw=true)
-
-- **Au même moment**, un autre client effectue une lecture en quorum sur la même donnée. Deux replicas répondent et parmi eux le nœud inconsistant. _(pas de chance ^\_^)_.
-
-![my-pic](img/cl_read.png?raw=true)
-
-- Cette fois le nœud qui coordonne la requête (appelé le coordinator node) prendra la valeur avec le timestamp le plus tard. La dernière écriture gagne et la réponse retournée sera correcte.
-
-- Nous avons bien la somme du nombre de nœuds qui répondent à l'écriture `(2 = QUORUM)` et du nombre de noeuds qui répondent à la lecture `(2 = QUORUM)` strictement supérieure au facteur de réplication `(4>3)`.
-
-Il y a plusieurs combinaisons possibles:
-
-- `CL_READ=*QUORUM avec CL_WRITE=*QUORUM`
-- `CL_READ=ONE avec CL_WRITE=ALL`
-- `CL_READ=ALL avec CL_WRITE=ONE`
-
-
-
-## 2.8 - LightWeight Transactions (LWT)
-
-### 2.8.1 - Linearizable Consistency
-
-L'_`eventual consistency`_, avec son niveau de consistance configurable, est suffisante pour bien des cas de la vie quotidienne - mais pas tous.
-
-Certaines fois, il est nécessaire de se prémunir de _race condition_, c'est-à-dire la mise à jour de la même valeur par deux acteurs différents. C'est ce que l'on appelle la `Linearizable Consistency`.
-
-### 2.8.2 - Introduction aux LWT
-
-Avec Cassandra, pour assurer la `Linearizable Consistency` on utilise les _lightweight transactions_ ou _LWT_.
-
-```sql
-INSERT INTO ... VALUES ...
-IF NOT EXISTS;
-
-UPDATE ... SET ... WHERE ...
-IF EXISTS | IF predicate [ AND ... ];
-
-DELETE ... FROM ... WHERE ...
-IF EXISTS | IF predicate [ AND ... ];
-```
-
-Avec Cassandra, afin de rendre les requêtes les plus rapides possibles, on veut éviter de faire des _lectures_ avant _écritures_.
-
-Ici on ne peut s'y soustraire, la condition `IF` précède l'écriture. Cette transaction s'appuie sur l'algorithme de consensus distribué nommé `Paxos` et nécessite une pseudo-synchronisation des noeuds. Il faut s'attendre à un temps de réponse de l'ordre de 4 fois plus lents en raison des aller-retours en le coordinateur et les réplicas.
-
-#### `✅.088`- Création d'une table pour illustrer les LWT
-
-- Créer une table `sample_lwt` contenant des utilisateurs et leurs mots de passe.
-
+- Sample 1
 ```sql
 CREATE TABLE sample_lwt (
   username TEXT,
@@ -1703,13 +1131,7 @@ CREATE TABLE sample_lwt (
   reset_token UUID,
   PRIMARY KEY ((username))
 );
-```
 
-#### `✅.089`- Insertion de données sous conditions avec les LWT
-
-- Insérer l'utilisateur `dragonslayer` seulement si ce dernier n'existe pas.
-
-```sql
 INSERT INTO sample_lwt (username, email, name)
 VALUES ('dragonslayer', 'joe@datastax.com', 'Joe')
 IF NOT EXISTS;
@@ -1722,18 +1144,7 @@ SELECT * FROM sample_lwt
 WHERE username = 'dragonslayer';
 ```
 
-On notera que dans la réponse nous obtenons une colonne `WAS_APPLIED`:
-
-- Si la valeur est `true` l'instruction a été exécutée.
-- Si la valeur est `false` l'instruction n'a pas été exécutée (captain obvious) et toutes les colonnes de l'enregistrement sont retournées.
-
-### 2.8.3 - `EXEMPLE LWT 1` - Reset de mots de passe
-
-Un utilisateur veut mettre à jour son password. À sa première demande un jeton expirant au bout d'une heure est généré. Si une nouvelle demande est formulée durant cette heure, le jeton ne doit pas être mis à jour.
-
-#### `✅.090`- Créer une demande de mise à jour de mot de passe
-
-- Mettre à jour l'enregistrement avec un jeton temporaire pour 1 heure. On remarquera que chaque écriture dispose d'une durée de vie (par défaut illimitée) appelée TTL _time-to-live_
+- Sample 2
 
 ```sql
 UPDATE sample_lwt
@@ -1743,13 +1154,7 @@ WHERE username = 'devoxx_developer';
 
 SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
-```
 
-#### `✅.091`- Mettre à jour le mot de passe
-
-- Une fois le mot de passe mis à jour au moyen du reset token il n'est plus possible de recommencer l'opération.
-
-```sql
 UPDATE sample_lwt
 SET reset_token = null, password = 'encrypted password'
 WHERE username = 'devoxx_developer'
@@ -1759,252 +1164,11 @@ UPDATE sample_lwt
 SET reset_token = null, password = 'malicious password'
 WHERE username = 'devoxx_developer'
 IF reset_token = 6ef95fd0-9ae0-11ea-a9d2-d777ab7dec9e;
-```
 
-#### `✅.0092`- Afficher les informations de l'utilisateur
-
-```sql
 SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
 ```
 
-### 2.8.4 - `EXEMPLE LWT 2` - Annulation d'une commande
-
-Dans cet exemple nous voulons changer le statut d'une commande. L'idée est de bloquer l'annulation de la commande lorsque l'envoi est déjà effectué.
-
-Il peut donc passer à `cancelled` seulement si le précédent est `awaiting shipment` ou `awaiting payment`. Il peut également passer de `awaiting shipment` à `shipped`.
-
-#### `✅.093`- Création du dataset
-
-```sql
-CREATE TABLE orders_by_user (
-  username TEXT,
-  order_id UUID,
-  status TEXT,
-  PRIMARY KEY ((username), order_id)
-);
-
-INSERT INTO orders_by_user (username, order_id, status)
-VALUES ('devoxx_developer', f1fa2590-2d78-4b77-9710-95bdb45b7fa1, 'awaiting payment');
-
-INSERT INTO orders_by_user (username, order_id, status)
-VALUES ('devoxx_developer', c420d3a3-cecc-4c25-a7f8-ef28eb532969, 'awaiting shipment');
-
-SELECT * FROM orders_by_user 
-WHERE username = 'devoxx_developer';
-```
-
-#### `✅.094`- Déclencher les envois
-
-- Mettre à jour le statut à `shipped` si les conditions sont réunies (KO)
-
-```sql
-UPDATE orders_by_user 
-SET status = 'shipped'
-WHERE username = 'devoxx_developer'
-  AND order_id = f1fa2590-2d78-4b77-9710-95bdb45b7fa1
-IF status = 'awaiting shipment';
-```
-
-- Mettre à jour le statut à `shipped` si les conditions sont réunies (OK)
-
-```sql
-UPDATE orders_by_user 
-SET status = 'shipped'
-WHERE username = 'devoxx_developer'
-  AND order_id = c420d3a3-cecc-4c25-a7f8-ef28eb532969
-IF status = 'awaiting shipment';
-
-SELECT * FROM orders_by_user 
-WHERE username = 'devoxx_developer';
-```
-
-#### `✅.095`- Tenter d'annuler les commandes
-
-- Annuler une commande si les conditions sont réunies (OK)
-
-```sql
-UPDATE orders_by_user
-SET status = 'cancelled'
-WHERE username = 'devoxx_developer'
-  AND order_id = f1fa2590-2d78-4b77-9710-95bdb45b7fa1
-IF status IN ('awaiting payment','awaiting shipment');
-```
-
-- Annuler une commande si les conditions sont réunies (KO)
-
-```sql
-UPDATE orders_by_user
-SET status = 'cancelled'
-WHERE username = 'devoxx_developer'
-  AND order_id = c420d3a3-cecc-4c25-a7f8-ef28eb532969
-IF status IN ('awaiting payment','awaiting shipment');
-
-SELECT * FROM orders_by_user WHERE username = 'devoxx_developer';
-```
-
-### 2.8.5 - `EXEMPLE LWT 3` - Système d'enchères
-
-Dans cet exemple, nous allons simuler une vente aux enchères. L'enjeu est de ne pas permettre de surenchérir avec la même proposition et de gérer les accès concurrents.
-
-#### `✅.096`- Création du schéma et import du jeu de données
-
-- Création de la table. On notera l'enchère de départ `starting_bid`, l'enchère la plus haute `highest_bid` et le meilleur enchérisseur `highest_bidder`. Nous voulons retrouver toutes les enchères pour un objet en particulier, l'identifiant de l'objet sera notre partition key.
-
-```sql
-CREATE TABLE auction_items (
-  item_id TEXT,
-  starting_bid DECIMAL,
-  highest_bid DECIMAL,
-  highest_bidder TEXT,
-  PRIMARY KEY ((item_id))
-);
-```
-
-- Mise à prix de ma Wii à 50 euros.
-
-```sql
-INSERT INTO auction_items (item_id, starting_bid, highest_bid)
-VALUES ('Wii_a_cedrick', 50.00, 0.00);
-
-SELECT * FROM auction_items WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.097`- Un client place une enchère
-
-- Emmanuel place une enchère à `50` qui équivaut à la mise de départ. Le `highest_bid` est toujours à 0.
-
-```sql
-UPDATE auction_items
-SET highest_bid = 50.00, highest_bidder = 'Emmanuel'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <= 50.00 AND highest_bid < 10.00;
-
-SELECT * FROM auction_items 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.098`- Un client place une enchère
-
-- Marine veut également placer une enchère à `50` mais cette fois la condition n'est plus remplie. (was_applied=false)
-
-```sql
-UPDATE auction_items
-SET highest_bid = 50.00, highest_bidder = 'Marine'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <= 50.00 AND highest_bid < 50.00;
-
-SELECT * FROM auction_items 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.099`- Le deuxième client place une second enchère plus important
-
-```sql
-UPDATE auction_items
-SET highest_bid = 51.00, highest_bidder = 'Marine'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <= 51.00 AND highest_bid < 51.00;
-
-SELECT * FROM auction_items 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-### 2.8.6 - `EXEMPLE LWT 4:` - Historique des enchères
-
-#### `✅.100`- Création du schéma
-
-- Créons une table pour les enchères mais cette ajoutons le `bid_id` comme un `timeuuid` pour conserver tous les records (plus d'upserts).
-
-- L'ordre des enchères est `DESC`, les derniers seront en haut de la liste.
-
-```sql
-CREATE TABLE bids_by_item (
-  item_id TEXT,
-  bid_id TIMEUUID,
-  bid DECIMAL,
-  bidder TEXT,
-  starting_bid DECIMAL STATIC,
-  highest_bid DECIMAL STATIC,
-  highest_bidder TEXT STATIC,
-  PRIMARY KEY ((item_id), bid_id)
-) WITH CLUSTERING ORDER BY (bid_id DESC);
-```
-
-- À nouveau la mise à prix est de 50.
-
-```sql
-INSERT INTO bids_by_item (item_id, bid_id, starting_bid, highest_bid)
-VALUES ('Wii_a_cedrick', NOW(), 50.00, 0.00);
-
-SELECT * FROM bids_by_item 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.101`- Première enchère
-
-- Emmanuel place son enchère à 50 à nouveau.
-
-```sql
-INSERT INTO bids_by_item (item_id, bid_id, bid, bidder)
-VALUES ('Wii_a_cedrick', NOW(), 50.00, 'Emmanuel');
-```
-
-- Cette enchère place t'elle Emmanuel comme meilleur enchérisseur (ici oui)
-
-```sql
-UPDATE bids_by_item
-SET highest_bid = 50.00, highest_bidder = 'Emmanuel'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <= 50.00 AND highest_bid < 50.00;
-
-SELECT * FROM bids_by_item 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.102`- Deuxième enchère
-
-- Marine place une enchère
-
-```sql
-INSERT INTO bids_by_item (item_id, bid_id, bid, bidder)
-VALUES ('Wii_a_cedrick', NOW(), 50.00, 'Marine');
-```
-
-- Comme dans l'exemple précédent le montant est trop faible `highest_bid < 50.00;`, (was_applied=false)
-
-```sql
-UPDATE bids_by_item
-SET highest_bid = 50.00, highest_bidder = 'Marine'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <= 50.00 AND highest_bid < 50.00;
-
-SELECT * FROM bids_by_item 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-#### `✅.103`- Troisième enchère
-
-- Avec un montant plus important Marine devient la meilleure enchérisseuse.
-
-```sql
-INSERT INTO bids_by_item (item_id, bid_id, bid, bidder)
-VALUES ('Wii_a_cedrick', NOW(), 51.00, 'Marine');
-
-UPDATE bids_by_item
-SET highest_bid =  51.00, highest_bidder = 'Marine'
-WHERE item_id = 'Wii_a_cedrick'
-IF starting_bid <=  51.00 AND highest_bid <  51.00;
-
-SELECT * FROM bids_by_item 
-WHERE item_id = 'Wii_a_cedrick';
-```
-
-Ce type de modèle de données est appelé ledger. Il conserve à la fois le dernier état du système mais tous les états précédents.
-
-<p/><br/>
-
-> [🏠 Retour à la table des matières](#-table-des-matières)
 
 # LAB 3 - Modélisation de données
 

@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
@@ -21,9 +21,9 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E08_AsyncTest implements SchemaConstants {
+public class EXX_AsyncTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E08_AsyncTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(EXX_AsyncTest.class);
     
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpsertUser;
@@ -128,7 +128,7 @@ public class E08_AsyncTest implements SchemaConstants {
     
     private static CompletableFuture< Optional < UserDto > > findUserByIdAsync(CqlSession cqlSession, String email) {
         return cqlSession.executeAsync(stmtFindUser.bind(email))
-                      .thenApply(E08_AsyncTest::mapUserDtoRow)
+                      .thenApply(EXX_AsyncTest::mapUserDtoRow)
                       .toCompletableFuture();
     }
     

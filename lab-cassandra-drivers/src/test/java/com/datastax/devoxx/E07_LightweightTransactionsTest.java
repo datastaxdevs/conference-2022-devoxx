@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
@@ -11,9 +11,9 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E11_LightweightTransactionsTest implements SchemaConstants {
+public class E07_LightweightTransactionsTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E11_LightweightTransactionsTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E07_LightweightTransactionsTest.class);
     
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpdateUserLwt;

@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
@@ -20,9 +20,9 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class E09_ReactiveTest implements SchemaConstants {
+public class EXX_ReactiveTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E09_ReactiveTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(EXX_ReactiveTest.class);
 
     private static PreparedStatement stmtUpsertUser;
     private static PreparedStatement stmtExistUser;

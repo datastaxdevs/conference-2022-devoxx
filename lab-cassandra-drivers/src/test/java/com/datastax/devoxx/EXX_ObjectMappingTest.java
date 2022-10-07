@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableCommentByUser;
 import static com.datastax.devoxx.schema.SchemaUtils.createTableCommentByVideo;
@@ -17,9 +17,9 @@ import com.datastax.devoxx.objectmapping.CommentDaoMapper;
 import com.datastax.devoxx.schema.SchemaConstants;
 import com.datastax.oss.driver.api.core.CqlSession;
 
-public class E12_ObjectMappingTest implements SchemaConstants {
+public class EXX_ObjectMappingTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(E12_ObjectMappingTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(EXX_ObjectMappingTest.class);
    
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSession.builder().build()) {

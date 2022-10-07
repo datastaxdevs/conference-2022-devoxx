@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableCommentByUser;
 import static com.datastax.devoxx.schema.SchemaUtils.createTableCommentByVideo;
@@ -19,10 +19,10 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E04_BatchesTest implements SchemaConstants {
+public class EXX_BatchesTest implements SchemaConstants {
     
     /** Logger for the class. */
-    private static Logger LOGGER = LoggerFactory.getLogger(E04_BatchesTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(EXX_BatchesTest.class);
     
     // Prepare your statements once and execute multiple times 
     private static PreparedStatement insertIntoCommentByVideo;

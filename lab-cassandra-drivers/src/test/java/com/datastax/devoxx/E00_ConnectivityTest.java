@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab2;
+package com.datastax.devoxx;
 
 import java.net.InetSocketAddress;
 
@@ -15,10 +15,10 @@ import com.datastax.oss.driver.api.core.CqlSession;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public class ConnectivityTest {
+public class E00_ConnectivityTest {
     
     private static Logger LOGGER = 
-            LoggerFactory.getLogger(ConnectivityTest.class);
+            LoggerFactory.getLogger(E00_ConnectivityTest.class);
     
     @Test
     @DisplayName("Explicit connection")

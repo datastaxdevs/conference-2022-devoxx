@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableVideo;
 import static com.datastax.devoxx.schema.SchemaUtils.createUdtVideoFormat;
@@ -23,9 +23,9 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E07_JsonTest implements SchemaConstants {
+public class E06_JsonTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(E07_JsonTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E06_JsonTest.class);
     
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSession.builder().build()) {

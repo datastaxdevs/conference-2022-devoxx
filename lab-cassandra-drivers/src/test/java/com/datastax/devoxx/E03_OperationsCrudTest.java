@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;

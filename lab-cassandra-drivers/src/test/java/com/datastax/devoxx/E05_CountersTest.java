@@ -1,4 +1,4 @@
-package com.datastax.devoxx.lab3;
+package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableVideoViews;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
@@ -15,9 +15,9 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E10_CountersTest implements SchemaConstants {
+public class E05_CountersTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E10_CountersTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E05_CountersTest.class);
 
     private static PreparedStatement stmtIncrement;
     private static PreparedStatement stmtDecrement;
