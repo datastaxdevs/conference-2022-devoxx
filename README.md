@@ -16,9 +16,8 @@
 
 ## 📋 Table of content
 
-- [Objectives](#1-objectives)
+- [Objectives and Materials](#1-objectives)
 - [Prerequisites](#2-Prerequisites)
-- [Materials for the Session](#3-materials-for-the-session)
 - [**LAB 1 - Environment Setup**](#lab1---création-de-la-base-de-données)
   - [1.1 - Starting `Gitpod`](#11---démarrage-de-gitpod)
   - [1.2 - Starting Apache Cassandra™ cluster](#12---apache-cassandra-dans-docker)
@@ -66,7 +65,7 @@
   - [7.4 - Micronaut Applications ](#74---application-micronaut)
 
 ---
-## 1. Objectives
+## Objectives and Materials
 
 - 🎯 Discover what the NoSQL Database Apache Cassandra is and what are the relevant **use cases**
 - 🎯 Understand how Apache Cassandra™ is different from relational database in the phylosophy and **data modeling**.
@@ -79,9 +78,16 @@
 
 [🏠 Back to Table of Contents](#-table-of-content)
 
-## 2. Prerequisites
+It doesn't matter if you join the presentation live or you prefer to work at your own pace later, we have you covered. In this repository, you'll find everything you need for this workshop:
 
-Instructions are provided for you to work in `gitpod`. Idea is to execute easily the steps with no installation required. You can of course use your own laptop but you will need a couple of tools
+- [Slide deck](content/slides.pdf)
+- [Datastax Developers Discord chat](https://bit.ly/cassandra-workshop)
+- [Questions and Answers](https://community.datastax.com/)
+
+
+## Prerequisites
+
+Instructions are provided to you to work within `gitpod` cloud IDE. Intention is to execute easily the steps with no installation required. You can of course use your own laptop and you will need a couple of tools
 
 #### 📦 Docker
 - Use the [reference documentation](https://www.docker.com/products/docker-desktop) to install **Docker Desktop**
@@ -92,7 +98,7 @@ docker -v
 docker run hello-world
 ```
 
-#### 📦 Java Development Kit (JDK) 8+
+#### 📦 Java Development Kit (JDK) 17+
 - Use the [reference documentation](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html) to install a **Java Development Kit**
 - Validate your installation with
 
@@ -100,7 +106,7 @@ docker run hello-world
 java --version
 ```
 
-#### 📦 Apache Maven
+#### 📦 Apache Maven (3.6+)
 - Use the [reference documentation](https://maven.apache.org/install.html) to install **Apache Maven**
 - Validate your installation with
 
@@ -108,23 +114,17 @@ java --version
 mvn -version
 ```
 
-- <li><b>git</b> to access the code
-<li><b>JDK 17</b> installed on your local system
-<li><b>Maven 3.6+</b>
-<li><b>GraalVM 22.1</b>
-<li><b>Native image</b>
-Docker
+#### 📦 GraalVM (22.1.r17+)
+- Use the [reference documentation](https://www.graalvm.org/22.0/docs/getting-started/#install-graalvm) to install **GraalVM**
 
+- Validate your installation with
+
+```bash
+lli --version
+gu --version
+```
 
 [🏠 Back to Table of Contents](#-table-of-content)
-
-## 3. Materials for the Session
-
-It doesn't matter if you join the presentation live or you prefer to work at your own pace later, we have you covered. In this repository, you'll find everything you need for this workshop:
-
-- [Slide deck](content/slides.pdf)
-- [Datastax Developers Discord chat](https://bit.ly/cassandra-workshop)
-- [Questions and Answers](https://community.datastax.com/)
 
 ## LAB1 - Setup
 
@@ -159,7 +159,7 @@ In `lab1-setup` locate  `docker-compose.yml`. We will run the Cassandra  [offici
 gp open /workspace/conference-2022-devoxx/lab1-setup/docker-compose.yml
 ```
 
-#### `✅.003`- Démarrer 2 noeuds avec `docker-compose`
+#### `✅.003`- Start first 2 nodes with `docker-compose`
 
 ```bash
 cd /workspace/conference-2022-devoxx/lab1-setup/
@@ -200,7 +200,7 @@ docker ps
 
 #### `✅.006`- Save `seed` container id
 
-In order for us to us to use tools like `cqlsh` and `nodetool` we have to access container shell. We save the container id to ease future commands.
+In order for us to use tools like `cqlsh` and `nodetool` we have to access container shell. here we save container id to ease future commands.
 
 ```bash
 export dc1_seed_containerid=`docker ps | grep dc1_seed | cut -b 1-12`
@@ -229,29 +229,27 @@ docker exec -it $dc1_seed_containerid nodetool status
 ℹ️ **Information**
 > We expect nodes `states` to be `UN`(Up/Normal).
 
-### 1.2.2 - Cluster Scale up
+### 1.2.2 - Scaling up Cluster
 
-#### `✅.008`- Add a third node in the cluster (scale up of non-seed node).
+#### `✅.008`- Add a third node in the cluster (scale up of the non-seed node).
 
 ```bash
 docker-compose up --scale dc1_noeud=2 -d
 ```
 
-On notera que la commande n'est pas exceptionnelle car elle redémarre le `dc1_noeud` existant. Malheureusement l'ancienne `docker-compose scale` est dépréciée. Dans un sens cela démontre l'un des avantages de la technologie, sa grande résilience.
+The command will also restart `dc1_noeud` unfortunately `docker-compose scale` is deprecated. We did not provided any volume so no harm also as the seed is still present the nodes wi.l synchronize.
 
-Cela démontre également les limites d'utilisation des bases de données dans Docker. Pour une utilisation en production il est nécessaire de déployer dans Kubernetes et de disposer d'un operator qui prendra en charge tous les cas aux limites.
+To deploy properly Cassandra in Docker for a multi node configuration you should consider Kubernetes and particuly {k8ssandra.io](k8ssandra.io).
 
-Nous n'avons pas définis de volumes sur les services docker. Si vous éteignez complètement le cluster vous perdrez les données.
+#### `✅.009`- Check Status
 
-#### `✅.009`- Vérifier le statut
-
-Attendez une bonne minute pour laisser le temps aux noeuds de joindre le cluster et de bootstrapper puis exécuter:
+Wait about a minute for nodes to have time to properly join the cluster.
 
 ```bash
 docker exec -it $dc1_seed_containerid nodetool status
 ```
 
-> 🖥️ Résultat (après environ 1min)
+> 🖥️ Result (after about 1min)
 >
 > ```
 > Datacenter: dc1
@@ -264,19 +262,19 @@ docker exec -it $dc1_seed_containerid nodetool status
 > UN  172.28.0.4  69.06 KiB  16      76.0%             fe43b0d0-952b-48ec-86e1-d73ace617dc8  rack1
 > ```
 
-### 1.2.3 - Création d'un `keyspace'
+### 1.2.3 - Creating `keyspace'
 
-#### `✅.010`- Ouvrir le shell intéractif (REPL) CQLSH
+#### `✅.010`- Open REPL CQLSH
 
-Cet outil est disponible dans une installation Cassandra. `C.Q.L` pour _Cassandra Query Language_ et `sh` pour shell.
+This tool is available as part of Cassandra installation.  `C.Q.L` stands for _Cassandra Query Language_ and `sh` for shell.
 
 ```bash
 docker exec -it $dc1_seed_containerid cqlsh
 ```
 
-#### `✅.011`- Afficher les informations du noeud local
+#### `✅.011`- Display local node informations
 
-La table `system.local` contient les informations locales, ici pour `dc1_seed`.
+Table `system.local` contains information relative to current node (here `dc1_seed`).
 
 ```sql
 select cluster_name,data_center,rack,broadcast_address
@@ -293,16 +291,16 @@ from system.local;
 > (1 rows)
 > ```
 
-#### `✅.012`- Afficher les informations des 2 autres noeuds
+#### `✅.012`- Display information for the 2 others nodes
 
-Les informations relatives aux autres noeuds sont stockées dans `system.peers`.
+Information for others nodes are stored in `system.peers`.
 
 ```sql
 select data_center,rack,peer
 from system.peers;
 ```
 
-> 🖥️ Résultat (après environ 1min)
+> 🖥️ Result
 >
 > ```
 > cqlsh> select data_center,rack,peer from system.peers;
@@ -315,11 +313,11 @@ from system.peers;
 > (2 rows)
 > ```
 
-#### `✅.013`- Création du keyspace
+#### `✅.013`- Keyspace creation
 
-Un keyspace c'est un groupement logique des différents objets. Il est recommandé d'en utiliser un par application.
+A Keyspace is a logical grouping of objects. Best practice is to create a keyspace per application.
 
-Une même application peut utiliser plusieurs `keyspaces` (avec la même session). Cela peut être utile si certaines données doivent être répliquées de manière différente. (le keyspace porte le facteur de réplication)
+A single application can work with multiple `keyspaces` within the same session. It can be useful if some data need to be replicated in different manner (the replication factor is per keyspace).
 
 ```sql
 CREATE KEYSPACE IF NOT EXISTS devoxx
@@ -329,17 +327,22 @@ WITH REPLICATION = {
 }  AND DURABLE_WRITES = true;
 ```
 
-`NetworkTopologyStrategy` sera toujours la classe à utiliser sauf dans le cas d'un nœud unique pour les développements auquel cas on utilisera `SimpleReplicationStrategy`.
+⁉️ `NetworkTopologyStrategy`
 
-```sql
-CREATE KEYSPACE IF NOT EXISTS test
-WITH REPLICATION = {
-  'class' : 'SimpleStrategy',
-  'replication_factor': '1'
-} AND DURABLE_WRITES = true;
-```
+> `NetworkTopologyStrategy` will always be used except for tests with a single node. Under those conditions you will use `SimpleReplicationStrategy`.
+> 
+> ```sql
+> CREATE KEYSPACE IF NOT EXISTS test_simple_strategy
+> WITH REPLICATION = {
+>   'class' : 'SimpleStrategy',
+>   'replication_factor': '1'
+> } AND DURABLE_WRITES = true;
+> ```
 
-`DURABLE_WRITES` ? Dans le chemin d'écriture Cassandra écrit en mémoire (`memtable`) avant de _flusher_ les valeurs sur disque (SSTABLE) soit par vacation soit lorsqu'un seuil est atteint en mémoire. Utiliser `DURABLE_WRITES = true` permet d'écrire dans le `commit log` avant même l'écriture en mémoire cela permet de ne pas perdre la donnée, il faut tout le temps le faire mais c'est la valeur par défaut.
+⁉️ `DURABLE_WRITES`
+
+> In Cassandra write path, Data will be written first into memory  (`memtable`). Then data is _flushed_  on disk into immutable files (SSTABLE). This will happen wether by vacation or when a threshold in memory is reached. 
+> Using `DURABLE_WRITES = true` is a way to enable `commit log`: before writing into memory data will be persisted in an already open file on disk. It will prevent the loss of data if something goes wrong before data in memeory is flushed. `True` is the default value.
 
 #### `✅.014`- Lister les keyspaces
 

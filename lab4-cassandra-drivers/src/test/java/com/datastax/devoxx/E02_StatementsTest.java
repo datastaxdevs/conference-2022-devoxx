@@ -14,9 +14,9 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
 
-public class E02_Statements implements SchemaConstants {
+public class E02_StatementsTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(E01_CreateSchema.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E02_StatementsTest.class);
     
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {

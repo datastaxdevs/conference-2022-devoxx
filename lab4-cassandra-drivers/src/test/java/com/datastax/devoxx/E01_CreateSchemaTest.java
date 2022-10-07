@@ -7,6 +7,7 @@ import static com.datastax.devoxx.schema.SchemaUtils.createTableVideo;
 import static com.datastax.devoxx.schema.SchemaUtils.createTableVideoViews;
 import static com.datastax.devoxx.schema.SchemaUtils.createUdtVideoFormat;
 
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +21,12 @@ import com.datastax.devoxx.schema.SchemaConstants;
  */
 import com.datastax.oss.driver.api.core.CqlSession;
 
-public class E01_CreateSchema implements SchemaConstants {
+public class E01_CreateSchemaTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(E01_CreateSchema.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E01_CreateSchemaTest.class);
     
-    public static void main(String[] args) {
+    @Test
+    public void should_create_schema() {
         try(CqlSession cqlSession = CqlSessionProvider.getInstance().getSession()) {
             createUdtVideoFormat(cqlSession);
             createTableUser(cqlSession);

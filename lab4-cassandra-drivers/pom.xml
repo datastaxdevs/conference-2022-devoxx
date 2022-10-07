@@ -12,14 +12,15 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<cassandra-driver.version>4.15.0</cassandra-driver.version>
+		<sl4j.version>2.0.3</sl4j.version>
 		<logback.version>1.4.3</logback.version>
 		<reactor.version>3.4.23</reactor.version>
 		<junit.version>5.9.1</junit.version>
 		<junit-platform.version>1.9.1</junit-platform.version>
+
 		<java.version>17</java.version>
-		
 		<maven.plugin.compiler.version>3.8.1</maven.plugin.compiler.version>
-		
+		<maven.plugin.surefire.version>2.22.2</maven.plugin.surefire.version>
 	</properties>
 
 	<dependencies>
@@ -31,13 +32,6 @@
 			<version>${cassandra-driver.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
-
-		<!-- OPTIONAL DEPENDENCIES -->
-		<dependency>
 			<groupId>com.datastax.oss</groupId>
 			<artifactId>java-driver-query-builder</artifactId>
 			<version>${cassandra-driver.version}</version>
@@ -48,6 +42,19 @@
 			<version>${cassandra-driver.version}</version>
 		</dependency>
 
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${sl4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+
+
 		<!-- For Reactive Portion -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
@@ -55,15 +62,13 @@
 			<version>${reactor.version}</version>
 		</dependency>
 
-		<!-- For Reactive Portion -->
+		<!-- Unit tests -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- UN Tets -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
@@ -81,6 +86,14 @@
 	</dependencies>
 
 	<build>
+		<plugins>
+		    <!-- Little help for junit5 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.plugin.surefire.version}</version>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
