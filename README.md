@@ -1,14 +1,14 @@
 ## 🧑🏻‍💻 🧑🏾‍💻 A Java developer Journey into Apache Cassandra™ 👩🏿‍💻 👩‍💻
 
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-
-
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 [![Discord](https://img.shields.io/discord/685554030159593522)](https://discord.com/widget?id=685554030159593522&theme=dark)
+![Java](https://img.shields.io/badge/Java-17%20&%20GraalVM-00CC00?style=flat)
 
 
-> ℹ️ **About this Session**
-> During this deep-dive session, we will give you everything you need to master this technology: from <b>architecture</b> to <b>data modeling</b>, from <b>drivers to <b>best practices.</b> Through practical labs requiring no installation, we will browse and run applications implemented with Spring Boot, Quarkus, and Micronaut in order to see how Apache Cassandra™ can be used in modern java applications.
+ℹ️ **About this Session**
+
+> During this deep-dive session, we will give you everything you need to master this technology: from <b>architecture</b> to <b>data modeling</b>, from <b>drivers to</b> best practices.</b> Through practical labs requiring no installation, we will browse and run applications implemented with Spring Boot, Quarkus, and Micronaut in order to see how Apache Cassandra™ can be used in modern java applications.
 
 ⏲️ **Duration :** `3 hours`
 
@@ -70,31 +70,29 @@
 
 - 🎯 Discover what the NoSQL Database Apache Cassandra is and what are the relevant **use cases**
 - 🎯 Understand how Apache Cassandra™ is different from relational database in the phylosophy and **data modeling**.
-- 🎯 Practive on how **Java Applications** connect to the databases, what are the rules things to know.
+- 🎯 Practice on how **Java Applications** connect to the databases, what are the rules and things to know.
 - 🎯 Learn how to work with Cassandra notions through the drivers, CRUD, Advanced Data Types, Batches, Lightweight transactions
-- 🎯 Setup Spring Boot applications leverating Cassandra
+- 🎯 Setup a Spring Boot application leverating Cassandra, Spring Data and Spring Boot
 - 🎯 Setup Quarkus applications leverating Cassandra
 - 🎯 Setup Micronaut Boot applications leverating Cassandra
-- 🎯 Learn about native compilation
+- 🎯 Work with GraalVm and native compilation
 
 [🏠 Back to Table of Contents](#-table-of-content)
 
 ## 2. Frequently asked questions
 <p/>
 <details>
-<summary><b> 1️⃣ Can I run this workshop on my computer?</b></summary>
+<summary><b> 1️⃣ Can I run the steps on my laptop?</b></summary>
 <hr>
-<p>There is nothing preventing you from running the workshop on your own machine, If you do so, you will need the following
+<p>There is nothing preventing you from running the workshop on your own machine, If you do so, you will need the following:
 <ol>
 <li><b>git</b> to access the code
 <li><b>JDK 17</b> installed on your local system
-<li><b>Maven 3.6+</b> installed on your local system
-<li><b>GraalVM 22.1</b> installed on your local system
-<li><b>Native image</b> installed on your local system
-
+<li><b>Maven 3.6+</b>
+<li><b>GraalVM 22.1</b>
+<li><b>Native image</b>
 </ol>
 </p>
-In this readme, we try to provide instructions for local development as well - but keep in mind that the main focus is development on Gitpod, hence <strong>We can't guarantee live support</strong> about local development in order to keep on track with the schedule. However, we will do our best to give you the info you need to succeed.
 </details>
 <p/>
 <details>
@@ -102,7 +100,6 @@ In this readme, we try to provide instructions for local development as well - b
 <hr>
 <ul>
 <li>You will need a GitHub account
-<li>You will also need an Astra account: don't worry, we'll work through that in the following
 </ul>
 </p>
 </details>
@@ -113,28 +110,21 @@ In this readme, we try to provide instructions for local development as well - b
 <b>No.</b> All tools and services we provide here are FREE.
 </details>
 <p/>
-<details>
-<summary><b> 4️⃣ Will I get a certificate if I attend this workshop?</b></summary>
-<hr>
-Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice badge.
-</details>
 <p/>
 
 [🏠 Back to Table of Contents](#-table-of-content)
 
 ## 3. Materials for the Session
 
-It doesn't matter if you join our workshop live or you prefer to work at your own pace,
-we have you covered. In this repository, you'll find everything you need for this workshop:
+It doesn't matter if you join the presentation live or you prefer to work at your own pace later, we have you covered. In this repository, you'll find everything you need for this workshop:
 
-- [Slide deck](slides/slides.pdf)
+- [Slide deck](content/slides.pdf)
 - [Datastax Developers Discord chat](https://bit.ly/cassandra-workshop)
 - [Questions and Answers](https://community.datastax.com/)
 
+## LAB1 - Setup
 
-## LAB1 - Création de la base de données
-
-## 1.1 - Démarrage de `Gitpod`
+## 1.1 - Start `Gitpod`
 
 [Gitpod](https://www.gitpod.io/) est un IDE 100% dans le cloud. Il s'appuie sur [VS Code](https://github.com/gitpod-io/vscode/blob/gp-code/LICENSE.txt?lang=en-US) et fournit de nombreux outils pour développer dans plusieurs langages.
 
