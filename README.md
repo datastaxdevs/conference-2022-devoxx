@@ -18,13 +18,15 @@
 
 - [Objectives](#objectives)
 - [Materials](#materials)
-- [Prerequisites](#-prerequisites)
+- **📃 Introduction to Cassandra**
 - [**1. Environment Setup**](#setup)
+  - [Prerequisites](#prerequisites)
   - [Start `Gitpod`](#start-gitpod)
   - [Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
   - [Scale the cluster up](#scaling-up-cluster)
   - [Create keyspace](#create-keyspace-devoxx)
 - [**2. Connectivity**](#working-with-cql)
+  - **📃 Introduction to Drivers**
   - [Connect with drivers](#connect--with-drivers)
   - [Drivers Configuration](#drivers-configuration)
 - [**3. Working with CQL**](#working-with-cql)
@@ -74,8 +76,9 @@ It doesn't matter if you join the presentation live or you prefer to work at you
 - [Datastax Developers Discord chat](https://bit.ly/cassandra-workshop)
 - [Questions and Answers](https://community.datastax.com/)
 
+## Setup
 
-## Prerequisites
+### Prerequisites
 
 Instructions are provided to you to work within `gitpod` cloud IDE. Intention is to execute easily the steps with no installation required. You can of course use your own laptop and you will need a couple of tools
 
@@ -114,7 +117,6 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 > gu --version
 > ```
 
-## Setup
 
 ### Start `Gitpod`
 
@@ -222,7 +224,7 @@ We expect nodes `states` to be `UN`(Up/Normal).
 docker-compose up --scale dc1_node=2 -d
 ```
 
-The command will also restart `dc1_noeud` unfortunately `docker-compose scale` is deprecated. We did not provided any volume so no harm also as the seed is still present the nodes wi.l synchronize.
+The command will also restart `dc1_node` unfortunately `docker-compose scale` is deprecated. We did not provided any volume so no harm also as the seed is still present the nodes wi.l synchronize.
 
 To deploy properly Cassandra in Docker for a multi node configuration you should consider Kubernetes and particuly [k8ssandra.io](k8ssandra.io).
 
