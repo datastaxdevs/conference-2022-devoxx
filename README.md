@@ -18,7 +18,7 @@
 
 - [Objectives](#objectives)
 - [Materials](#materials)
-- **Introduction to Cassandra**
+- **Introduction to Cassandra** *(slides)*
 - [**1. Environment Setup**](#setup)
   - [Prerequisites](#prerequisites)
   - [Start `Gitpod`](#start-gitpod)
@@ -26,10 +26,12 @@
   - [Scale the cluster up](#scaling-up-cluster)
   - [Create keyspace](#create-keyspace-devoxx)
 - [**2. Connectivity**](#working-with-cql)
-  - **Introduction to Drivers**
+  - **Introduction to Drivers** *(slides)*
   - [Connect with drivers](#connect--with-drivers)
   - [Drivers Configuration](#drivers-configuration)
+- **Data Distribution** *(slides)*
 - [**3. Working with CQL**](#working-with-cql)
+  - **Understanding table keys** *(slides)*
   - [Schema Definition](#)
   - [Simple Types](#getting-started)
   - [Advanced Data Types](#advanced-data-types)
