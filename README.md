@@ -135,7 +135,7 @@ Instructions are provided to you to work within `gitpod` cloud IDE. Intention is
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/conference-2022-devoxx)
 
-### Starting Apache Cassandra™ in `Docker`
+### Starting Apache Cassandra™ cluster
 
 Once gitpod has launched you should find a couple of terminals available. Locate `setup`, you will get this message.
 
@@ -359,14 +359,13 @@ describe keyspaces;
 
 ## Connectivity
 
-### Connect to keyspace `devoxx` with drivers
+### Connect with drivers
 
 - Check project `lab-cassandra-drivers` configuration file `pom.xml`
 
 ```
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/pom.xml
 ```
-
 
 - Run  `E00_TestConnectivityTest`
 
@@ -376,13 +375,17 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E00_ConnectivityTest
 ```
 
+### Drivers configuration
+
 - Check project `lab-cassandra-drivers` configuration file `application.conf`
 
 ```
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/main/resources/application.conf
 ```
 
-## Getting Started with CQL
+## Working with CQL
+
+### Getting Started
 
 We keep using `cqlsh` to illustrate what have been seen so far
 
@@ -619,7 +622,7 @@ WHERE country='JP'
 AND city='Tokyo';
 ```
 
-*Vérification:*
+*Check:*
 ```sql
 select * from city_by_country 
 WHERE country='JP';
@@ -673,7 +676,6 @@ WHERE country='AU';
 </details>
 <p/>
 
-
 #### `✅.037`- Request over partition key with equalities `=`
 
 - List cities for France `FR`.
@@ -685,7 +687,7 @@ WHERE country='FR';
 
 #### `✅.038`- Request over partition key with `IN` claue
 
-- Afficher la liste des villes pour le code pays `CA` ou `DE`.
+- Display list of cities for `CA` or `DE`.
 
 ```sql
 select * FROM city_by_country
@@ -698,7 +700,6 @@ WHERE country IN('CA', 'DE');
 > the load from the client application the coordinator, issue
 > parallel request if you have to do it (N+1 select)
 > ```
-
 
 #### `✅.039`- Equality and clustering keys
 
