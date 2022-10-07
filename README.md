@@ -1361,30 +1361,6 @@ gp preview "$(gp url 8080)/api/v1/todos/"
 
 ![](img/spring_api_gitpod.png?raw=true)
 
-#### `✅.138`- Tests d'intégration de l'application
-
-- Stopper l'application avec un `CTRL+C`
-
-- Editer la classe `E04_SpringControllerTest` pour remplacer `createURLWithPort` avec l'url de votre gitpod :
-
-_de:_
-
-```java
-private String createURLWithPort(String uri) {
-  return "http://localhost:" + port + uri;
-}
-```
-
-_à (ici 8080-datastaxdevs-conference2-g3jf9fgchk4.ws-eu34.gitpod.io est le résultat de ma commande gp url 8080):_
-
-```java
-private String createURLWithPort(String uri) {
-  return "https://8080-datastaxdevs-conference2-g3jf9fgchk4.ws-eu34.gitpod.io" + uri;
-}
-```
-
-- Exécuter le test unitaire suivant:
-
 ```bash
 cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
 mvn test -Dtest=com.datastax.workshop.E04_SpringControllerTest
@@ -1396,12 +1372,10 @@ mvn test -Dtest=com.datastax.workshop.E04_SpringControllerTest
 mvn clean package -Pnative 
 ```
 
+# 8. Working with Quarkus
 
-# LAB 6 - Cassandra Quarkus Extension
+## 8.1 - Quarkus extension 
 
-## 6.1 - Introduction aux extensions Quarkus
-
-#### 📘 Ce qu'il faut retenir:
 
 [Quarkus](https://quarkus.io/) est un framework pour construire des microservices sur la plateforme Java. Le parti pris est de réaliser le plus d'opérations possibles durant le build et de ne packager que ce qui est absolument nécessaire. Les objectifs sont:
 
@@ -1427,9 +1401,7 @@ La librairie à utiliser est `cassandra-quarkus-client` et la version est [![Mav
 
 Quarkus propose également un guide très bien fait sur le support de Cassandra [ici](https://quarkus.io/guides/cassandra)
 
-## 6.2 - Connexion et configuration
-
-#### `✅.139`- Création du keyspace `devoxx_quarkus`
+## 8.2 - Application Walkthrough 
 
 _Dans Docker:_
 
@@ -1441,80 +1413,18 @@ WITH REPLICATION = {
 }  AND DURABLE_WRITES = true;
 ```
 
-Avec Astra, la manipulation des keyspaces est désactivée, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `devoxx_quarkus` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
-#### `✅.140`- Configuration de l'application `Quarkus`
-
-- Placer vous dans le répertoire `lab6_quarkus` et compiler le projet
-
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn clean compile
 ```
 
-- Localiser le fichier de configuration `application.properties` dans le répertoire `src/main/resources`. C'est le fichier de configuration principal de Quarkus. Noter le nombre de clés de configuration `quarkus.cassandra`
-
 ```bash
-gp open /workspace/conference-2022-devoxx/labs/lab6_quarkus/src/main/resources/application.properties
+gp open /workspace/conference-2022-devoxx/lab-quarkus/src/main/resources/application.properties
 ```
-
-- Suivant la cible (Cassandra dans Docker ou Cassandra dans Astra) la configuration de `quarkus` changera légèrement c'est pourquoi nous avons proposé 2 exemples `application-astra.properties` et `application-local.properties`
-
-- Copier le fichier qui vous correspond vers `application.properties`
-
-```bash
-cp /workspace/conference-2022-devoxx/labs/lab6_quarkus/src/main/resources/application-astra.properties /workspace/conference-2022-devoxx/labs/lab6_quarkus/src/main/resources/application.properties
-```
-
-ou
-
-```bash
-cp /workspace/conference-2022-devoxx/labs/lab6_quarkus/src/main/resources/application-local.properties /workspace/conference-2022-devoxx/labs/lab6_quarkus/src/main/resources/application.propertoes
-```
-
-- Dans le cas de Astra changer la clef `quarkus.cassandra.auth.password` pour correspondre à votre base.
-
-```ini
-quarkus.cassandra.keyspace=devoxx_quarkus
-quarkus.cassandra.cloud.secure-connect-bundle=/home/gitpod/.cassandra/bootstrap.zip
-quarkus.cassandra.auth.username=<client_id>
-quarkus.cassandra.auth.password=<client_secret>
-```
-
-#### `✅.141` - Validation de la configuration
 
 ```
 cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn test -Dtest=com.datastax.workshop.E01_QuarkusInit
-```
-
-#### 🖥️ Logs
-
-```
-[INFO] Running com.datastax.workshop.E01_QuarkusInit
-2022-04-19 19:18:06,628 INFO  [io.qua.arc.pro.BeanProcessor] (build-15) Found unrecommended usage of private members (use package-private instead) in application beans:
-	- @Inject field com.datastaxdev.todo.TodoRestController#cqlSession,
-	- @Inject field com.datastaxdev.todo.TodoRestController#uriInfo
-2022-04-19 19:18:06,651 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-29) Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.
-2022-04-19 19:18:06,651 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-29) Make sure to include a dependency to the java-driver-metrics-micrometer module.
-2022-04-19 19:18:06,952 INFO  [com.dat.oss.dri.int.cor.DefaultMavenCoordinates] (main) DataStax Java driver for Apache Cassandra(R) (com.datastax.oss:java-driver-core) version 4.13.0
-2022-04-19 19:18:08,100 INFO  [com.dat.oss.dri.int.cor.tim.Clock] (vert.x-eventloop-thread-0) Using native clock for microsecond precision
-2022-04-19 19:18:08,856 INFO  [com.dat.oss.dri.int.cor.ses.DefaultSession] (vert.x-eventloop-thread-8) [s0] Negotiated protocol version V4 for the initial contact point, but cluster seems to support V5, keeping the negotiated version
-2022-04-19 19:18:09,215 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientStarter] (main) Eagerly initializing Quarkus Cassandra client.
-2022-04-19 19:18:09,255 INFO  [io.quarkus] (main) Quarkus 2.3.1.Final on JVM started in 3.793s. Listening on: http://localhost:8081
-2022-04-19 19:18:09,255 INFO  [io.quarkus] (main) Profile test activated.
-2022-04-19 19:18:09,255 INFO  [io.quarkus] (main) Installed features: [cassandra-client, cdi, kubernetes, micrometer, resteasy-reactive, resteasy-reactive-jackson, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
-2022-04-19 19:18:09,619 INFO  [com.dat.wor.E01_QuarkusInit] (main) Creating your CqlSession to Cassandra...
-2022-04-19 19:18:09,621 INFO  [com.dat.wor.E01_QuarkusInit] (main) + [OK] Your are connected to keyspace devoxx_quarkus
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.518 s - in com.datastax.workshop.E01_QuarkusInit
-2022-04-19 19:18:09,641 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientRecorder] (main) Closing Quarkus Cassandra session.
-2022-04-19 19:18:09,657 INFO  [io.quarkus] (main) Quarkus stopped in 0.021s
 ```
 
 #### `✅.142` - Utilisation de `CqlSession` avec `Quarkus`
@@ -1524,60 +1434,6 @@ cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn test -Dtest=com.datastax.workshop.E02_QuarkusCql
 ```
 
-#### 🖥️ Logs
-
-```bash
-[INFO] Running com.datastax.workshop.E02_QuarkusCql
-2022-04-19 19:21:07,918 INFO  [io.qua.arc.pro.BeanProcessor] (build-20) Found unrecommended usage of private members (use package-private instead) in application beans:
-	- @Inject field com.datastaxdev.todo.TodoRestController#cqlSession,
-	- @Inject field com.datastaxdev.todo.TodoRestController#uriInfo
-2022-04-19 19:21:07,942 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-5) Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.
-2022-04-19 19:21:07,943 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-5) Make sure to include a dependency to the java-driver-metrics-micrometer module.
-2022-04-19 19:21:08,289 INFO  [com.dat.oss.dri.int.cor.DefaultMavenCoordinates] (main) DataStax Java driver for Apache Cassandra(R) (com.datastax.oss:java-driver-core) version 4.13.0
-2022-04-19 19:21:09,543 INFO  [com.dat.oss.dri.int.cor.tim.Clock] (vert.x-eventloop-thread-0) Using native clock for microsecond precision
-2022-04-19 19:21:10,202 INFO  [com.dat.oss.dri.int.cor.ses.DefaultSession] (vert.x-eventloop-thread-8) [s0] Negotiated protocol version V4 for the initial contact point, but cluster seems to support V5, keeping the negotiated version
-2022-04-19 19:21:10,559 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientStarter] (main) Eagerly initializing Quarkus Cassandra client.
-2022-04-19 19:21:10,603 INFO  [io.quarkus] (main) Quarkus 2.3.1.Final on JVM started in 4.033s. Listening on: http://localhost:8081
-2022-04-19 19:21:10,603 INFO  [io.quarkus] (main) Profile test activated.
-2022-04-19 19:21:10,604 INFO  [io.quarkus] (main) Installed features: [cassandra-client, cdi, kubernetes, micrometer, resteasy-reactive, resteasy-reactive-jackson, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
-2022-04-19 19:21:10,884 INFO  [com.dat.wor.E02_QuarkusCql] (main) Creating the schema...
-2022-04-19 19:21:10,929 INFO  [com.dat.wor.E02_QuarkusCql] (main) + [OK]
-2022-04-19 19:21:10,929 INFO  [com.dat.wor.E02_QuarkusCql] (main) Inserting Data
-2022-04-19 19:21:11,206 INFO  [com.dat.oss.dri.api.cor.uui.Uuids] (main) PID obtained through native call to getpid(): 4465
-2022-04-19 19:21:11,238 INFO  [com.dat.wor.E02_QuarkusCql] (main) + [OK]
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.023 s - in com.datastax.workshop.E02_QuarkusCql
-2022-04-19 19:21:11,258 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientRecorder] (main) Closing Quarkus Cassandra session.
-2022-04-19 19:21:11,276 INFO  [io.quarkus] (main) Quarkus stopped in 0.024s
-```
-
-## 6.3 - Object Mapping
-
-#### 📘 Ce qu'il faut comprendre:
-
-- Nous construisons un objet annoté avec `@RegisterForReflection` pour permettre la réflexion et les mappers.
-
-```java
-@RegisterForReflection
-public class Todo {
-   private String id;
-   private String title;
-   private boolean completed;
-   // Getter and setters
-}
-```
-
-- Nous définissions une classe de service `TodoServicesCassandraOM` avec l'annotation `@ApplicationScoped` pour l'introduire dans le contexte de l'application.
-
-- Dans le constructeur nous utilisons le `Mapper` pour instancier un `DAO` créé directement avec le driver.
-
-> ```java
-> todoDao = TodoItemMapper
->   .builder(cqlSession)
->   .withDefaultKeyspace(cqlSession.getKeyspace().get())
->   .build()
->   .todoItemDao();
-> ```
-
 #### `✅.143` - Utilisation de l'`object mapping` avec `Quarkus`
 
 ```bash
@@ -1585,63 +1441,12 @@ cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn test -Dtest=com.datastax.workshop.E03_QuarkusObjectMapping
 ```
 
-#### 🖥️ Logs
-
-```bash
-2022-04-19 19:27:49,029 INFO  [io.qua.arc.pro.BeanProcessor] (build-5) Found unrecommended usage of private members (use package-private instead) in application beans:
-	- @Inject field com.datastaxdev.todo.TodoRestController#cqlSession,
-	- @Inject field com.datastaxdev.todo.TodoRestController#uriInfo
-2022-04-19 19:27:49,049 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-4) Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.
-2022-04-19 19:27:49,049 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-4) Make sure to include a dependency to the java-driver-metrics-micrometer module.
-2022-04-19 19:27:49,343 INFO  [com.dat.oss.dri.int.cor.DefaultMavenCoordinates] (main) DataStax Java driver for Apache Cassandra(R) (com.datastax.oss:java-driver-core) version 4.13.0
-2022-04-19 19:27:49,707 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientStarter] (main) Eagerly initializing Quarkus Cassandra client.
-2022-04-19 19:27:50,596 INFO  [com.dat.oss.dri.int.cor.tim.Clock] (vert.x-eventloop-thread-0) Using native clock for microsecond precision
-2022-04-19 19:27:51,258 INFO  [com.dat.oss.dri.int.cor.ses.DefaultSession] (vert.x-eventloop-thread-8) [s0] Negotiated protocol version V4 for the initial contact point, but cluster seems to support V5, keeping the negotiated version
-2022-04-19 19:27:51,657 INFO  [io.quarkus] (main) Quarkus 2.3.1.Final on JVM started in 3.676s. Listening on: http://localhost:8081
-2022-04-19 19:27:51,658 INFO  [io.quarkus] (main) Profile test activated.
-2022-04-19 19:27:51,658 INFO  [io.quarkus] (main) Installed features: [cassandra-client, cdi, kubernetes, micrometer, resteasy-reactive, resteasy-reactive-jackson, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
-2022-04-19 19:27:51,972 INFO  [com.dat.wor.E02_QuarkusCql] (main) Inserting Data
-2022-04-19 19:27:52,098 INFO  [com.dat.oss.dri.api.cor.uui.Uuids] (main) PID obtained through native call to getpid(): 4585
-2022-04-19 19:27:52,133 INFO  [com.dat.wor.E02_QuarkusCql] (main) + [OK]
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.458 s - in com.datastax.workshop.E03_QuarkusObjectMapping
-2022-04-19 19:27:52,154 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientRecorder] (main) Closing Quarkus Cassandra session.
-2022-04-19 19:27:52,169 INFO  [io.quarkus] (main) Quarkus stopped in 0.021s
-```
-
-## 6.4 - Application Quarkus
-
 #### `✅.144` - Démarrer l'application `Quarkus`
-
-- Utiliser le plugin pour démarrer l'application en mode `dev`.
 
 ```bash
 cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn quarkus:dev -DskipTests
 ```
-
-#### 🖥️ Logs
-
-```bash
-2021-12-02 17:53:52,114 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-16) Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.
-2021-12-02 17:53:52,116 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-16) Make sure to include a dependency to the java-driver-metrics-micrometer module.
-__  ____  __  _____   ___  __ ____  ______
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
- -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
---\___\_\____/_/ |_/_/|_/_/|_|\____/___/
-2021-12-02 17:53:52,758 INFO  [com.dat.oss.dri.int.cor.DefaultMavenCoordinates] (Quarkus Main Thread) DataStax Java driver for Apache Cassandra(R) (com.datastax.oss:java-driver-core) version 4.13.0
-2021-12-02 17:53:53,067 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientStarter] (Quarkus Main Thread) Eagerly initializing Quarkus Cassandra client.
-2021-12-02 17:53:53,919 INFO  [com.dat.oss.dri.int.cor.tim.Clock] (vert.x-eventloop-thread-0) Using native clock for microsecond precision
-2021-12-02 17:53:55,381 INFO  [com.dat.oss.dri.int.cor.ses.DefaultSession] (vert.x-eventloop-thread-8) [s0] Negotiated protocol version V4 for the initial contact point, but cluster seems to support V5, keeping the negotiated version
-**** Table created true****
-2021-12-02 17:53:56,344 INFO  [io.quarkus] (Quarkus Main Thread) javazone-3-quarkus 0.0.1-SNAPSHOT on JVM (powered by Quarkus 2.3.1.Final) started in 5.326s. Listening on: http://localhost:8080
-2021-12-02 17:53:56,346 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
-2021-12-02 17:53:56,346 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cassandra-client, cdi, kubernetes, micrometer, resteasy-reactive, resteasy-reactive-jackson, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
-
-Tests paused
-Press [r] to resume testing, [o] Toggle test output, [h] for more options
-```
-
-- L'application démarre et devrait apparaître le tableau de bord de dev.
 
 ```bash
 gp preview "$(gp url 8081)/q/dev"
@@ -1667,46 +1472,17 @@ cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn test -Dtest=com.datastax.workshop.E04_QuarkusController
 ```
 
-#### 🖥️ Logs
+### 8.3 - Native Image
 
-```bash
-[INFO] Running com.datastax.workshop.E04_QuarkusController
-2022-04-19 21:06:43,421 INFO  [io.qua.arc.pro.BeanProcessor] (build-4) Found unrecommended usage of private members (use package-private instead) in application beans:
-	- @Inject field com.datastaxdev.todo.TodoRestController#cqlSession,
-	- @Inject field com.datastaxdev.todo.TodoRestController#uriInfo
-2022-04-19 21:06:43,444 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-25) Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.
-2022-04-19 21:06:43,444 WARN  [com.dat.oss.qua.dep.int.CassandraClientProcessor] (build-25) Make sure to include a dependency to the java-driver-metrics-micrometer module.
-2022-04-19 21:06:43,789 INFO  [com.dat.oss.dri.int.cor.DefaultMavenCoordinates] (main) DataStax Java driver for Apache Cassandra(R) (com.datastax.oss:java-driver-core) version 4.13.0
-2022-04-19 21:06:45,588 INFO  [com.dat.oss.dri.int.cor.tim.Clock] (vert.x-eventloop-thread-0) Using native clock for microsecond precision
-2022-04-19 21:06:46,307 INFO  [com.dat.oss.dri.int.cor.ses.DefaultSession] (vert.x-eventloop-thread-8) [s0] Negotiated protocol version V4 for the initial contact point, but cluster seems to support V5, keeping the negotiated version
-2022-04-19 21:06:46,696 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientStarter] (main) Eagerly initializing Quarkus Cassandra client.
-2022-04-19 21:06:46,747 INFO  [io.quarkus] (main) Quarkus 2.3.1.Final on JVM started in 4.790s. Listening on: http://localhost:8081
-2022-04-19 21:06:46,748 INFO  [io.quarkus] (main) Profile test activated.
-2022-04-19 21:06:46,748 INFO  [io.quarkus] (main) Installed features: [cassandra-client, cdi, kubernetes, micrometer, resteasy-reactive, resteasy-reactive-jackson, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx]
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.577 s - in com.datastax.workshop.E04_QuarkusController
-2022-04-19 21:06:48,222 INFO  [com.dat.oss.qua.run.int.qua.CassandraClientRecorder] (main) Closing Quarkus Cassandra session.
-2022-04-19 21:06:48,236 INFO  [io.quarkus] (main) Quarkus stopped in 0.020s
 ```
 
-<p/><br/>
+```
 
-> [🏠 Retour à la table des matières](#-table-des-matières)
+# 9. Working with Micronaut
 
-# LAB 7 - Micronaut Cassandra
+## 9.1 - Micronaut Philosophy
 
-## 7.1 - Introduction à Micronaut
-
-#### 📘 Ce qu'il faut retenir:
-
-- [Micronaut](https://micronaut.io/) est un framework de la JVM pour construire des microservices. Comme Quarkus il vise à construire des applications avec une empreinte mémoire faible et des démarrages ultra rapides. L'idée est de permettre le _serverless_ ainsi que des déploiements dans Kubernetes et le cloud.
-
-- L'approche est différente. Il privilégie l'Aspect Oriented Programming dès la compilation au travers d'`Annotation Processor` (oui comme les mappers). Ainsi de nombreux éléments sont construits à la compilation.
-
-- Pour démarrer avec Micronaut il est utile d'installer [la ligne de commande](https://docs.micronaut.io/latest/guide/index.html#buildCLI) avec `sdkman`.
-
-## 7.2 - Connexion et configuration
-
-#### `✅.146`- Création du keyspace `devoxx_micronaut`
+## 9.2 - Application Walkthrough
 
 _Dans Docker:_
 
@@ -1718,52 +1494,20 @@ WITH REPLICATION = {
 }  AND DURABLE_WRITES = true;
 ```
 
-Avec Astra, la manipulation des keyspaces est désactivée, c'est lui qui fixe les facteurs de réplications pour vous (Saas). La procédure est décrite en détail dans [Awesome Astra](https://awesome-astra.github.io/docs/pages/astra/faq/#how-do-i-create-a-namespace-or-a-keyspace) mais voici quelques captures:
-
-_Repérer le bouton `ADD KEYSPACE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace-button.png)
-
-_Créer le keyspace `devoxx_micronaut` et valider avec `SAVE`_
-![](https://awesome-astra.github.io/docs/img/faq/create-keyspace.png)
-
 #### `✅.147`- Configuration de l'application `Micronaut`
 
 - Placer vous dans le répertoire `lab7_micronaut` et compiler le projet
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
+cd /workspace/conference-2022-devoxx/lab-micronaut
 mvn clean compile
 ```
 
-- Localiser le fichier de configuration `application.yml` dans le répertoire `src/main/resources`. C'est le fichier de configuration principal de Micronaut.
-
-```bash
-gp open /workspace/conference-2022-devoxx/labs/lab7_micronaut/src/main/resources/application.yml
-```
-
-- Suivant la cible (Cassandra dans Docker ou Cassandra dans Astra) la configuration de `micronaut` changera légèrement c'est pourquoi nous avons proposé 2 exemples `application-astra.yml` et `application-local.yml`
-
-- Copier le fichier qui vous correspond vers `application.yml`
-
-```bash
-cp /workspace/conference-2022-devoxx/labs/lab7_micronaut/src/main/resources/application-astra.yml /workspace/conference-2022-devoxx/labs/lab7_micronaut/src/main/resources/application.yml
-```
-
-ou
-
-```bash
-cp /workspace/conference-2022-devoxx/labs/lab7_micronaut/src/main/resources/application-local.yml /workspace/conference-2022-devoxx/labs/lab7_micronaut/src/main/resources/application.yml
-```
-
-- Dans le cas de Astra changer la clef `cassandra.default.advanced.auth-provider.password` pour correspondre à votre base. On remarquera que Micronaut on fait le choix d'utiliser les mêmes clefs que le fichier de configuration du drivers et de ne pas réinventer la roue (merci à eux).
-
 #### `✅.148` - Validation de la configuration
-
-> 🚨 The maven test consider the bean NULL. The command below is failin
 
 ```
 cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
-mvn test -Dtest=com.datastaxdev.E01_MicronautInit
+mvn test -Dtest=com.datastaxdev.E01_MicronautInitTest
 ```
 
 #### 🖥️ Logs
@@ -1776,14 +1520,13 @@ mvn test -Dtest=com.datastaxdev.E01_MicronautInit
 
 ```
 cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
-mvn test -Dtest=com.datastaxdev.E02_MicronautCql
+mvn test -Dtest=com.datastaxdev.E02_MicronautCqlTest
 ```
 
 #### 🖥️ Logs
 
 ![](img/micronaut_test_02.png?raw=true)
 
-## 7.3 - Object Mapping
 
 #### `✅.150` - Utilisation de l'`object mapping` avec `Micronaut`
 
@@ -1794,64 +1537,13 @@ cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
 mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMapping
 ```
 
-#### 🖥️ Logs
-
-![](img/micronaut_test_02.png?raw=true)
-
-## 7.4 - Application Micronaut
-
 #### `✅.151`- Démarrer l'application `micronaut`
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
+cd /workspace/conference-2022-devoxx/lab-micronaut
 mvn clean compile exec:java
 ```
 
-#### 🖥️ Logs
+## 9.3 - Native Image
 
-```
-[INFO] --- exec-maven-plugin:3.0.0:java (default-cli) @ lab7-micronaut ---
- __  __ _                                  _
-|  \/  (_) ___ _ __ ___  _ __   __ _ _   _| |_
-| |\/| | |/ __| '__/ _ \| '_ \ / _` | | | | __|
-| |  | | | (__| | | (_) | | | | (_| | |_| | |_
-|_|  |_|_|\___|_|  \___/|_| |_|\__,_|\__,_|\__|
-  Micronaut (v3.2.6)
 
-22:28:49.222 [com.datastaxdev.TodoApplication.main()] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
-22:28:50.662 [com.datastaxdev.TodoApplication.main()] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
-22:28:50.662 [com.datastaxdev.TodoApplication.main()] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
-```
-
-- Open the application API on port `8082`
-
-```bash
-gp preview "$(gp url 8082)/api/v1/clun/todos/"
-```
-
-#### `✅.151` - Test d'intégration avec `Micronaut`
-
-Arrêter l'application en utilisant la touche `CTRL+C`. Nous pouvons terminer par un test d'intégration
-
-```bash
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
-mvn test -Dtest=com.datastaxdev.E04_MicronautController
-```
-
-#### 🖥️ Logs
-
-![](img/micronaut_test_04.png?raw=true)
-
----
-
-Vous êtes à la fin de la session. Félicitations !!
-
-![](img/end.gif?raw=true)
-
-#### `✅.152` - Restons connectés
-
-Si la session vous a plu.
-
-- Rejoignez mon réseau sur [linkedin](https://www.linkedin.com/in/clunven/)
-- Twittez à propos de la session avec `@clunven` et `#DevoxxFR`
-- Notez la session sur l'application `Devoxx`
