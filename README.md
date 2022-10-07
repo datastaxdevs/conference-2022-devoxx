@@ -754,13 +754,13 @@ There a lot of different simple scalar types in CQL : `VARCHAR`, `ASCII`, `TINYI
 
 Some types considered as _advanced_ need to be mentionned
 
-- Les identifiants uniques ou `UUID` dont les types sont: `UUID` et `TIMEUUID`
-- Les collections: `SET`, `LIST` and `MAP`
-- Les tuples: `TUPLE`
-- Les types personnalisés ou `UDT` (_User-Defined-Types_): `CREATE TYPE`, `ALTER TYPE`, `DROP TYPE` and `DESCRIBE TYPE`
-- Les compteurs: `COUNTER`
+- Unitque identifier or `UUID` which types: `UUID` and `TIMEUUID`
+- Collectiosn withs `SET`, `LIST` and `MAP`
+- Tuples with `TUPLE`
+- `UDT` (_User-Defined-Types_): `CREATE TYPE`, `ALTER TYPE`, `DROP TYPE` and `DESCRIBE TYPE`
+- Counters `COUNTER`
 
-### 2.4.1 - Les `UUIDS`
+### `UUIDS`
 
 Un `UUID` est un nombre sur 128 bits qui peut être généré automatiquement. Ils sont utilisés pour identifier une entité ou une relation dans les bases Cassandra.
 
