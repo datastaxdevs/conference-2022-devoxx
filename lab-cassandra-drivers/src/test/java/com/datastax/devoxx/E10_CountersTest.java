@@ -15,9 +15,9 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E10_Counters implements SchemaConstants {
+public class E10_CountersTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E10_Counters.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E10_CountersTest.class);
 
     private static PreparedStatement stmtIncrement;
     private static PreparedStatement stmtDecrement;

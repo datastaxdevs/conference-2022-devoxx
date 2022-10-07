@@ -21,9 +21,9 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E08_Async implements SchemaConstants {
+public class E08_AsyncTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E08_Async.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E08_AsyncTest.class);
     
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpsertUser;
@@ -128,7 +128,7 @@ public class E08_Async implements SchemaConstants {
     
     private static CompletableFuture< Optional < UserDto > > findUserByIdAsync(CqlSession cqlSession, String email) {
         return cqlSession.executeAsync(stmtFindUser.bind(email))
-                      .thenApply(E08_Async::mapUserDtoRow)
+                      .thenApply(E08_AsyncTest::mapUserDtoRow)
                       .toCompletableFuture();
     }
     

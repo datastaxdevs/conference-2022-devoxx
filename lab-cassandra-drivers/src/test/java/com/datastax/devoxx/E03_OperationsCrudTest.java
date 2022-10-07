@@ -18,9 +18,9 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E03_OperationsCrud implements SchemaConstants {
+public class E03_OperationsCrudTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E03_OperationsCrud.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E03_OperationsCrudTest.class);
 
     // Prepare your statements once and execute multiple times 
     private static PreparedStatement stmtCreateUser;

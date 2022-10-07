@@ -23,9 +23,9 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E07_Json implements SchemaConstants {
+public class E07_JsonTest implements SchemaConstants {
     
-    private static Logger LOGGER = LoggerFactory.getLogger(E07_Json.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E07_JsonTest.class);
     
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSession.builder().build()) {

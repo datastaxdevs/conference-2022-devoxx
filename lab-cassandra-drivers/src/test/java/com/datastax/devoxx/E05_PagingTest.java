@@ -23,9 +23,9 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.protocol.internal.util.Bytes;
 
-public class E05_Paging implements SchemaConstants {
+public class E05_PagingTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E05_Paging.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E05_PagingTest.class);
 
     public static void main(String[] args) {
         try(CqlSession cqlSession = CqlSession.builder().build()) {

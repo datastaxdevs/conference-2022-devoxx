@@ -11,9 +11,9 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E11_LightweightTransactions implements SchemaConstants {
+public class E11_LightweightTransactionsTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E11_LightweightTransactions.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E11_LightweightTransactionsTest.class);
     
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpdateUserLwt;

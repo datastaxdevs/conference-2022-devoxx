@@ -31,9 +31,9 @@ import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
-public class E06_ListSetMapAndUdt implements SchemaConstants {
+public class E06_ListSetMapAndUdtTest implements SchemaConstants {
 	
-    private static Logger LOGGER = LoggerFactory.getLogger(E06_ListSetMapAndUdt.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E06_ListSetMapAndUdtTest.class);
     
 	private static UserDefinedType videoFormatUdt;
     
