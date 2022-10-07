@@ -29,34 +29,31 @@
   - **3.1 - Introduction to Drivers** *(slides)*
   - [3.2 - Connect with drivers](#connect--with-drivers)
   - [3.3 - Drivers Configuration](#drivers-configuration)
-- **Data Distribution** *(slides)*
-- [**3. Working with CQL**](#working-with-cql)
-  - **Understanding table keys** *(slides)*
-  - [Schema Definition](#)
-  - [Simple Types](#getting-started)
-  - [Advanced Data Types](#advanced-data-types)
-  - [Advanced Concepts](#advanced-data-types)
-- [**4. Data Modeling**](#lab-3---modélisation-de-données)
-  - [Methodology](#31---méthodologie)
-  - [Timeseries data model](#32---modèle-de-données-pour-des-timeseries)
-  - [Migrating from SQL to NoSQL](#33---de-sql-à-nosql-avec-petclinic)
-- [**5. Spring Data Cassandra**](#lab-5---spring-data-cassandra)
-  - [Spring Data Connection and Configuration](#51---configuration)
-  - [`CassandraRepository` and `CrudRepository`](#52---comprendre-les-crudrepositories)
-  - [`CassandraOperations`](#53---cassandraoperations)
-  - [Spring Boot](#54---application-spring-boot)
-  - [Spring Native](#54---application-spring-boot)
-- [**6, Cassandra Quarkus extension**](#lab-6---cassandra-quarkus-extension)
-  - [Connection and Configuration](#61---introduction-aux-extensions-quarkus)
-  - [Object Mapping](#63---object-mapping)
-  - [Application Quarkus](#64---application-quarkus)
-  - [Native Image](#64---application-quarkus)
-- [**7. Micronaut**](#lab-7---micronaut-cassandra)
-  - [Getting started](#71---introduction-à-micronaut)
-  - [Connection and Configuration](#72---connexion-et-configuration)
-  - [Object Mapping](#73---object-mapping)
-  - [Micronaut Applications ](#74---application-micronaut)
-  - [Native Image](#74---application-micronaut)
+- **4. Data Distribution** *(slides)*
+- [**5. Working with CQL**](#working-with-cql)
+  - **5.1 - Understanding table keys** *(slides)*
+  - [5.2 - Schema Definition](#)
+  - [5.3 - Simple Types](#getting-started)
+  - [5.4 - Advanced Data Types](#advanced-data-types)
+  - [5.5 - Advanced Concepts](#advanced-data-types)
+- [**6. Data Modeling**](#lab-3---modélisation-de-données)
+  - **6.1 - Data Model Methodology** *(slides)*
+  - [6.2 - Data Modeling In action](#)
+  - **6.3 - From SQL to NoSQL Migration**  *(slides)*
+- [**7. Working with Spring Framework**](#spring)
+  - [7.1 - Spring Data Connection and Configuration](#51---configuration)
+  - [7.2 - `CassandraRepository` and `CrudRepository`](#52---comprendre-les-crudrepositories)
+  - [7.3 - `CassandraOperations`](#53---cassandraoperations)
+  - [7.4 - Spring Boot (mvc, Webflux)](#54---application-spring-boot)
+  - [7.5 - Spring Native](#54---application-spring-boot)
+- [**8. Quarkus with Quarkus**](#lab-6---cassandra-quarkus-extension)
+  - **8.1 - Quarkus extension**  *(slides)*
+  - [8.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
+  - [8.3 - Native Image](#64---application-quarkus)
+- [**9. Micronaut**](#lab-7---micronaut-cassandra)
+  - **9.1 - MIcronaut Philosophy**  *(slides)*
+  - [9.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
+  - [9.3 - Native Image](#64---application-quarkus)
 
 ---
 ## Objectives 
