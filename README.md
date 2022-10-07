@@ -19,41 +19,41 @@
 - [Objectives](#objectives)
 - [Materials](#materials)
 - **1. Introduction to Cassandra** *(slides)*
-- [**2. Environment Setup**](#setup)
-  - [2.1 - Prerequisites](#prerequisites)
-  - [2.2 - Start `Gitpod`](#start-gitpod)
-  - [2.3 - Start Apache Cassandra™ cluster](#starting-apache-cassandra-cluster)
-  - [2.4 - Scale the cluster up](#scaling-up-cluster)
-  - [2.5 - Create keyspace](#create-keyspace-devoxx)
-- [**3. Connectivity**](#working-with-cql)
-  - **3.1 - Introduction to Drivers** *(slides)*
-  - [3.2 - Connect with drivers](#connect--with-drivers)
-  - [3.3 - Drivers Configuration](#drivers-configuration)
-- **4. Data Distribution** *(slides)*
-- [**5. Working with CQL**](#working-with-cql)
-  - **5.1 - Understanding table keys** *(slides)*
-  - [5.2 - Schema Definition](#)
-  - [5.3 - CRUD Operations](#getting-started)
-  - [5.4 - Advanced Data Types](#advanced-data-types)
-  - [5.5 - Advanced Concepts](#advanced-data-types)
-- [**6. Data Modeling**](#lab-3---modélisation-de-données)
-  - **6.1 - Data Model Methodology** *(slides)*
-  - [6.2 - Data Modeling In action](#)
-  - **6.3 - From SQL to NoSQL Migration**  *(slides)*
-- [**7. Working with Spring Framework**](#spring)
-  - [7.1 - Spring Data Connection and Configuration](#51---configuration)
-  - [7.2 - `CassandraRepository` and `CrudRepository`](#52---comprendre-les-crudrepositories)
-  - [7.3 - `CassandraOperations`](#53---cassandraoperations)
-  - [7.4 - Spring Boot (mvc, Webflux)](#54---application-spring-boot)
-  - [7.5 - Spring Native](#54---application-spring-boot)
-- [**8. Working with Quarkus**](#lab-6---cassandra-quarkus-extension)
-  - **8.1 - Quarkus extension**  *(slides)*
-  - [8.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
-  - [8.3 - Native Image](#64---application-quarkus)
-- [**9. Working with Micronaut**](#lab-7---micronaut-cassandra)
-  - **9.1 - Micronaut Philosophy**  *(slides)*
-  - [9.2 - Application Walkthrough](#61---introduction-aux-extensions-quarkus)
-  - [9.3 - Native Image](#64---application-quarkus)
+- [**2. Environment Setup**](#2-environment-setup)
+  - [2.1 - Prerequisites](#21---prerequisites)
+  - [2.2 - Start `Gitpod`](#22---start-gitpod)
+  - [2.3 - Start Apache Cassandra™ cluster](#23---start-apache-cassandra-cluster)
+  - [2.4 - Scale the cluster up](#24---scale-the-cluster-up)
+  - [2.5 - Create keyspace](#25---create-keyspace)
+- [**3. Connectivity**](#3-connectivity)
+  - [3.1 - Introduction to Drivers *(slides)*](#31---introduction-to-driver) 
+  - [3.2 - Connect with drivers](#32---connect-with-drivers)
+  - [3.3 - Drivers Configuration](#33---drivers-configuration)
+- [**4. Data Distribution** *(slides)*](#4-data-distribution)
+- [**5. Working with CQL**](#5-working-with-cql)
+  - [5.1 - Understanding table key *(slides)*](#51---understanding-table-keys)
+  - [5.2 - Schema Definition](#52---schema-definition)
+  - [5.3 - CRUD Operations](#53---crud-operations)
+  - [5.4 - Advanced Data Types](#54---advanced-data-types)
+  - [5.5 - Advanced Concepts](#55---advanced-concepts)
+- [**6. Data Modeling**](#6-data-modeling)
+  - [6.1 - Data Model Methodology *(slides)*](#61---data-model-methodology)
+  - [6.2 - Data Modeling In action](#62---data-modeling-in-action)
+  - [6.3 - From SQL to NoSQL Migration  *(slides)*](#63---from-sql-to-nosql-migration)
+- [**7. Working with Spring Framework**](#7-working-with-spring-framework)
+  - [7.1 - Spring Data Connection and Configuration](#71---spring-data-connection-and-configuration)
+  - [7.2 - `CassandraRepository` and `CrudRepository`](#72---cassandrarepository-and-crudrepository)
+  - [7.3 - `CassandraOperations`](#73---cassandraoperations)
+  - [7.4 - Spring Boot (mvc, Webflux)](#74---spring-boot-mvc-webflux)
+  - [7.5 - Spring Native](#75---spring-native)
+- [**8. Working with Quarkus**](#8-working-with-quarkus)
+  - [8.1 - Quarkus extension *(slides)*](#81---quarkus-extension)
+  - [8.2 - Application Walkthrough](#82---application-walkthrough)
+  - [8.3 - Native Image](#83---native-image)
+- [**9. Working with Micronaut**](#9-working-with-micronaut)
+  - [9.1 - Micronaut Philosophy  *(slides)*](#91---micronaut-philosophy)
+  - [9.2 - Application Walkthrough](#92---application-walkthrough)
+  - [9.3 - Native Image](#93---native-image)
 
 ---
 ## Objectives 
@@ -1217,7 +1217,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E11_ReactiveProgrammingTest
 ```
 
-## 4.13 - Object Mapping
+#### `✅.045`- Object Mapping
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
