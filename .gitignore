@@ -20,3 +20,5 @@ dist
 .DS_Store
 
 .factorypath
+/.metadata/
+/.metadata/

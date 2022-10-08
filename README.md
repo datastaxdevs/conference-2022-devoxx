@@ -156,10 +156,9 @@ docker-compose up -d
 > 🖥️ Result
 >
 > ```
-> [+] Running 3/3
->  ⠿ Network labs_cassandra           Created      0.0s
->  ⠿ Container lab1-dc1_seed-1        Started      0.4s
->  ⠿ Container lab1-dc1_node-1        Started      1.2s
+> Creating network "setup_cassandra" with the default driver
+> Creating setup_dc1_seed_1 ... done
+> Creating setup_dc1_node_1 ... done
 > ```
 
 #### `✅.004`- Display containers status with `docker`
@@ -181,8 +180,8 @@ docker ps
 > ```bash
 >     Name                    Command               State                                        Ports
 > --------------------------------------------------------------------------------------------------------------------------------------------
-> lab1_dc1_node_1    docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
-> lab1_dc1_seed_1    docker-entrypoint.sh cassa ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp,:::9042->9042/tcp, 9160/tcp
+> setup_dc1_node_1    docker-entrypoint.sh /bin/ ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp
+> setup_dc1_seed_1    docker-entrypoint.sh cassa ...   Up      7000/tcp, 7001/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp,:::9042->9042/tcp, 9160/tcp
 > ```
 
 #### `✅.006`- Save `seed` container id
@@ -386,17 +385,6 @@ Slides
 
 ### 5.2 - Schema Definition
 
-
-- Run  `E01_CreateSchemaTest.java`
-
-```
-cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
-gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E01_CreateSchemaTest.java
-mvn test -Dtest=com.datastax.devoxx.E01_CreateSchemaTest
-```
-
-### 5.3 - CRUD Operations
-
 We keep using `cqlsh` to illustrate what have been seen so far
 
 #### `✅.025`- list Keyspaces
@@ -432,10 +420,15 @@ CREATE TABLE IF NOT EXISTS city_by_country (
 );
 ```
 
-ℹ️ **Note**:
-> - `IF NOT EXISTS` permet d'avoir une commande idempotente
-> - les colonnes sont de types simples `text` et `int`
-> - La `clé primaire` en plusieurs parties que nous détaillerons par la suite.
+- Run  `E01_CreateSchemaTest.java`
+
+```
+cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E01_CreateSchemaTest.java
+mvn test -Dtest=com.datastax.devoxx.E01_CreateSchemaTest
+```
+
+### 5.3 - CRUD Operations
 
 #### `✅.029`- Insert a few rows
 

@@ -36,7 +36,6 @@ public class E01_CreateSchemaTest implements SchemaConstants {
             createTableCommentByUser(cqlSession);
         }
         LOGGER.info("[OK] Success");
-        System.exit(0);
     }
    
 }
