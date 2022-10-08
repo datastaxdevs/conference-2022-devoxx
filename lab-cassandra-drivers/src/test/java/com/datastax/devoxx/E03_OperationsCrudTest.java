@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,47 +23,67 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
+@TestMethodOrder(OrderAnnotation.class)
 public class E03_OperationsCrudTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E03_OperationsCrudTest.class);
+    private static Logger LOGGER = 
+    		LoggerFactory.getLogger(E03_OperationsCrudTest.class);
 
-    // Prepare your statements once and execute multiple times 
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpsertUser;
     private static PreparedStatement stmtExistUser;
     private static PreparedStatement stmtDeleteUser;
     private static PreparedStatement stmtFindUser;
     
-    /** StandAlone (vs JUNIT) to help you running. */
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
+    String userEmail  = "clun@sample.com";
+    String userEmail2 = "eram@sample.com";
+    
+    @BeforeAll
+    public void should_prepare_statements() {
+    	 try(CqlSession cqlSession = CqlSession.builder().build()) {
+             
+             // Create working table User (if needed)
+             createTableUser(cqlSession);
+             
+             // Empty tables for tests
+             truncateTable(cqlSession, USER_TABLENAME);
+             
+             // Prepare your statements once and execute multiple times 
+             prepareStatements(cqlSession);
+             
+         }
+    }
+    
+    @Test
+    @Order(1)
+    public void should_create_statements() {
+    	
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
-            // Create working table User (if needed)
-            createTableUser(cqlSession);
+	        if (!existUser(cqlSession, userEmail)) {
+	            LOGGER.info("+ {} does not exists in table 'user'", userEmail);
+	        }
+	        
+	        createUser(cqlSession, userEmail, "Cedric", "Lunven");
+	        
+	        if (existUser(cqlSession, userEmail)) {
+	            LOGGER.info("+ {}  now exists in table 'user'", userEmail);
+	        }
+    	}
+    }
+    	
+    @Test
+    @Order(2)
+    public void should_update_statements() {
+    	
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
-            // Empty tables for tests
-            truncateTable(cqlSession, USER_TABLENAME);
             
-            // Prepare your statements once and execute multiple times 
-            prepareStatements(cqlSession);
-            
-            // ========== CREATE ===========
-            
-            String userEmail = "clun@sample.com";
-            
-            if (!existUser(cqlSession, userEmail)) {
-                LOGGER.info("+ {} does not exists in table 'user'", userEmail);
-            }
-            
-            createUser(cqlSession, userEmail, "Cedric", "Lunven");
-            
-            if (existUser(cqlSession, userEmail)) {
-                LOGGER.info("+ {}  now exists in table 'user'", userEmail);
-            }
-            
-            // ========= UPDATE ============
-            
-            String userEmail2 = "eram@sample.com";
 
             if (!existUser(cqlSession, userEmail2)) {
                 LOGGER.info("+ {} does not exists in table 'user'", userEmail2);
@@ -69,14 +94,29 @@ public class E03_OperationsCrudTest implements SchemaConstants {
             if (existUser(cqlSession, userEmail2)) {
                 LOGGER.info("+ {}  now exists in table 'user'", userEmail2);
             }
-            
-            // ========= DELETE ============
+    	}
+    }
+    
+    @Test
+    @Order(3)
+    public void should_delete_statements() {
+    	
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Delete an existing user by its email (if email does not exist, no error)
             deleteUser(cqlSession, userEmail2);
             if (!existUser(cqlSession, userEmail2)) {
                 LOGGER.info("+ {} does not exists in table 'user'", userEmail2);
-            } 
+            }
+    	}
+    }
+    
+    
+    @Test
+    @Order(4)
+    public void should_read_statements() {
+    	
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // ========= READ ==============
             
@@ -155,7 +195,6 @@ public class E03_OperationsCrudTest implements SchemaConstants {
                 .whereColumn(USER_EMAIL)
                 .isEqualTo(QueryBuilder.bindMarker())
                 .build());
-       
     }
   
 }

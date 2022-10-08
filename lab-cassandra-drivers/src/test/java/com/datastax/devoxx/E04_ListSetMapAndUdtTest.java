@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,36 +34,34 @@ import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
+@TestMethodOrder(OrderAnnotation.class)
 public class E04_ListSetMapAndUdtTest implements SchemaConstants {
 	
     private static Logger LOGGER = LoggerFactory.getLogger(E04_ListSetMapAndUdtTest.class);
     
-	private static UserDefinedType videoFormatUdt;
-    
     private static PreparedStatement stmtCreateVideo;
     private static PreparedStatement stmtReadVideoTags;
     
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
-            
-            // Create table
-            createUdtVideoFormat(cqlSession);
-            createTableVideo(cqlSession);
-            
-            // Empty tables for tests
-            truncateTable(cqlSession, VIDEO_TABLENAME);
-            
-            // User define type
-            videoFormatUdt = cqlSession.getMetadata()
-                .getKeyspace(KEYSPACE_NAME)
-                .flatMap(ks -> ks.getUserDefinedType(UDT_VIDEO_FORMAT_NAME))
-                .orElseThrow(() -> new IllegalArgumentException("Missing UDT definition"));
-            
-            // Prepare your statements once and execute multiple times 
-            prepareStatements(cqlSession);
-            
-            // ========= CREATE ============
-            
+    @Test
+    public void should_create() {
+    	
+    	 try(CqlSession cqlSession = CqlSession.builder().build()) {
+    		 
+    		 // Create table
+             createUdtVideoFormat(cqlSession);
+             createTableVideo(cqlSession);
+             
+             // Empty tables for tests
+             truncateTable(cqlSession, VIDEO_TABLENAME);
+             
+             // Prepare your statements once and execute multiple times 
+             prepareStatements(cqlSession);
+             
             UUID myVideoId = Uuids.random();
             
             // Dto wrapping all data but no object Mapping here, QueryBuilder only
@@ -99,7 +100,12 @@ public class E04_ListSetMapAndUdtTest implements SchemaConstants {
     }
     
     private static void createVideo(CqlSession cqlSession, VideoDto dto) {
-
+    	// User define type
+		UserDefinedType videoFormatUdt = cqlSession.getMetadata()
+            .getKeyspace(cqlSession.getKeyspace().get())
+            .flatMap(ks -> ks.getUserDefinedType(UDT_VIDEO_FORMAT_NAME))
+            .orElseThrow(() -> new IllegalArgumentException("Missing UDT definition"));
+      	
         MutableCodecRegistry registry = (MutableCodecRegistry) cqlSession.getContext().getCodecRegistry();
         registry.register(new UdtVideoFormatCodec(registry.codecFor(videoFormatUdt), VideoFormatDto.class));
         

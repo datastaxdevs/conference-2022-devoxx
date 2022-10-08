@@ -1,8 +1,11 @@
 package com.datastax.devoxx;
 
 import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
+import static com.datastax.devoxx.schema.SchemaUtils.dropTableIfExists;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +14,11 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
 public class E08_LightweightTransactionsTest implements SchemaConstants {
 
     private static Logger LOGGER = LoggerFactory.getLogger(E08_LightweightTransactionsTest.class);
@@ -18,17 +26,23 @@ public class E08_LightweightTransactionsTest implements SchemaConstants {
     private static PreparedStatement stmtCreateUser;
     private static PreparedStatement stmtUpdateUserLwt;
     
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
-            
+    @BeforeAll
+    public static void shout_init_statements() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
+            dropTableIfExists(cqlSession, USER_TABLENAME);
+            createTableUser(cqlSession);
+           
             // Use PreparedStatement for queries that are executed multiple times in your application
             prepareStatements(cqlSession);
             
-            // Create working table User (if needed)
-            createTableUser(cqlSession);
-            
             // Empty tables for tests
             truncateTable(cqlSession, USER_TABLENAME);
+    	}
+    }
+    
+    @Test
+    public void should_test_batches() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Insert if not exist
             boolean first  = createUserIfNotExist(cqlSession, "clun@sample.com", "Cedric", "Lunven");

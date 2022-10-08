@@ -10,6 +10,11 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +26,12 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
+@TestMethodOrder(OrderAnnotation.class)
 public class E10_AsynchronousProgrammingTest implements SchemaConstants {
 
     private static Logger LOGGER = LoggerFactory.getLogger(E10_AsynchronousProgrammingTest.class);
@@ -31,8 +42,11 @@ public class E10_AsynchronousProgrammingTest implements SchemaConstants {
     private static PreparedStatement stmtDeleteUser;
     private static PreparedStatement stmtFindUser;
     
-    public static void main(String[] args)
-    throws InterruptedException, ExecutionException {
+    String userEmail = "clun@sample.com";
+    String userEmail2 = "eram@sample.com";
+    
+    @BeforeAll
+    public static void shout_init_statements() {
         try(CqlSession cqlSession = CqlSession.builder().build()) {
            
             // Create working table User (if needed)
@@ -43,41 +57,56 @@ public class E10_AsynchronousProgrammingTest implements SchemaConstants {
             
             // Prepare your statements once and execute multiple times 
             prepareStatements(cqlSession);
-            
-            // ========== CREATE ===========
-            
-            String userEmail = "clun@sample.com";
-            
+        }
+    }
+    
+    @Test
+    @Order(1)
+    public void should_create_async() 
+    throws InterruptedException, ExecutionException {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {   
             existUserAsync(cqlSession, userEmail)
                 .thenAccept(exist -> LOGGER.info("+ '{}' exists ? (expecting false): {}", userEmail, exist))
                 .thenCompose(r->createUserAsync(cqlSession, userEmail, "Cedric", "Lunven"))
                 .thenCompose(r->existUserAsync(cqlSession, userEmail))
                 .thenAccept(exist -> LOGGER.info("+ '{}' exists ? (expecting true): {}", userEmail, exist))
                 .toCompletableFuture().get(); // enforce blocking call to have logs.
-            
-           
-            // ========= UPDATE ============
-            
-            String userEmail2 = "eram@sample.com";
-            
+    	}
+    }
+    
+    @Test
+    @Order(2)
+    public void should_update_async() 
+    throws InterruptedException, ExecutionException {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {          
             existUserAsync(cqlSession, userEmail2)
                 .thenAccept(exist -> LOGGER.info("+ '{}' exists ? (expecting false): {}", userEmail2, exist))
                 .thenCompose(r->updateUserAsync(cqlSession, userEmail2,  "Eric", "Ramirez"))
                 .thenCompose(r->existUserAsync(cqlSession, userEmail2))
                 .thenAccept(exist -> LOGGER.info("+ '{}' exists ? (expecting true): {}", userEmail2, exist))
                 .toCompletableFuture().get(); // enforce blocking call to have logs.
-            
-            // ========= DELETE ============
-            
-            // Delete an existing user by its email (if email does not exist, no error)
-            // Delete an existing user by its email (if email does not exist, no error)
+    	}
+    }
+    
+    
+    @Test
+    @Order(3)
+    public void should_delete_async() 
+    throws InterruptedException, ExecutionException {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {     
             deleteUserAsync(cqlSession, userEmail2)
                 .thenCompose(r->existUserAsync(cqlSession, userEmail2))
                 .thenAccept(exist -> LOGGER.info("+ '{}' exists ? (expecting false) {}", userEmail2, exist))
                 .get(); // enforce blocking call to have logs.
-            
-            // ========= READ ==============
-            
+    	}
+    }
+    
+    @Test
+    @Order(4)
+    public void should_read_async() 
+    throws InterruptedException, ExecutionException {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {   
+    		
             findUserByIdAsync(cqlSession, "eram@sample.com")
                 .thenAccept(erick -> LOGGER.info("+ Retrieved '{}': (expecting Optional.empty) {}", userEmail2, erick))
                 .get(); // enforce blocking call to have logs.

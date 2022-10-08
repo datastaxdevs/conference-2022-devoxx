@@ -2,9 +2,14 @@ spring:
   cassandra:
     schema-action: create-if-not-exists
     keyspace-name: devoxx_spring
-    contact-points: localhost:9042
+    contact-points: 127.0.0.1:9042
     local-datacenter: dc1
     request:
       timeout: 5s
       consistency: LOCAL_QUORUM
       page-size: 5000
+    connection:
+      connect-timeout: 10s
+      init-query-timeout: 10s
+    controlconnection:
+      timeout: 10s

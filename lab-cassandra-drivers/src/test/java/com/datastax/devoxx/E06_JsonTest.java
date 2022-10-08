@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,15 +25,27 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
 public class E06_JsonTest implements SchemaConstants {
     
     private static Logger LOGGER = LoggerFactory.getLogger(E06_JsonTest.class);
     
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
+    @BeforeAll
+    public static void shout_init_statements() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             createUdtVideoFormat(cqlSession);
             createTableVideo(cqlSession);
             truncateTable(cqlSession, VIDEO_TABLENAME);
+    	}
+    }
+    
+    @Test
+    public void should_use_json() {
+    	 try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Insert as a String - with regular Core CQL
             UUID videoid1 = UUID.randomUUID();

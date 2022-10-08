@@ -3,42 +3,33 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.datastaxdev</groupId>
+	<groupId>com.datastax.workshop</groupId>
 	<artifactId>lab-micronaut</artifactId>
 	<name>lab-micronaut</name>
 	<packaging>jar</packaging>
-	<version>0.1.0-SNAPSHOT</version>
-
-	<parent>
-		<groupId>io.micronaut</groupId>
-		<artifactId>micronaut-parent</artifactId>
-		<version>3.7.1</version>
-	</parent>
+	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
-		<java.version>17</java.version>
-		<java-driver.version>4.15.0</java-driver.version>
-		<jackson.version>2.13.4</jackson.version>
-		<!-- Junit -->
-		<junit-platform.version>1.9.0</junit-platform.version>
-		<junit-jupiter.version>5.9.0</junit-jupiter.version>
-		<!-- Micronaut -->
+		<micronaut.version>3.2.6</micronaut.version>
+		<java-driver.version>4.13.0</java-driver.version>
+		<logback.version>1.2.9</logback.version>
+		<jackson.version>2.13.1</jackson.version>
+		<junit-platform.version>1.8.2</junit-platform.version>
+		<junit-jupiter.version>5.8.2</junit-jupiter.version>
+		<maven.plugin.micronaut.version>3.1.0</maven.plugin.micronaut.version>
 		<exec.mainClass>com.datastaxdev.TodoApplication</exec.mainClass>
 		<micronaut.runtime>netty</micronaut.runtime>
-		<maven.plugin.micronaut.version>3.4.0</maven.plugin.micronaut.version>
-		<maven.plugin.compiler.version>3.8.1</maven.plugin.compiler.version>
-		<maven.plugin.surefire.version>2.22.2</maven.plugin.surefire.version>
-		
 	</properties>
-	
+
+	<!-- BOM for Micronaut -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.fasterxml.jackson</groupId>
-				<artifactId>jackson-bom</artifactId>
-				<version>${jackson.version}</version>
-				<scope>import</scope>
+				<groupId>io.micronaut</groupId>
+				<artifactId>micronaut-bom</artifactId>
+				<version>${micronaut.version}</version>
 				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -64,6 +55,11 @@
 		<dependency>
 			<groupId>com.datastax.oss</groupId>
 			<artifactId>java-driver-mapper-processor</artifactId>
+			<version>${java-driver.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.datastax.oss</groupId>
+			<artifactId>java-driver-metrics-micrometer</artifactId>
 			<version>${java-driver.version}</version>
 		</dependency>
 
@@ -111,23 +107,18 @@
 			<artifactId>micronaut-runtime</artifactId>
 			<scope>compile</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>io.micronaut.cassandra</groupId>
 			<artifactId>micronaut-cassandra</artifactId>
 			<scope>compile</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>io.micronaut.test</groupId>
 			<artifactId>micronaut-test-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.micronaut</groupId>
-			<artifactId>micronaut-inject-java-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-http-client</artifactId>
@@ -147,28 +138,21 @@
 
 	<build>
 		<plugins>
-			<!-- Little help for junit5 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.plugin.surefire.version}</version>
-			</plugin>
-			
 			<plugin>
 				<groupId>io.micronaut.build</groupId>
 				<artifactId>micronaut-maven-plugin</artifactId>
+				<version>${maven.plugin.micronaut.version}</version>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.plugin.compiler.version}</version>
+				<version>3.8.1</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<source>17</source>
+					<target>17</target>
 					<showWarnings>false</showWarnings>
-					<annotationProcessorPaths
-						combine.children="append">
+					<annotationProcessorPaths combine.children="append">
 						<path>
 							<groupId>com.datastax.oss</groupId>
 							<artifactId>java-driver-mapper-processor</artifactId>
@@ -189,15 +173,10 @@
 							<artifactId>micronaut-http-validation</artifactId>
 							<version>${micronaut.version}</version>
 						</path>
-						<path>
-							<groupId>io.micronaut</groupId>
-							<artifactId>micronaut-graal</artifactId>
-							<version>${micronaut.version}</version>
-						</path>
 					</annotationProcessorPaths>
 					<compilerArgs>
 						<arg>-Amicronaut.processing.group=com.datastaxdev</arg>
-						<arg>-Amicronaut.processing.module=lab4-micronaut</arg>
+						<arg>-Amicronaut.processing.module=lab7-micronaut</arg>
 					</compilerArgs>
 				</configuration>
 			</plugin>

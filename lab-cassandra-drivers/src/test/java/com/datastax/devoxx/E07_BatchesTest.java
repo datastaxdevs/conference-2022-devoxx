@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,11 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
 public class E07_BatchesTest implements SchemaConstants {
     
     /** Logger for the class. */
@@ -32,9 +39,9 @@ public class E07_BatchesTest implements SchemaConstants {
     private static PreparedStatement selectCommentByVideo;
     private static PreparedStatement selectCommentByUser;
     
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
-   
+    @BeforeAll
+    public static void shout_init_statements() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             // Create working table User (if needed)
             createTableCommentByUser(cqlSession);
             createTableCommentByVideo(cqlSession);
@@ -45,7 +52,12 @@ public class E07_BatchesTest implements SchemaConstants {
 
             // Prepare your statements once and execute multiple times 
             prepareStatements(cqlSession);
-
+    	}
+    }
+    
+    @Test
+    public void should_test_batches() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             // Will use this identifiers is all tests
             UUID user_1    = UUID.randomUUID();UUID user_2    = UUID.randomUUID();
             UUID videoid_1 = UUID.randomUUID();UUID videoid_2 = UUID.randomUUID();

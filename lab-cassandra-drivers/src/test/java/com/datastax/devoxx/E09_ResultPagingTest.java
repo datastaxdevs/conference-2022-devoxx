@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Iterator;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,24 +25,37 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.protocol.internal.util.Bytes;
 
-public class E09_PagingTest implements SchemaConstants {
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
+public class E09_ResultPagingTest implements SchemaConstants {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(E09_PagingTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(E09_ResultPagingTest.class);
 
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
+    private static PreparedStatement stmtCreateUser;
+    
+    @BeforeAll
+    public static void shout_init_statements() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             createTableUser(cqlSession);
             
             truncateTable(cqlSession, USER_TABLENAME);
             
-            PreparedStatement stmtCreateUser = 
+            stmtCreateUser = 
                     cqlSession.prepare(QueryBuilder.insertInto(USER_TABLENAME)
                     .value(USER_EMAIL, QueryBuilder.bindMarker())
                     .value(USER_FIRSTNAME, QueryBuilder.bindMarker())
                     .value(USER_LASTNAME, QueryBuilder.bindMarker())
                     .build());
-
+    	}
+    }
+    
+    @Test
+    public void should_run_batch() {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             // Adding 50 records in the table
             BatchStatementBuilder bb = BatchStatement.builder(DefaultBatchType.LOGGED);
             for (int i = 0; i < 50; i++) {

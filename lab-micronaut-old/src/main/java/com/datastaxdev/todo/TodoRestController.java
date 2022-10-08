@@ -56,7 +56,7 @@ public class TodoRestController {
             @PathVariable(value = "user") @NotEmpty String user,
             @PathVariable(value = "uid")  @NotEmpty String itemId) {
         Optional<TodoDto> e = getTodoService().findById(user, UUID.fromString(itemId));
-        if (!e.isPresent()) return HttpResponse.notFound();
+        if (e.isEmpty()) return HttpResponse.notFound();
         Todo todo = fromDto(e.get());
         populateUrl(todo, ServerRequestContext.currentRequest().get());
         //LOGGER.info("Find user={}, TODO={}", user, todo);
@@ -83,7 +83,7 @@ public class TodoRestController {
     throws URISyntaxException {
         //LOGGER.info("Updating user={} id={} with TODO {}", user, itemId, todo);
         Optional<TodoDto> e = getTodoService().findById(user, UUID.fromString(itemId));
-        if (!e.isPresent()) return HttpResponse.notFound();
+        if (e.isEmpty()) return HttpResponse.notFound();
         todo.setUuid(UUID.fromString(itemId));
         TodoDto todoDto = toDto(todo, user);
         todoDto = getTodoService().save(todoDto);
@@ -96,7 +96,7 @@ public class TodoRestController {
             @PathVariable(value = "user") String user,
             @PathVariable(value = "uid")  String uid) {
         //LOGGER.info("Delete TODO id={} for user={}", uid, user);
-        if (!getTodoService().findById(user, UUID.fromString(uid)).isPresent()) {
+        if (getTodoService().findById(user, UUID.fromString(uid)).isEmpty()) {
             return HttpResponse.notFound();
         }
         getTodoService().deleteById(user, UUID.fromString(uid));

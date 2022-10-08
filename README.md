@@ -311,6 +311,30 @@ WITH REPLICATION = {
   'class' : 'NetworkTopologyStrategy',
   'dc1' : 3
 }  AND DURABLE_WRITES = true;
+
+CREATE KEYSPACE IF NOT EXISTS devoxx_drivers
+WITH REPLICATION = {
+  'class' : 'NetworkTopologyStrategy',
+  'dc1' : 3
+}  AND DURABLE_WRITES = true;
+
+CREATE KEYSPACE IF NOT EXISTS devoxx_spring
+WITH REPLICATION = {
+  'class' : 'NetworkTopologyStrategy',
+  'dc1' : 3
+}  AND DURABLE_WRITES = true;
+
+CREATE KEYSPACE IF NOT EXISTS devoxx_quarkus
+WITH REPLICATION = {
+  'class' : 'NetworkTopologyStrategy',
+  'dc1' : 3
+}  AND DURABLE_WRITES = true;
+
+CREATE KEYSPACE IF NOT EXISTS devoxx_micronaut
+WITH REPLICATION = {
+  'class' : 'NetworkTopologyStrategy',
+  'dc1' : 3
+}  AND DURABLE_WRITES = true;
 ```
 
 ⁉️ `NetworkTopologyStrategy`
@@ -341,13 +365,18 @@ describe keyspaces;
 > 🖥️ Result
 >
 > ```
-> devoxx  system_auth         system_schema  system_views
-> system  system_distributed  system_traces  system_virtual_schema
+> devoxx            devoxx_quarkus  system_auth         system_traces        
+> devoxx_drivers    devoxx_spring   system_distributed  system_views         
+> devoxx_micronaut  system          system_schema       system_virtual_schema
 > ```
 
 ## 3. Connectivity
 
 ### 3.1 - Introduction to Driver
+
+_back to a few slides_
+
+![](img/introduction-to-drivers.png)
 
 ### 3.2 - Connect with drivers
 
@@ -357,7 +386,7 @@ describe keyspaces;
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/pom.xml
 ```
 
-- Run  `E00_TestConnectivityTest`
+#### `✅.015`- Run  `E00_TestConnectivityTest`
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -375,19 +404,23 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/main/resourc
 
 ## 4. Data Distribution
 
-Slides
+_back to a few slides_
+
+![](img/data-distribution.png)
 
 ## 5. Working with CQL
 
 ### 5.1 - Understanding table keys
 
-Slides
+_Listen to the speaker here_
+
+![](img/table-keys.png)
 
 ### 5.2 - Schema Definition
 
 We keep using `cqlsh` to illustrate what have been seen so far
 
-#### `✅.025`- list Keyspaces
+#### `✅.016`- list Keyspaces
 
 Check that `devoxx` is one of the keyspace
 
@@ -395,13 +428,13 @@ Check that `devoxx` is one of the keyspace
 describe KEYSPACES;
 ```
 
-#### `✅.026`- Select keyspace `devoxx`
+#### `✅.017`- Select keyspace `devoxx`
 
 ```sql
 use devoxx;
 ```
 
-#### `✅.027`-  List Tables in keyspaces `devoxx`
+#### `✅.018`-  List Tables in keyspaces `devoxx`
 
 No suspense, the schema is empty
 
@@ -409,7 +442,7 @@ No suspense, the schema is empty
 desc tables;
 ```
 
-#### `✅.028`- Create your first table
+#### `✅.019`- Create your first table
 
 ```sql
 CREATE TABLE IF NOT EXISTS city_by_country (
@@ -420,7 +453,7 @@ CREATE TABLE IF NOT EXISTS city_by_country (
 );
 ```
 
-- Run  `E01_CreateSchemaTest.java`
+#### `✅.020`-  `E01_CreateSchemaTest.java`
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -430,7 +463,7 @@ mvn test -Dtest=com.datastax.devoxx.E01_CreateSchemaTest
 
 ### 5.3 - CRUD Operations
 
-#### `✅.029`- Insert a few rows
+#### `✅.021`- Insert a few rows
 
 ```sql
 INSERT INTO city_by_country(country, city, population)
@@ -551,17 +584,13 @@ INSERT INTO city_by_country(country, city, population)
 VALUES('IN','Mumbai', 20200000);
 ```
 
-ℹ️ **Note**:
-> - The guy writing the readme really has a biase for french cities
-> - Intructions are very close from `SQL` (not but exactly the same)
-
-#### `✅.030`-  List records in table
+#### `✅.022`- List records in table
 
 ```sql
 select * from city_by_country;
 ```
 
-#### `✅.031`- List french cities
+#### `✅.023`- List french cities
 
 <p/>
 <details>
@@ -571,11 +600,24 @@ select * from city_by_country;
 select * from city_by_country 
 WHERE country='FR';
 ```
+</details>
+<p/>
+
+#### `✅.024`- List cities for country `CA` or `DE` using `IN`
+
+<p/>
+<details>
+<summary>Click to display solution</summary>
+
+```sql
+select * FROM city_by_country
+WHERE country IN('CA', 'DE');
+```
 
 </details>
 <p/>
 
-#### `✅.032`- Search for city `Brest`
+#### `✅.025`- Search for city `Brest` (in France `FR`)
 
 <p/>
 <details>
@@ -590,13 +632,26 @@ AND city='Brest';
 </details>
 <p/>
 
-#### `✅.033`- Update Brest population to `142000` inhabitants
+#### `✅.026`- Search for french cities where first letter is `P`
 
 <p/>
 <details>
 <summary>Click to show solution</summary>
-*Update*
+```sql
+SELECT * FROM city_by_country
+WHERE country='FR'
+AND city>'P';
+```
+</details>
+<p/>
 
+#### `✅.027`- Update Brest population to `142000` inhabitants
+
+<p/>
+<details>
+<summary>Click to show solution</summary>
+
+*with Update statement*
 ```sql
 update city_by_country 
 SET population=142000 
@@ -613,7 +668,7 @@ VALUES('FR','Brest',  142000);
 </details>
 <p/>
 
-#### `✅.034`- Delete row with city of `Tokyo`
+#### `✅.028`- Delete row with city of `Tokyo`
 
 <p/>
 <details>
@@ -637,7 +692,7 @@ WHERE country='JP';
 ℹ️ **Note**:
 > When you delete a record in Cassandra it is not really deleted on disk, it creates a marker called a  `Tombstone` that need to be cleaned during an operation called compaction. If you miss some space on disk, delete here is not a good solution.
 
-#### `✅.035`- Delete rows related to country Canada `(CA)`
+#### `✅.029`- Delete rows related to country Canada `(CA)`
 
 <p/>
 <details>
@@ -657,7 +712,7 @@ WHERE country='CA';
 </details>
 <p/>
 
-#### `✅.036`- Delete row for country `AU` and city `Sydney`
+#### `✅.030`- Delete row for country `AU` and city `Sydney`
 
 <p/>
 <details>
@@ -679,24 +734,6 @@ WHERE country='AU';
 </details>
 <p/>
 
-#### `✅.037`- Request over partition key with equalities `=`
-
-- List cities for France `FR`.
-
-```sql
-SELECT * FROM city_by_country
-WHERE country='FR';
-```
-
-#### `✅.038`- Request over partition key with `IN` claue
-
-- Display list of cities for `CA` or `DE`.
-
-```sql
-select * FROM city_by_country
-WHERE country IN('CA', 'DE');
-```
-
 ⚠️ **Important**
 > ```
 > It is possible to do it, it is not recommended, it will move
@@ -704,27 +741,7 @@ WHERE country IN('CA', 'DE');
 > parallel request if you have to do it (N+1 select)
 > ```
 
-#### `✅.039`- Equality and clustering keys
-
-- Show `Brest` city (country=`FR`)
-
-```sql
-SELECT * FROM city_by_country
-WHERE country='FR'
-AND city='Brest';
-```
-
-#### `✅.040`- Inequality and clustering keys
-
-- Show french cities starting with a `P` and next using alphabetical ordering.
-
-```sql
-SELECT * FROM city_by_country
-WHERE country='FR'
-AND city>'P';
-```
-
-#### `✅.041`- Use `GROUP BY` and average function `AVG`
+#### `✅.031`- Use `GROUP BY` and average function `AVG`
 
 - Show average population grouped by country
 
@@ -734,7 +751,7 @@ FROM city_by_country
 GROUP BY country;
 ```
 
-#### `✅.042`- Use `GROUP BY` and function `COUNT`
+#### `✅.032`- Use `GROUP BY` and function `COUNT`
 
 - Show number of cities per country
 
@@ -744,7 +761,7 @@ FROM city_by_country
 GROUP BY country;
 ```
 
-#### `✅.044`- Clean the table
+#### `✅.033`- Clean the table
 
 To avoid creating tombstones we will use `TRUNCATE` instead of `DELETE`.
 
@@ -752,7 +769,7 @@ To avoid creating tombstones we will use `TRUNCATE` instead of `DELETE`.
 TRUNCATE city_by_country;
 ```
 
-### `✅.045`- Statements with Java
+### `✅.034`- Execute statements with Java
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -760,7 +777,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E02_StatementsTest
 ```
 
-### `✅.046`- Create read update Delete
+### `✅.035`- Create read update Delete
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -772,9 +789,10 @@ mvn test -Dtest=com.datastax.devoxx.E03_OperationsCrudTest
 
 There a lot of different simple scalar types in CQL : `VARCHAR`, `ASCII`, `TINYINT`, `SMALLINT`, `INT`, `BIGINT`, `VARINT`, `FLOAT`, `DOUBLE`, `DECIMAL`, `TIME`, `TIMESTAMP`, `DATE`, `DURATION`, `BOOLEAN`, `BLOB`, et `INET`. Here is the [complete list](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cql_data_types_c.html).
 
-#### `✅.045`- Working with `UUID`
+#### `✅.036`- Working with `UUID`
 
 ```sql
+drop table if exists users;
 CREATE TABLE IF NOT EXISTS users (
   id UUID,
   name TEXT,
@@ -791,9 +809,25 @@ VALUES (uuid(), 'Jen', 27);
 SELECT * FROM users;
 ```
 
-#### `✅.045`- Working with `SET`
+#### `✅.037`- Working with `SET`
 
 ```sql
+drop table if exists movies;
+CREATE TABLE movies (
+  id UUID,
+  title TEXT,
+  year INT,
+  duration INT,
+  PRIMARY KEY ((id))
+);
+
+INSERT INTO movies (id, title, year, duration)
+VALUES (5069cc15-4300-4595-ae77-381c3af5dc5e,
+'Alice au pays des Merveilles', 2010, 108);
+
+INSERT INTO movies (id, title, year, duration)
+VALUES (uuid(), 'Alice', 1951, 75);
+
 ALTER TABLE movies
 ADD production SET<TEXT>;
 
@@ -809,7 +843,7 @@ WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT title, year, production FROM movies;
 ```
 
-#### `✅.045`- Working with `LIST`
+#### `✅.038`- Working with `LIST`
 
 ```sql
 ALTER TABLE users
@@ -828,9 +862,10 @@ SET searches = searches + [ 'Alice au pays des merveilles' ]
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 
 SELECT id, name, searches FROM users;
+
 ```
 
-#### `✅.045`- Working with `MAP`
+#### `✅.039`- Working with `MAP`
 
 ```sql
 ALTER TABLE users ADD sessions MAP<TIMEUUID,INT>;
@@ -847,11 +882,7 @@ SET sessions[e22deb70-b65f-11ea-9aac-99396fc4f757] = 9
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 
 SELECT name, sessions FROM users;
-```
 
-#### `✅.045`- Working with `LIST`
-
-```sql
 ALTER TABLE movies
 ADD crew MAP<TEXT,FROZEN<LIST<TEXT>>>;
 SELECT title, year, crew FROM movies;
@@ -866,7 +897,7 @@ WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT title, year, crew FROM movies;
 ```
 
-#### `✅.045`- Working with `TUPLES`
+#### `✅.040`- Working with `TUPLES`
 
 ```sql
 ALTER TABLE users ADD full_name TUPLE<TEXT,TEXT,TEXT>;
@@ -878,7 +909,7 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 SELECT name, full_name FROM users;
 ```
 
-#### `✅.045`- Working with `UDT`
+#### `✅.041`- Working with `UDT`
 
 ```sql
 CREATE TYPE IF NOT EXISTS ADDRESS (
@@ -913,7 +944,7 @@ FROM users
 WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 ```
 
-#### `✅.045`- Code UDT
+#### `✅.042`- Execute List, Set, Map, Udt
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -921,7 +952,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E04_ListSetMapAndUdtTest
 ```
 
-#### `✅.045`- Working with counters
+#### `✅.043`- Working with counters
 
 ```sql
 -- Create dedicated table
@@ -947,7 +978,7 @@ WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
 SELECT * FROM movie_stats;
 ```
 
-- With Java
+#### `✅.044`- Works with counters in JAVA
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1005,7 +1036,7 @@ select JSON * from videos
 WHERE videoid=e466f561-4ea4-4eb7-8dcc-126e0fbfd573;
 ```
 
-- With Java
+#### `✅.046`- With Java
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1015,7 +1046,7 @@ mvn test -Dtest=com.datastax.devoxx.E06_JsonTest
 
 ### 5.5 - Advanced Concepts
 
-#### `✅.045`- Working with `Batches`
+#### `✅.047`- Working with `Batches`
 
 - Single Partition
 
@@ -1053,7 +1084,7 @@ FROM shopping_cart
 WHERE cart_id = b7255608-4a42-4829-9b84-a355e0e5100d;
 ```
 
-- Multiple partitions
+#### `✅.048`- Multiple partitions
 
 ```sql
 CREATE TABLE  IF NOT EXISTS ratings_by_user (
@@ -1091,7 +1122,7 @@ BEGIN BATCH
 APPLY BATCH;
 ```
 
-- With Java
+#### `✅.049`- With Java
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1099,7 +1130,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E07_BatchesTest
 ```
 
-#### `✅.045`- Consistency LEVEL
+#### `✅.050`- Consistency LEVEL
 
 As of we do have a single datacenter `dc1`  with 3 nodes like the picture below
 
@@ -1120,7 +1151,7 @@ WHERE country='DE';
 TRACING OFF;
 ```
 
-#### `✅.045`- LightWeight Transactions (LWT)
+#### `✅.051`- LightWeight Transactions (LWT)
 
 - Sample 1
 ```sql
@@ -1145,7 +1176,7 @@ SELECT * FROM sample_lwt
 WHERE username = 'dragonslayer';
 ```
 
-- Sample 2
+#### `✅.052`- Password Reset
 
 ```sql
 UPDATE sample_lwt
@@ -1170,7 +1201,7 @@ SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
 ```
 
-- With Java
+#### `✅.053`- Coding LightWeight transactions
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1178,23 +1209,15 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E08_LightweightTransactionsTest
 ```
 
-## 6. Data Modeling
-
-### 6.1 - Data Model Methodology
-
-### 6.2 - Data Modeling in action
-
-### 6.3 - From SQL to NoSQL Migration
-
-#### `✅.045`- Paging
+#### `✅.054`- Coding Paging with drivers
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
-gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E09_PagingTest.java
-mvn test -Dtest=com.datastax.devoxx.E09_PagingTest
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E09_ResultPagingTest.java
+mvn test -Dtest=com.datastax.devoxx.E09_ResultPagingTest
 ```
 
-#### `✅.045`- Asynchronous Programming
+#### `✅.055`- Asynchronous Programming
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1202,7 +1225,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E10_AsynchronousProgrammingTest
 ```
 
-#### `✅.045`- Reactive Programming
+#### `✅.056`- Reactive Programming
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1210,7 +1233,7 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E11_ReactiveProgrammingTest
 ```
 
-#### `✅.045`- Object Mapping
+#### `✅.057`- Object Mapping
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
@@ -1218,18 +1241,31 @@ gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/co
 mvn test -Dtest=com.datastax.devoxx.E13_ObjectMappingTest
 ```
 
+## 6. Data Modeling
+
+### 6.1 - Data Model Methodology
+
+_Slides_
+
+![](img/data-model-methodology.png)
+
+### 6.2 - Data Modeling in action
+
+[![Open in KataPod](https://github.com/DataStax-Academy/katapod-shared-assets/blob/main/images/open-in-katapod.png)](https://gitpod.io/#https://github.com/DataStax-Academy/data-modeling-sensor-data/)
+
+### 6.3 - From SQL to NoSQL Migration
+
+![](img/from-sql-to-cassandra.png)
+
 # 7. Working with Spring Framework
 
 ## 7.1 - Spring Data Connection and Configuration
 
-#### `✅.130`- Create keyspace `devoxx_spring`
+#### `✅.058`- Check Setup and keyspace `devoxx_spring`
 
 ```sql
-CREATE KEYSPACE IF NOT EXISTS devoxx_spring
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
+describe keyspace devoxx_spring;
+use devoxx_spring;
 ```
 
 - Versioning
@@ -1279,11 +1315,11 @@ spring:
       page-size: 5000
 ```
 
-#### `✅.133`- Configuration Valdiation
+#### `✅.059`- Validate configuration
 
 ```bash
-/workspace/conference-2022-devoxx/labs/lab5_spring_data
-mvn test -Dtest=com.datastax.todo.E01_SpringDataInit
+/workspace/conference-2022-devoxx/lab-spring
+mvn test -Dtest=com.datastax.todo.E01_SpringDataInitTest
 ```
 
 ## 7.2 - `CassandraRepository` and `CrudRepository
@@ -1297,7 +1333,7 @@ CREATE TABLE todos (
 )
 ```
 
-#### `✅.134`- Utiliser les `Repository` Spring Data
+#### `✅.060`- Using spring data  `CrudRepository`
 
 ```bash
 cd /workspace/conference-2022-devoxx/lab-spring
@@ -1309,31 +1345,18 @@ use devoxx_spring;
 SELECT * FROM todos;
 ```
 
-#### 🖥️ Logs
-
-```bash
-token@cqlsh:devoxx_spring> SELECT * FROM todos;
-
- uid                                  | completed | offset | title
---------------------------------------+-----------+--------+---------------------
- 8a175b9e-1010-4f9a-aa5c-628c81c8dd34 |     False |      0 | Apprendre Cassandra
- 87eb778d-a938-441e-8ff5-e69feafb8719 |     False |      0 | Apprendre Cassandra
- 47a5c298-b6ec-4e8a-abb5-fca041730af3 |     False |      0 | Apprendre Cassandra
- 3847d7f9-0fa3-4d7e-b7f7-b76897b4e999 |     False |      0 | Apprendre Cassandra
-
-(4 rows)
-```
-
 ## 7.3 - `CassandraOperations`
 
+#### `✅.061`- Using spring data  `CassandraOperations`
+
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
+cd /workspace/conference-2022-devoxx/lab-spring
 mvn test -Dtest=com.datastax.workshop.E03_SpringDataCassandraOperationsTest
 ```
 
 ## 7.4 - Spring Boot (mvc, Webflux)
 
-#### `✅.137`- Lancer l'application
+#### `✅.062`- Start applicatino with  `spring-boot` plugin
 
 ```bash
 cd /workspace/conference-2022-devoxx/lab-spring
@@ -1346,13 +1369,19 @@ mvn spring-boot:run
 gp url 8080
 ```
 
-- Afficher la liste des `todos`
+- Show list of todos `todos`
 
 ```
 gp preview "$(gp url 8080)/api/v1/todos/"
 ```
 
 ![](img/spring_api_gitpod.png?raw=true)
+
+```
+http://localhost:8080/api/v1/todos/
+```
+
+#### `✅.063`- Integration Test 
 
 ```bash
 cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
@@ -1361,28 +1390,36 @@ mvn test -Dtest=com.datastax.workshop.E04_SpringControllerTest
 
 ### 7.5 - Spring Native
 
+#### `✅.064`- Compile Native version
+
 ```
 mvn clean package -Pnative 
+```
+
+#### `✅.065`- Run Native version
+
+```
+./target/lab-spring
 ```
 
 # 8. Working with Quarkus
 
 ## 8.1 - Quarkus extension 
 
+[Quarkus](https://quarkus.io/) is a framework to build microservice on Java Platform. Purpose is to execute a maximum of actions at build time and package only what is needed. Main objectives are:
 
-[Quarkus](https://quarkus.io/) est un framework pour construire des microservices sur la plateforme Java. Le parti pris est de réaliser le plus d'opérations possibles durant le build et de ne packager que ce qui est absolument nécessaire. Les objectifs sont:
+- Producing a native image with about a few mega bytes only
+- Producing a native image that can start in a few millis
 
-- La production d'une image native de quelques mega-octets seulement
-- La production d'une image qui démarre en quelques millièmes de seconde.
+A [Quarkus extension](https://quarkus.io/guides/writing-extensions) ease applications configuration and integration with third parties. Datastax team created an extension for Cassandra [available here](https://github.com/datastax/cassandra-quarkus). Here are the underlying featuresL
 
-Une [extension Quarkus](https://quarkus.io/guides/writing-extensions) permet de simplifier la configuration d'une application et d'assurer une meilleure compatibilité. L'équipe `Datastax` a créé et open sourcé une extension pour Cassandra [ici](https://github.com/datastax/cassandra-quarkus). Voici ce qu'elle permet:
+- Reactive support of `Mutiny` (reactive layer in Quarkus)
+- Integration with `vertx` and Quarkus event loop
+- Declare Mappers in `Arc`, the dependency injection layer in Quarkus.
+- Provide hints for the creation native image _aux petits oignons._
 
-- Le support de réactif avec `Mutiny` (couche réactive de Quarkus)
-- L'intégration avec `vertx` et le event loop de Quarkus
-- Déclarer les `Mapper` (object mapping) dans `Arc`, le système d'injection de dépendances de Quarkus.
-- Fournir des hints pour la création d'une native image _aux petits oignons._
+ `cassandra-quarkus-client` is available on central maven[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss.quarkus/cassandra-quarkus-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss.quarkus/cassandra-quarkus-client)
 
-La librairie à utiliser est `cassandra-quarkus-client` et la version est [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss.quarkus/cassandra-quarkus-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.datastax.oss.quarkus/cassandra-quarkus-client)
 
 ```xml
 <dependency>
@@ -1392,24 +1429,23 @@ La librairie à utiliser est `cassandra-quarkus-client` et la version est [![Mav
 </dependency>
 ```
 
-Quarkus propose également un guide très bien fait sur le support de Cassandra [ici](https://quarkus.io/guides/cassandra)
+Documentation for Cassandra support in Quarkus can be found [here](https://quarkus.io/guides/cassandra)
 
 ## 8.2 - Application Walkthrough 
 
-_Dans Docker:_
+#### `✅.066`- Check Setup and keyspace `devoxx_spring`
 
 ```sql
-CREATE KEYSPACE IF NOT EXISTS devoxx_quarkus
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
+describe keyspace devoxx_quarkus
+use devoxx_quarkus;
 ```
 
 ```bash
 cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn clean compile
 ```
+
+#### `✅.067`- Validate configuration
 
 ```bash
 gp open /workspace/conference-2022-devoxx/lab-quarkus/src/main/resources/application.properties
@@ -1420,24 +1456,24 @@ cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
 mvn test -Dtest=com.datastax.workshop.E01_QuarkusInit
 ```
 
-#### `✅.142` - Utilisation de `CqlSession` avec `Quarkus`
+#### `✅.068` - Using `CqlSession` with `Quarkus`
 
 ```
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab6-quarkus
 mvn test -Dtest=com.datastax.workshop.E02_QuarkusCql
 ```
 
-#### `✅.143` - Utilisation de l'`object mapping` avec `Quarkus`
+#### `✅.069` - Using `Quarkus` object mapping `ARC`  with Quarkus 
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn test -Dtest=com.datastax.workshop.E03_QuarkusObjectMapping
 ```
 
-#### `✅.144` - Démarrer l'application `Quarkus`
+#### `✅.070` - Start `Quarkus` application
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab6-quarkus
 mvn quarkus:dev -DskipTests
 ```
 
@@ -1445,31 +1481,49 @@ mvn quarkus:dev -DskipTests
 gp preview "$(gp url 8081)/q/dev"
 ```
 
+```
+http://localhost:8081/q/dev/
+```
 _Dashboard_
 ![](img/quarkus-dashboard.png?raw=true)
 
-- Plusieurs plugins sont disponibles directement et notamment `swagger-ui` pour tester l'Api dans un navigateur.
+- Multiple pluggins are provided out of the box like `swagger-ui` to tes our API in a browser
 
 ```bash
 gp preview "$(gp url 8081)/q/swagger-ui"
 ```
 
+```
+http://localhost:8081/q/swagger-ui
+```
+
 ![](img/quarkus-swagger.png?raw=true)
 
-#### `✅.145` - Test d'intégration avec `Quarkus`
 
-Arrêter l'application en utilisant la touche `q`. Nous pouvons terminer par un test d'intégration
+#### `✅.071` - Integration Test with `Quarkus`
+
+Stop the application using `q`. Launhc integration tests
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn test -Dtest=com.datastax.workshop.E04_QuarkusController
 ```
 
 ### 8.3 - Native Image
 
-```
+#### `✅.072` - Build native image with  `Quarkus`
 
 ```
+mvn clean package -Pnative
+```
+
+#### `✅.073` - Run the Quarkus native image
+
+```
+.target/lab-quarkus-0.0.1-SNAPSHOT-runner 
+```
+
+Check health status.
 
 # 9. Working with Micronaut
 
@@ -1477,66 +1531,249 @@ mvn test -Dtest=com.datastax.workshop.E04_QuarkusController
 
 ## 9.2 - Application Walkthrough
 
-_Dans Docker:_
-
-```sql
-CREATE KEYSPACE IF NOT EXISTS devoxx_micronaut
-WITH REPLICATION = {
-  'class' : 'NetworkTopologyStrategy',
-  'dc1' : 3
-}  AND DURABLE_WRITES = true;
-```
-
-#### `✅.147`- Configuration de l'application `Micronaut`
-
-- Placer vous dans le répertoire `lab7_micronaut` et compiler le projet
+#### `✅.073` - list Keyspaces `devoxx_micronaut` should be there
 
 ```bash
-cd /workspace/conference-2022-devoxx/lab-micronaut
+describe keyspaces
+```
+
+> 🖥️ `output`
+>
+> ```
+> devoxx            devoxx_quarkus  system_auth         system_traces        
+> devoxx_drivers    devoxx_spring   system_distributed  system_views         
+>devoxx_micronaut  system          system_schema       system_virtual_schema
+>```
+
+
+#### `✅.074` - Compile project
+
+```bash
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn clean compile
 ```
 
-#### `✅.148` - Validation de la configuration
+#### `✅.4.1.d`- Testing project
 
 ```
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn test -Dtest=com.datastaxdev.E01_MicronautInitTest
 ```
 
-#### 🖥️ Logs
+> 🖥️ `OUTPUT`
+> ```
+> [INFO] -------------------------------------------------------
+> [INFO]  T E S T S
+> [INFO] -------------------------------------------------------
+> [INFO] Running com.datastaxdev.E01_MicronautInitTest
+> 12:57:12.946 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 12:57:13.067 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 12:57:13.067 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+> com.datastax.oss.driver.internal.core.session.DefaultSession@37854b34
+> 12:57:13.108 [main] INFO  c.datastaxdev.E01_MicronautInitTest - Creating your CqlSession to Cassandra...
+> 12:57:13.111 [main] INFO  c.datastaxdev.E01_MicronautInitTest - + [OK] Your are connected to keyspace ks_micronaut
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.677 s - in com.datastaxdev.E01_MicronautInitTest
+> [INFO] 
+> [INFO] Results:
+> [INFO] 
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+> [INFO] 
+> [INFO] ------------------------------------------------------------------------
+> [INFO] BUILD SUCCESS
+> [INFO] ------------------------------------------------------------------------
+> [INFO] Total time:  11.262 s
+> [INFO] Finished at: 2022-10-04T12:57:15Z
+> [INFO] ------------------------------------------------------------------------
 
-![](img/micronaut_test_01.png?raw=true)
 
-#### `✅.149` - Utilisation de `CqlSession` avec `Micronaut`
-
-> 🚨 The maven test consider the bean NULL. The command below is failin
+#### `✅.4.1.e`- Use CqlSession
 
 ```
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn test -Dtest=com.datastaxdev.E02_MicronautCqlTest
 ```
 
-#### 🖥️ Logs
+> 🖥️ `OUTPUT`
+> ```
+> [INFO] -------------------------------------------------------
+> [INFO]  T E S T S
+> [INFO] -------------------------------------------------------
+> [INFO] Running com.datastaxdev.E02_MicronautCqlTest
+> 13:00:21.370 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 13:00:21.482 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 13:00:21.482 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+> 13:00:22.372 [main] INFO  com.datastaxdev.E02_MicronautCqlTest - Creating the schema...
+> 13:00:22.456 [main] INFO  com.datastaxdev.E02_MicronautCqlTest - + [OK]
+> 13:00:22.457 [main] INFO  com.datastaxdev.E02_MicronautCqlTest - Inserting Data
+> 13:00:22.552 [main] INFO  com.datastaxdev.E02_MicronautCqlTest - + [OK]
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.28 s - in com.datastaxdev.E02_MicronautCqlTest
+> [INFO] 
+> [INFO] Results:
+> [INFO] 
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+> [INFO] 
+> [INFO] ------------------------------------------------------------------------
+> [INFO] BUILD SUCCESS
+> [INFO] ------------------------------------------------------------------------
+> [INFO] Total time:  11.441 s
+> [INFO] Finished at: 2022-10-04T13:00:24Z
+> [INFO] ------------------------------------------------------------------------
+> ```
 
-![](img/micronaut_test_02.png?raw=true)
+## 4.2 - Configuration
 
-
-#### `✅.150` - Utilisation de l'`object mapping` avec `Micronaut`
-
-> 🚨 The maven test consider the bean NULL. The command below is failin
+#### `✅.4.2.a`- Object Mapping
 
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab7_micronaut
-mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMapping
+/workspace/conference-2022-devoxx/lab-micronaut/
+mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMappingTest
 ```
 
-#### `✅.151`- Démarrer l'application `micronaut`
+> 🖥️ `OUTPUT`
+> ```
+> [INFO] -------------------------------------------------------
+> [INFO]  T E S T S
+> [INFO] -------------------------------------------------------
+> [INFO] Running com.datastaxdev.E03_MicronautObjectMappingTest
+> 13:02:03.705 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 13:02:03.810 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 13:02:03.810 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+> 13:02:04.038 [main] INFO  c.d.E03_MicronautObjectMappingTest - Inserting Data
+> 13:02:04.135 [main] INFO  c.d.E03_MicronautObjectMappingTest - + [OK]
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.494 s - in com.datastaxdev.E03_MicronautObjectMappingTest
+> [INFO] 
+> [INFO] Results:
+> [INFO] 
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+> [INFO] 
+> [INFO] ------------------------------------------------------------------------
+> [INFO] BUILD SUCCESS
+> [INFO] ------------------------------------------------------------------------
+> [INFO] Total time:  10.433 s
+> [INFO] Finished at: 2022-10-04T13:02:06Z
+> [INFO] ------------------------------------------------------------------------
+> ```
+
+#### `✅.4.2.b`- Integration Tests
+
+- Run integration tests with the following.
 
 ```bash
-cd /workspace/conference-2022-devoxx/lab-micronaut
-mvn clean compile exec:java
+/workspace/conference-2022-devoxx/lab-micronaut/
+mvn test -Dtest=com.datastaxdev.E04_MicronautControllerTest
 ```
 
-## 9.3 - Native Image
+> 🖥️ `OUTPUT`
+> ```
+> [INFO] -------------------------------------------------------
+> [INFO]  T E S T S
+> [INFO] -------------------------------------------------------
+> [INFO] Running com.datastaxdev.E04_MicronautControllerTest
+> 13:10:03.322 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 13:10:03.431 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 13:10:03.431 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+> 13:10:04.828 [main] INFO  c.d.E04_MicronautControllerTest - 12 task retrieved
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.811 s - in com.datastaxdev.E04_MicronautControllerTest
+> [INFO] 
+> [INFO] Results:
+> [INFO] 
+> [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+> [INFO] 
+> [INFO] ------------------------------------------------------------------------
+> [INFO] BUILD SUCCESS
+> [INFO] ------------------------------------------------------------------------
+> [INFO] Total time:  12.778 s
+> [INFO] Finished at: 2022-10-04T13:10:07Z
+> [INFO] ------------------------------------------------------------------------
+> ```
 
+## 4.3 - Micronaut Application
+
+#### `✅.4.3.a`- Start the application
+
+```bash
+/workspace/conference-2022-devoxx/lab-micronaut/
+mvn mn:run -DskipTests
+```
+
+
+> 🖥️ `OUTPUT`
+> ```
+>  __  __ _                                  _   
+> |  \/  (_) ___ _ __ ___  _ __   __ _ _   _| |_ 
+> | |\/| | |/ __| '__/ _ \| '_ \ / _` | | | | __|
+> | |  | | | (__| | | (_) | | | | (_| | |_| | |_ 
+> |_|  |_|_|\___|_|  \___/|_| |_|\__,_|\__,_|\__|
+>   Micronaut (v3.7.1)
+> 
+> 13:06:15.990 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 13:06:16.096 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 13:06:16.096 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+> 
+> ```
+
+#### `✅.4.3.b`- Show the Apis
+
+- Open the application API on port `8082`
+
+```bash
+gp preview "$(gp url 8082)/api/v1/clun/todos/"
+```
+
+![out](img/micronaut-output.png)
+
+## 4.4 - Native Image
+
+#### `✅.4.4.a`- Build native image
+
+> **[Documentation](https://docs.micronaut.io/latest/guide/index.html#graal)**
+
+- Change environment variable
+
+```
+gp open /workspace/conference-2022-devoxx/lab-micronaut/src/main/resources/application.yml
+```
+
+- Compile as native image
+
+```
+mvn package -Dpackaging=native-image -Pgraalvm -DskipTests
+```
+
+- Then 
+
+```
+native-image --no-server -cp ./target/lab-micronaut-0.1.0-SNAPSHOT.jar com.datastaxdev.TodoApplication target/todo-micronaut
+```
+
+
+- Run the Native
+
+```
+./target/todo-micronaut
+```
+
+> 🖥️ `OUTPUT`
+> ```
+>  __  __ _                                  _   
+> |  \/  (_) ___ _ __ ___  _ __   __ _ _   _| |_ 
+> | |\/| | |/ __| '__/ _ \| '_ \ / _` | | | | __|
+> | |  | | | (__| | | (_) | | | | (_| | |_| | |_ 
+> |_|  |_|_|\___|_|  \___/|_| |_|\__,_|\__,_|\__|
+>  Micronaut (v3.7.1)
+> 
+> 20:20:16.205 [main] INFO  c.datastaxdev.TodoApplicationStartup - Startup Initialization
+> 20:20:16.208 [main] INFO  c.datastaxdev.TodoApplicationStartup - + Table TodoItems created if needed.
+> 20:20:16.208 [main] INFO  c.datastaxdev.TodoApplicationStartup - [OK]
+>```
+
+- Show the API
+
+```
+gp preview "$(gp url 8082)/api/v1/clun/todos/"
+```
+
+```
+http://localhost:8082/api/v1/clun/todos/
+```
 

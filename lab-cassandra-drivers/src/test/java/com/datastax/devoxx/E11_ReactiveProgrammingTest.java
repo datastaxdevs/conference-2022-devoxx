@@ -4,8 +4,12 @@ import static com.datastax.devoxx.schema.SchemaUtils.createTableUser;
 import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +24,12 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
+@TestMethodOrder(OrderAnnotation.class)
 public class E11_ReactiveProgrammingTest implements SchemaConstants {
 
     private static Logger LOGGER = LoggerFactory.getLogger(E11_ReactiveProgrammingTest.class);
@@ -29,8 +39,8 @@ public class E11_ReactiveProgrammingTest implements SchemaConstants {
     private static PreparedStatement stmtDeleteUser;
     private static PreparedStatement stmtFindUser;
     
-    public static void main(String[] args)
-    throws InterruptedException, ExecutionException {
+    @BeforeAll
+    public static void shout_init_statements() {
         try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create working table User (if needed)
@@ -41,12 +51,16 @@ public class E11_ReactiveProgrammingTest implements SchemaConstants {
             
             // Prepare your statements once and execute multiple times 
             prepareStatements(cqlSession);
+        }
+    }
             
-            // ========== CREATE / UPDATE ===========
-            
-            String userEmail  = "clun@sample.com";
-            String userEmail2 = "ram@sample.com";
-            
+    String userEmail  = "clun@sample.com";
+    String userEmail2 = "ram@sample.com";
+      
+    @Test
+    @Order(1)
+    public void should_reactive() throws InterruptedException {
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             // Test existence of user 1 to false and then create user 1
             existUserReactive(cqlSession, userEmail)
                 .doOnNext(exist -> LOGGER.info("+ '{}' exists ? (expecting false): {}", userEmail, exist))

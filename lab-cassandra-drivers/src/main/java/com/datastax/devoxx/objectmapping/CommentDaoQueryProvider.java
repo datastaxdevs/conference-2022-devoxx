@@ -2,7 +2,6 @@ package com.datastax.devoxx.objectmapping;
 
 import java.util.UUID;
 
-import com.datastax.devoxx.schema.SchemaConstants;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.core.cql.BatchStatement;
@@ -21,7 +20,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
  * @author DataStax Developer Advocates team.
  */
 @SuppressWarnings("deprecation")
-public class CommentDaoQueryProvider implements CommentDao, SchemaConstants {
+public class CommentDaoQueryProvider implements CommentDao {
 
     private final CqlSession cqlSession;
     

@@ -6,6 +6,8 @@ import static com.datastax.devoxx.schema.SchemaUtils.truncateTable;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,11 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ * 
+ * @author cedricklunven
+ */
 public class E05_CountersTest implements SchemaConstants {
 
     private static Logger LOGGER = LoggerFactory.getLogger(E05_CountersTest.class);
@@ -24,8 +31,10 @@ public class E05_CountersTest implements SchemaConstants {
     private static PreparedStatement stmtFindById;
     private static PreparedStatement stmtDelete;
     
-    public static void main(String[] args) {
-        try(CqlSession cqlSession = CqlSession.builder().build()) {
+    @BeforeAll
+    public static void shout_init_statements() {
+    	
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
             
             // Create tables for tests
             createTableVideoViews(cqlSession);
@@ -35,8 +44,13 @@ public class E05_CountersTest implements SchemaConstants {
 
             // Prepare your statements once and execute multiple times 
             prepareStatements(cqlSession);
+    	}
+    }
+    
+    @Test
+    public void should_test_counters() {
            
-            // ========= CREATE ============
+    	try(CqlSession cqlSession = CqlSession.builder().build()) {
 
             // We cannot insert in a table with a counter
             UUID videoId = UUID.randomUUID();

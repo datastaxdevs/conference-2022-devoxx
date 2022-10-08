@@ -1,31 +1,12 @@
 package com.datastaxdev.todo.web;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.UUID;
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-
-import io.micronaut.core.annotation.ReflectiveAccess;
-import io.micronaut.core.annotation.TypeHint;
 
 /**
  * Implementa
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@SuppressWarnings("deprecation")
-@ReflectiveAccess
-@TypeHint(
-        value = { 
-            PropertyNamingStrategy.UpperCamelCaseStrategy.class,
-            ArrayList.class,
-            LinkedHashMap.class,
-            HashSet.class
-        },
-        accessType = TypeHint.AccessType.ALL_DECLARED_CONSTRUCTORS 
-    )
 public class Todo {
     
     private String  url;

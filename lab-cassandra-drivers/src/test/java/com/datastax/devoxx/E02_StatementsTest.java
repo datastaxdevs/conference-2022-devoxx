@@ -2,6 +2,7 @@ package com.datastax.devoxx;
 
 import java.time.Duration;
 
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,30 +15,35 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
 
+/**
+ * !! WARNING Tests with no Assertions here (I assume) !!
+ *
+ * @author cedricklunven
+ */
 public class E02_StatementsTest implements SchemaConstants {
     
     private static Logger LOGGER = LoggerFactory.getLogger(E02_StatementsTest.class);
     
-    public static void main(String[] args) {
+    @Test
+    public void should_execute_simple_statements() {
+    	
         try(CqlSession cqlSession = CqlSession.builder().build()) {
             
-            // #1.a Execution de requete en chaine de caracteres 
-            
+            // Execute Queries as STRING (never do THAT)
             cqlSession.execute(""
                     + "INSERT INTO users (email, firstname, lastname) "
                     + "VALUES ('clun@sample.com', 'Cedrick', 'Lunven')");
             LOGGER.info("+ Insert as a String");
             
-            // #1.b Tout est statement
-            
+            // String is actually a Statement
             cqlSession.execute(SimpleStatement.newInstance(
                       "INSERT INTO users (email, firstname, lastname) "
                     + "VALUES ('clun2@sample.com', 'Cedrick', 'Lunven')"));
             LOGGER.info("+ Insert as a Statement");
             
-            // #2.a Externalisation des variables en utilisant la position et '?'
+            // #2.a Externalize parameters with '?'
             
-            // -- option1: un parametre a la fois
+            // -- option1: one by one
             cqlSession.execute(SimpleStatement
                            .builder("INSERT INTO users (email, firstname, lastname) VALUES (?,?,?)")
                            .addPositionalValue("clun3@gmail.com")
@@ -45,15 +51,15 @@ public class E02_StatementsTest implements SchemaConstants {
                            .addPositionalValue("Lunven").build());
             LOGGER.info("+ Insert and externalize var with ?, option1");
 
-            // -- option2: tous les parametres en une fois
+            // -- option2: all at once
             cqlSession.execute(SimpleStatement
                     .builder("INSERT INTO users (email, firstname, lastname) VALUES (?,?,?)")
                     .addPositionalValues("clun4@gmail.com", "Cedrick", "Lunven").build());
             LOGGER.info("+ Insert and externalize var with ?, option2");
             
-            // #2.b Externalisation en utilisant des labels:name
+            // #2.b Externalize parameters with labels:name
           
-            // -- option1:  un parametre a la fois
+            // -- option1: one by one
             cqlSession.execute(SimpleStatement
                     .builder("INSERT INTO users (email, firstname, lastname) VALUES (:e,:f,:l)")
                     .addNamedValue("e", "clun5@gmail.com")
@@ -61,7 +67,7 @@ public class E02_StatementsTest implements SchemaConstants {
                     .addNamedValue("l", "Lunven").build());
             LOGGER.info("+ Insert and externalize var with :labels, option1");
             
-            // -- option2: tous les parametres en une fois
+            // -- option2: all at once
             cqlSession.execute(SimpleStatement
                     .builder("INSERT INTO users (email, firstname, lastname) VALUES (:e,:f,:l)")
                     .setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
@@ -72,9 +78,14 @@ public class E02_StatementsTest implements SchemaConstants {
                                                 "f", "Cedrick", 
                                                 "l", "Lunven")));
             LOGGER.info("+ Insert and externalize var with :labels, option2");
-                    
-            
-            // #4. Utilisation du QueryBuilder pour construire les requetes
+        }
+    }
+    
+    @Test
+    public void should_execute_query_builder() {
+    	
+    	 try(CqlSession cqlSession = CqlSession.builder().build()) {
+    	    // Utilisation du QueryBuilder pour construire les requetes
             cqlSession.execute(QueryBuilder
                     .insertInto(USER_TABLENAME)
                     .value(USER_EMAIL, QueryBuilder.literal("clun5@gmail.com"))
@@ -82,7 +93,13 @@ public class E02_StatementsTest implements SchemaConstants {
                     .value(USER_LASTNAME, QueryBuilder.literal("Lunven"))
                     .build());
             LOGGER.info("+ Insert with QueryBuilder");
-            
+    	 }
+    }
+    
+    @Test
+    public void should_prepare_statements() {
+         
+    	 try(CqlSession cqlSession = CqlSession.builder().build()) {
             // #5. il faut preparer ses statements
 
             // 5.a Parameteres avec `?`
@@ -104,6 +121,8 @@ public class E02_StatementsTest implements SchemaConstants {
             LOGGER.info("+ Insert with PrepareStatements + QueryBuilder");
         }
     }
+    
+    
     
    
   
