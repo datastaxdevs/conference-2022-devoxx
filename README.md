@@ -1442,8 +1442,9 @@ http://localhost:8080/api/v1/todos/
 #### `✅.063`- Integration Test
  
 ```bash
-cd /workspace/conference-2022-devoxx/labs/lab5_spring_data
-mvn test -Dtest=com.datastax.workshop.E04_SpringControllerTest
+cd /workspace/conference-2022-devoxx/lab-spring
+gp open /workspace/conference-2022-devoxx/lab-spring/src/test/java/com/datastax/todo/E04_SpringControllerTest.java
+mvn test -Dtest=com.datastax.todo.E04_SpringControllerTest
 ```
  
 ### 7.5 - Spring Native
@@ -1512,14 +1513,14 @@ gp open /workspace/conference-2022-devoxx/lab-quarkus/src/main/resources/applica
 ```
  
 ```
-cd /workspace/conference-2022-devoxx/labs/lab6_quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn test -Dtest=com.datastax.workshop.E01_QuarkusInit
 ```
  
 #### `✅.068` - Using `CqlSession` with `Quarkus`
  
 ```
-cd /workspace/conference-2022-devoxx/lab6-quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn test -Dtest=com.datastax.workshop.E02_QuarkusCql
 ```
  
@@ -1533,7 +1534,7 @@ mvn test -Dtest=com.datastax.workshop.E03_QuarkusObjectMapping
 #### `✅.070` - Start `Quarkus` application
  
 ```bash
-cd /workspace/conference-2022-devoxx/lab6-quarkus
+cd /workspace/conference-2022-devoxx/lab-quarkus
 mvn quarkus:dev -DskipTests
 ```
  
@@ -1584,6 +1585,12 @@ mvn clean package -Pnative
 ```
  
 Check health status.
+
+```bash
+gp preview "$(gp url 8081)/q/health"
+gp preview "$(gp url 8081)/api/v1/clun/todos"
+
+```
  
 # 9. Working with Micronaut
  
@@ -1615,7 +1622,7 @@ cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn clean compile
 ```
  
-#### `✅.4.1.d`- Testing project
+#### `✅.075` - Testing project
  
 ```
 cd /workspace/conference-2022-devoxx/lab-micronaut/
@@ -1648,7 +1655,7 @@ mvn test -Dtest=com.datastaxdev.E01_MicronautInitTest
 > [INFO] ------------------------------------------------------------------------
  
  
-#### `✅.4.1.e`- Use CqlSession
+#### `✅.076` - Use CqlSession
  
 ```
 cd /workspace/conference-2022-devoxx/lab-micronaut/
@@ -1684,7 +1691,7 @@ mvn test -Dtest=com.datastaxdev.E02_MicronautCqlTest
  
 ## 4.2 - Configuration
  
-#### `✅.4.2.a`- Object Mapping
+#### `✅.077` - Object Mapping
  
 ```bash
 /workspace/conference-2022-devoxx/lab-micronaut/
@@ -1716,7 +1723,7 @@ mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMappingTest
 > [INFO] ------------------------------------------------------------------------
 > ```
  
-#### `✅.4.2.b`- Integration Tests
+#### `✅.078` - Integration Tests
  
 - Run integration tests with the following.
  
@@ -1751,7 +1758,7 @@ mvn test -Dtest=com.datastaxdev.E04_MicronautControllerTest
  
 ## 4.3 - Micronaut Application
  
-#### `✅.4.3.a`- Start the application
+#### `✅.079` - Start the application
  
 ```bash
 /workspace/conference-2022-devoxx/lab-micronaut/
@@ -1774,7 +1781,7 @@ mvn mn:run -DskipTests
 >
 > ```
  
-#### `✅.4.3.b`- Show the Apis
+#### `✅.080` - Show the Apis
  
 - Open the application API on port `8082`
  
@@ -1786,17 +1793,12 @@ gp preview "$(gp url 8082)/api/v1/clun/todos/"
  
 ## 4.4 - Native Image
  
-#### `✅.4.4.a`- Build native image
+#### `✅.081` - Build native image
  
 > **[Documentation](https://docs.micronaut.io/latest/guide/index.html#graal)**
+
  
-- Change environment variable
- 
-```
-gp open /workspace/conference-2022-devoxx/lab-micronaut/src/main/resources/application.yml
-```
- 
-- Compile as native image
+- Compile with proper packaging
  
 ```
 mvn package -Dpackaging=native-image -Pgraalvm -DskipTests
@@ -1808,8 +1810,7 @@ mvn package -Dpackaging=native-image -Pgraalvm -DskipTests
 native-image --no-server -cp ./target/lab-micronaut-0.1.0-SNAPSHOT.jar com.datastaxdev.TodoApplication target/todo-micronaut
 ```
  
- 
-- Run the Native
+#### `✅.082` - Run native image
  
 ```
 ./target/todo-micronaut
@@ -1840,5 +1841,6 @@ http://localhost:8082/api/v1/clun/todos/
 ```
  
  
-
+----
+# The End
 

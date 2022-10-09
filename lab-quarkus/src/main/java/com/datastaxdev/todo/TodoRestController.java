@@ -43,10 +43,10 @@ import io.smallrye.common.annotation.Blocking;
 public class TodoRestController {
     
     @Inject
-    private QuarkusCqlSession cqlSession;
+    QuarkusCqlSession cqlSession;
     
     @Context
-    private UriInfo uriInfo;
+    UriInfo uriInfo;
     
     /** Todo service reference. */
     private TodoService todoService;
