@@ -1331,25 +1331,13 @@ describe keyspace devoxx_spring;
 use devoxx_spring;
 ```
  
-- Versioning
- 
-```xml
-<dependency>
-   <groupId>org.springframework.data</groupId>
-   <artifactId>spring-data-cassandra</artifactId>
-   <version>${latest}</version>
-</dependency>
-```
- 
 - Version Support
  
-> | ------------- | ---------------- | ---------------- |
 > | Drivers       | Spring-Data      | Spring Boot      |
 > | ------------- | ---------------- | ---------------- |
 > | Drivers `3.x` | `2.2` and before | `2.2` and before |
 > | Drivers `4.x` | `3.x` and after  | `2.3` and before |
 > | Drivers `4.x` | `4.x` and after  | `3.x` and before |
-> | ------------- | ---------------- | ---------------- |
  
 ```xml
 <dependency>
@@ -1362,44 +1350,50 @@ use devoxx_spring;
 cd /workspace/conference-2022-devoxx/lab-spring
 mvn clean compile
 ```
+
+```bash
+gp open /workspace/conference-2022-devoxx/lab-spring/src/main/resources/application.yml
+```
  
-_application-local.yml_
+_application.yml_
  
 ```yaml
 spring:
- cassandra:
-   schema-action: create-if-not-exists
-   keyspace-name: devoxx_spring
-   contact-points: localhost:9042
-   local-datacenter: dc1
-   request:
-     timeout: 5s
-     consistency: LOCAL_QUORUM
-     page-size: 5000
+  cassandra:
+    schema-action: create-if-not-exists
+    keyspace-name: devoxx_spring
+    contact-points: 127.0.0.1:9042
+    local-datacenter: dc1
+    request:
+      timeout: 5s
+      consistency: LOCAL_QUORUM
+      page-size: 5000
+    connection:
+      connect-timeout: 10s
+      init-query-timeout: 10s
+    controlconnection:
+      timeout: 10s
 ```
  
 #### `✅.059`- Validate configuration
  
 ```bash
-/workspace/conference-2022-devoxx/lab-spring
+cd /workspace/conference-2022-devoxx/lab-spring
+gp open /workspace/conference-2022-devoxx/lab-spring/src/test/java/com/datastax/todo/E01_SpringDataInitTest.java
 mvn test -Dtest=com.datastax.todo.E01_SpringDataInitTest
 ```
  
 ## 7.2 - `CassandraRepository` and `CrudRepository
  
 ```sql
-CREATE TABLE todos (
-   uid uuid PRIMARY KEY,
-   completed boolean,
-   offset int,
-   title text
-)
+describe table todos;
 ```
  
 #### `✅.060`- Using spring data  `CrudRepository`
  
 ```bash
 cd /workspace/conference-2022-devoxx/lab-spring
+gp open /workspace/conference-2022-devoxx/lab-spring/src/test/java/com/datastax/todo/E02_SpringDataRepositoryTest.java
 mvn test -Dtest=com.datastax.todo.E02_SpringDataRepositoryTest
 ```
  
@@ -1414,7 +1408,8 @@ SELECT * FROM todos;
  
 ```bash
 cd /workspace/conference-2022-devoxx/lab-spring
-mvn test -Dtest=com.datastax.workshop.E03_SpringDataCassandraOperationsTest
+gp open /workspace/conference-2022-devoxx/lab-spring/src/test/java/com/datastax/todo/E03_SpringDataCassandraOperationsTest.java
+mvn test -Dtest=com.datastax.todo.E03_SpringDataCassandraOperationsTest
 ```
  
 ## 7.4 - Spring Boot (mvc, Webflux)
