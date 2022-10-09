@@ -786,7 +786,7 @@ TRUNCATE city_by_country;
  
 ### `✅.034`- Execute statements with Java
  
-_In tests:bash_
+_In terminal `tests:bash`_
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E02_StatementsTest.java
@@ -795,7 +795,7 @@ mvn test -Dtest=com.datastax.devoxx.E02_StatementsTest
  
 ### `✅.035`- Create read update Delete
  
-_In tests:bash_
+_In terminal `tests:bash`_
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E03_OperationsCrudTest.java
@@ -808,6 +808,8 @@ There a lot of different simple scalar types in CQL : `VARCHAR`, `ASCII`, `TINYI
  
 #### `✅.036`- Working with `UUID`
  
+_Back to terminal `setup:bash`_
+
 ```sql
 drop table if exists users;
 CREATE TABLE IF NOT EXISTS users (
@@ -963,6 +965,8 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
  
 #### `✅.042`- Execute List, Set, Map, Udt
  
+_In terminal `tests:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E04_ListSetMapAndUdtTest.java
@@ -971,6 +975,8 @@ mvn test -Dtest=com.datastax.devoxx.E04_ListSetMapAndUdtTest
  
 #### `✅.043`- Working with counters
  
+ _In terminal `setup:bash`_
+
 ```sql
 -- Create dedicated table
 CREATE TABLE movie_stats (
@@ -997,6 +1003,8 @@ SELECT * FROM movie_stats;
  
 #### `✅.044`- Works with counters in JAVA
  
+  _In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E05_CountersTest.java
@@ -1005,6 +1013,9 @@ mvn test -Dtest=com.datastax.devoxx.E05_CountersTest
  
 #### `✅.045`- Working with `JSON`
  
+
+_In terminal `setup:bash`_
+
 ```sql
 CREATE TYPE IF NOT EXISTS video_format (
  width   int,
@@ -1055,6 +1066,8 @@ WHERE videoid=e466f561-4ea4-4eb7-8dcc-126e0fbfd573;
  
 #### `✅.046`- With Java
  
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E06_JsonTest.java
@@ -1141,6 +1154,8 @@ APPLY BATCH;
  
 #### `✅.049`- With Java
  
+ _In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E07_BatchesTest.java
@@ -1157,20 +1172,29 @@ As of we do have a single datacenter `dc1`  with 3 nodes like the picture below
  
 ```sql
 CONSISTENCY;
+```
+
+```sql
 CONSISTENCY LOCAL_QUORUM;
- 
 TRACING ON;
- 
+ SELECT country,city, population
+FROM city_by_country
+WHERE country='DE';
+```
+
+```sql
+CONSISTENCY ONE;
 SELECT country,city, population
 FROM city_by_country
 WHERE country='DE';
- 
+CONSISTENCY LOCAL_QUORUM;
 TRACING OFF;
 ```
  
 #### `✅.051`- LightWeight Transactions (LWT)
  
-- Sample 1
+- Insert only once with `IF NOT EXISTS`
+
 ```sql
 CREATE TABLE sample_lwt (
  username TEXT,
@@ -1203,23 +1227,32 @@ WHERE username = 'devoxx_developer';
  
 SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
- 
+```
+
+```sql
 UPDATE sample_lwt
 SET reset_token = null, password = 'encrypted password'
 WHERE username = 'devoxx_developer'
 IF reset_token = 6ef95fd0-9ae0-11ea-a9d2-d777ab7dec9e;
- 
+
+SELECT * FROM sample_lwt
+WHERE username = 'devoxx_developer';
+```
+
+```sql
 UPDATE sample_lwt
 SET reset_token = null, password = 'malicious password'
 WHERE username = 'devoxx_developer'
 IF reset_token = 6ef95fd0-9ae0-11ea-a9d2-d777ab7dec9e;
- 
+
 SELECT * FROM sample_lwt
 WHERE username = 'devoxx_developer';
 ```
  
 #### `✅.053`- Coding LightWeight transactions
  
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E08_LightweightTransactionsTest.java
@@ -1228,6 +1261,8 @@ mvn test -Dtest=com.datastax.devoxx.E08_LightweightTransactionsTest
  
 #### `✅.054`- Coding Paging with drivers
  
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E09_ResultPagingTest.java
@@ -1236,6 +1271,8 @@ mvn test -Dtest=com.datastax.devoxx.E09_ResultPagingTest
  
 #### `✅.055`- Asynchronous Programming
  
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E10_AsynchronousProgrammingTest.java
@@ -1243,7 +1280,9 @@ mvn test -Dtest=com.datastax.devoxx.E10_AsynchronousProgrammingTest
 ```
  
 #### `✅.056`- Reactive Programming
- 
+
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E11_ReactiveProgrammingTest.java
@@ -1252,6 +1291,8 @@ mvn test -Dtest=com.datastax.devoxx.E11_ReactiveProgrammingTest
  
 #### `✅.057`- Object Mapping
  
+_In terminal `test:bash`_
+
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E13_ObjectMappingTest.java
@@ -1262,9 +1303,9 @@ mvn test -Dtest=com.datastax.devoxx.E13_ObjectMappingTest
  
 ### 6.1 - Data Model Methodology
  
-_Slides_
- 
-![](img/data-model-methodology.png)
+_This placeholder mark a moment to pay attention to the speaker_
+
+![](img/title_data-modeling-methodology.png)
  
 ### 6.2 - Data Modeling in action
  
