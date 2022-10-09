@@ -1694,7 +1694,7 @@ mvn test -Dtest=com.datastaxdev.E02_MicronautCqlTest
 #### `✅.077` - Object Mapping
  
 ```bash
-/workspace/conference-2022-devoxx/lab-micronaut/
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMappingTest
 ```
  
