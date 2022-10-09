@@ -1308,15 +1308,20 @@ _This placeholder mark a moment to pay attention to the speaker_
 ![](img/title_data-modeling-methodology.png)
  
 ### 6.2 - Data Modeling in action
+
+> [Datastax Academy by sample](https://www.datastax.com/learn/data-modeling-by-example)
  
 [![Open in KataPod](https://github.com/DataStax-Academy/katapod-shared-assets/blob/main/images/open-in-katapod.png)](https://gitpod.io/#https://github.com/DataStax-Academy/data-modeling-sensor-data/)
  
 ### 6.3 - From SQL to NoSQL Migration
  
-![](img/from-sql-to-cassandra.png)
+_This placeholder mark a moment to pay attention to the speaker_
+![](img/title_migrating-sql-to-nosql.png)
  
 # 7. Working with Spring Framework
- 
+
+![](img/title_spring.png)
+
 ## 7.1 - Spring Data Connection and Configuration
  
 #### `✅.058`- Check Setup and keyspace `devoxx_spring`
@@ -1461,6 +1466,8 @@ mvn clean package -Pnative
 ```
  
 # 8. Working with Quarkus
+
+![](img/title_quarkus.png)
  
 ## 8.1 - Quarkus extension
  
@@ -1585,6 +1592,8 @@ Check health status.
  
 # 9. Working with Micronaut
  
+![](img/title_micronaut.png)
+
 ## 9.1 - Micronaut Philosophy
  
 ## 9.2 - Application Walkthrough
