@@ -435,6 +435,8 @@ We keep using `cqlsh` to illustrate what have been seen so far
  
 Check that `devoxx` is one of the keyspace
  
+ _In shell setup:bash_
+
 ```sql
 describe KEYSPACES;
 ```
@@ -466,6 +468,7 @@ CREATE TABLE IF NOT EXISTS city_by_country (
  
 #### `✅.020`-  `E01_CreateSchemaTest.java`
  
+_In shell tests:bash_
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E01_CreateSchemaTest.java
@@ -648,6 +651,7 @@ AND city='Brest';
 <p/>
 <details>
 <summary>Click to show solution</summary>
+
 ```sql
 SELECT * FROM city_by_country
 WHERE country='FR'
@@ -782,6 +786,7 @@ TRUNCATE city_by_country;
  
 ### `✅.034`- Execute statements with Java
  
+_In tests:bash_
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E02_StatementsTest.java
@@ -790,6 +795,7 @@ mvn test -Dtest=com.datastax.devoxx.E02_StatementsTest
  
 ### `✅.035`- Create read update Delete
  
+_In tests:bash_
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
 gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E03_OperationsCrudTest.java

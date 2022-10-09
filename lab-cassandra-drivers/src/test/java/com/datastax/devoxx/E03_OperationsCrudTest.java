@@ -44,7 +44,7 @@ public class E03_OperationsCrudTest implements SchemaConstants {
     String userEmail2 = "eram@sample.com";
     
     @BeforeAll
-    public void should_prepare_statements() {
+    public static void should_prepare_statements() {
     	 try(CqlSession cqlSession = CqlSession.builder().build()) {
              
              // Create working table User (if needed)
