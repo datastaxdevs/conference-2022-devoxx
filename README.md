@@ -1295,8 +1295,8 @@ _In terminal `test:bash`_
 
 ```
 cd /workspace/conference-2022-devoxx/lab-cassandra-drivers
-gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E13_ObjectMappingTest.java
-mvn test -Dtest=com.datastax.devoxx.E13_ObjectMappingTest
+gp open /workspace/conference-2022-devoxx/lab-cassandra-drivers/src/test/java/com/datastax/devoxx/E12_ObjectMappingTest.java
+mvn test -Dtest=com.datastax.devoxx.E12_ObjectMappingTest
 ```
  
 ## 6. Data Modeling
