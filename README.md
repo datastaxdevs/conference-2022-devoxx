@@ -1728,7 +1728,7 @@ mvn test -Dtest=com.datastaxdev.E03_MicronautObjectMappingTest
 - Run integration tests with the following.
  
 ```bash
-/workspace/conference-2022-devoxx/lab-micronaut/
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn test -Dtest=com.datastaxdev.E04_MicronautControllerTest
 ```
  
@@ -1761,7 +1761,7 @@ mvn test -Dtest=com.datastaxdev.E04_MicronautControllerTest
 #### `✅.079` - Start the application
  
 ```bash
-/workspace/conference-2022-devoxx/lab-micronaut/
+cd /workspace/conference-2022-devoxx/lab-micronaut/
 mvn mn:run -DskipTests
 ```
  
