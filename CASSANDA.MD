@@ -188,6 +188,7 @@ describe keyspaces;
 #### `✅.003`- Create table
  
 ```sql
+use cassandra_day;
 CREATE TABLE IF NOT EXISTS sensors_by_network (
     network         TEXT,
     sensor          TEXT,
